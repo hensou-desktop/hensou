@@ -33,6 +33,8 @@ with tempfile.TemporaryDirectory(prefix="hensou-demo-") as temporary:
 output HEADLESS-2 mode 1800x1200 scale 1.5 position 1600 0
 seat seat0 fallback true
 focus_follows_mouse no
+default_border none
+default_floating_border none
 for_window [app_id=\"hensou-demo-tests\"] floating enable
 for_window [title=\"Hensou.*\"] floating enable
 """)
@@ -75,7 +77,12 @@ for_window [title=\"Hensou.*\"] floating enable
                     yield from nodes(child)
 
             def phase(name):
-                if name == "create":
+                if name == "prime-input":
+                    swaymsg('[title="Hensou demo"] move to output HEADLESS-1')
+                    swaymsg('[title="Hensou demo"] move absolute position 0 0')
+                    swaymsg('[title="Hensou demo"] focus')
+                    subprocess.run(["wtype", "-k", "Shift_L"], env=env, check=True)
+                elif name == "create":
                     write(("win98", "light", "on"))
                 elif name == "invalid":
                     write(("unknown", "lig", "bad"))
@@ -94,10 +101,21 @@ for_window [title=\"Hensou.*\"] floating enable
                     swaymsg("output HEADLESS-2 scale 2")
                 elif name == "restore-scale":
                     swaymsg("output HEADLESS-2 scale 1.5")
+                elif name in ("capture-menu-escape", "capture-modal"):
+                    subprocess.run(["grim", "-o", "HEADLESS-1", str(evidence / f"{name}.png")], env=env, check=True)
                 elif name.startswith("capture-"):
+                    swaymsg('[title="Hensou capture"] move to output HEADLESS-2')
+                    swaymsg('[title="Hensou capture"] move absolute position 1600 0')
+                    time.sleep(0.2)  # Finite wait for the native DPR change/frame.
+
                     tree = json.loads(swaymsg("-t", "get_tree"))
                     window = next(node for node in nodes(tree) if node.get("name") == "Hensou capture")
                     rect = window["rect"]
+                    expected = (220, 640) if name.endswith("narrow") else (1000, 180)
+                    assert (rect["width"], rect["height"]) == expected, rect
+                    assert 1600 <= rect["x"] and rect["x"] + rect["width"] <= 2800, rect
+                    assert 0 <= rect["y"] and rect["y"] + rect["height"] <= 800, rect
+                    (evidence / f"{name}.json").write_text(json.dumps({"rect": rect, "scale": 1.5, "source": source}, indent=2) + "\n")
                     geometry = f'{rect["x"]},{rect["y"]} {rect["width"]}x{rect["height"]}'
                     subprocess.run(["grim", "-g", geometry, str(evidence / f"{name}.png")], env=env, check=True)
 

@@ -12,9 +12,9 @@ Loader {
     function takeFocus() { if (item) item.input.forceActiveFocus(); }
     function restore() {
         if (!item) return;
+        if (modelState.focusTarget === "field") takeFocus();
         item.input.cursorPosition = modelState.cursor;
         item.input.select(modelState.selectionStart, modelState.selectionEnd);
-        if (modelState.focusTarget === "field") takeFocus();
         restoring = false;
     }
     Connections {
@@ -28,6 +28,7 @@ Loader {
     Component {
         id: platinum
         PlatinumTextField {
+            Component.onDestruction: root.restoring = true
             text: root.modelState.text
             input.objectName: "editableInput"
             input.Accessible.name: "Editable text"
@@ -36,6 +37,7 @@ Loader {
     Component {
         id: win98
         Win98TextField {
+            Component.onDestruction: root.restoring = true
             text: root.modelState.text
             input.objectName: "editableInput"
             input.Accessible.name: "Editable text"
