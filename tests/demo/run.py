@@ -125,7 +125,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     swaymsg(criterion + " move absolute position 0 0")
                     swaymsg(criterion + " focus")
                     subprocess.run(["wtype", "-k", "Shift_L"], env=env, check=True)
-                elif name == "open-native-menu":
+                elif name in ("open-native-menu", "open-native-dialog"):
                     subprocess.run(["wtype", "-k", "Return"], env=env, check=True)
                 elif name == "close-native-menu":
                     subprocess.run(["wtype", "-k", "Escape"], env=env, check=True)

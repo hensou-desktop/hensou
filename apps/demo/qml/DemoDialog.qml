@@ -1,30 +1,42 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Hensou
 import Hensou.Host
 
-Window {
+Dialog {
     id: root
     required property var owner
     property string message: ""
     property string returnTarget: "dialog"
     title: "Hensou dialog"
-    transientParent: owner
-    modality: Qt.WindowModal
-    flags: Qt.Dialog
+    parent: owner.contentItem
+    popupType: Popup.Window
+    modal: true
+    focus: true
+    closePolicy: Popup.CloseOnEscape
+    padding: PlatinumTokens.menuRightInset
+    header: null
+    footer: null
+    Accessible.name: title
     width: 440
     height: 240
-    minimumWidth: 220
-    minimumHeight: 160
-    color: Theme.name === "win98" ? Win98Tokens.face : PlatinumTokens.menuSurface
+    background: WindowScale {
+        devicePixelRatio: metrics.devicePixelRatio
+        Loader {
+            anchors.fill: parent
+            sourceComponent: Theme.name === "win98" ? win98Frame : platinumFrame
+        }
+        Component { id: win98Frame; Win98Bevel { variant: "window" } }
+        Component { id: platinumFrame; PlatinumBevel { color: PlatinumTokens.menuSurface } }
+    }
     function openFrom(target, text) {
         returnTarget = target;
         message = text;
-        show();
-        requestActivate();
+        open();
         focusCloseTimer.restart();
     }
-    onVisibleChanged: if (!visible && owner && owner.visible) returnFocusTimer.restart()
+    onClosed: if (owner && owner.visible) returnFocusTimer.restart()
     Timer {
         id: focusCloseTimer
         interval: 0
@@ -35,13 +47,11 @@ Window {
         interval: 0
         onTriggered: if (root.owner && root.owner.visible) root.owner.restoreFocus(root.returnTarget)
     }
-    WindowScale {
-        anchors.fill: parent
+    contentItem: WindowScale {
         devicePixelRatio: metrics.devicePixelRatio
         NativeWindowMetrics { id: metrics }
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: PlatinumTokens.menuRightInset
             spacing: PlatinumTokens.menuGap
             Item {
                 Layout.fillWidth: true
@@ -94,6 +104,5 @@ Window {
                 onClicked: root.close()
             }
         }
-        Keys.onEscapePressed: root.close()
     }
 }
