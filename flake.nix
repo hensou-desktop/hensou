@@ -126,7 +126,7 @@
           mesa
           python3
           nodejs
-          sway
+          sway-unwrapped
           grim
           wtype
           jq
@@ -142,7 +142,7 @@
           pkgs.stdenv.cc.cc.lib
         ];
         LIBGL_DRIVERS_PATH = "${pkgs.mesa}/lib/dri";
-        __EGL_VENDOR_LIBRARY_FILENAMES = "${pkgs.mesa}/share/glvnd/egl_vendor.d/50_mesa.json";
+        __EGL_VENDOR_LIBRARY_DIRS = "${pkgs.mesa}/share/glvnd/egl_vendor.d";
         RUSTFLAGS = "-C link-arg=-fuse-ld=lld";
         HENSOU_FONT_DIRECTORY = "${fonts.hensou-fonts}/share/fonts/truetype";
         QMAKE = "${qt}/bin/qmake";
