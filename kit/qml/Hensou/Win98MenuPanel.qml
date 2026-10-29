@@ -324,7 +324,7 @@ Item {
                         enabled: !row.separator
                         hoverEnabled: true
                         onEntered: root.hovered(row.index)
-                        onClicked: root.clicked(row.index)
+                        onClicked: if (!row.header) root.clicked(row.index)
                     }
                 }
             }
