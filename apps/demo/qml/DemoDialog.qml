@@ -10,6 +10,7 @@ Popup {
     property string message: ""
     property string returnTarget: "dialog"
     property string title: "Hensou dialog"
+    ModalInputGuard { ownerWindow: root.owner; active: root.visible && root.modal }
     parent: owner.popupOverlay
     popupType: Popup.Window
     modal: true

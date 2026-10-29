@@ -12,6 +12,7 @@ TestCase {
     height: 32
     property var app: null
     Component { id: appComponent; DemoWindow {} }
+    Component { id: guardComponent; ModalInputGuard {} }
     function init() {
         Theme.name = "platinum";
         Theme.mode = "dark";
@@ -87,6 +88,23 @@ TestCase {
                 if (count > 1) verify(control("fixtureList").view.contentY > 0);
             }
         }
+    }
+    function test_guard_scope_and_detach() {
+        const guard = createTemporaryObject(guardComponent, app, { ownerWindow: app, active: true });
+        const increment = control("incrementButton");
+        mouseClick(increment.item);
+        compare(app.state.clicks, 0);
+        app.showControlsWindow();
+        wait(80);
+        mouseClick(findChild(app.companion, "incrementButton").item);
+        compare(app.state.clicks, 1);
+        guard.ownerWindow = null;
+        mouseClick(increment.item);
+        compare(app.state.clicks, 2);
+        guard.ownerWindow = app;
+        guard.active = false;
+        mouseClick(increment.item);
+        compare(app.state.clicks, 3);
     }
     function test_native_popup_and_modal_focus_return() {
         app.width = 220;
