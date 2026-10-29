@@ -16,6 +16,7 @@ fn main() {
             ])
             .qml_file("qml/LayoutPlan.js"),
     )
+        .qrc("qml/resources.qrc")
     .qt_module("Quick")
         .qt_module("QuickTest")
         .file("src/test_main.rs")

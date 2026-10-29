@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HENSOU_NATIVE_WINDOW_METRICS_H
+#define HENSOU_NATIVE_WINDOW_METRICS_H
 #include <QQuickItem>
 #include <QPointer>
 #include <QFileInfo>
@@ -32,3 +33,5 @@ namespace hensou {
 void watch_theme(HostTheme &theme, const QString &directory);
 bool engine_has_roots(const QQmlApplicationEngine &engine);
 }
+
+#endif
