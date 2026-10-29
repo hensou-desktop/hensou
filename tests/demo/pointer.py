@@ -30,7 +30,10 @@ BTN_RIGHT = 0x111
 
 class Wire:
     def __init__(self):
-        path = os.path.join(os.environ["XDG_RUNTIME_DIR"], os.environ.get("WAYLAND_DISPLAY", "wayland-0"))
+        path = os.path.join(
+            os.environ["XDG_RUNTIME_DIR"],
+            os.environ.get("WAYLAND_DISPLAY", "wayland-0"),
+        )
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.sock.connect(path)
         self.next_id = 2
@@ -86,7 +89,7 @@ def main():
     def on_event(obj, opcode, body):
         if obj == registry and opcode == 0:
             name, length = struct.unpack_from("<II", body)
-            interface = body[8:8 + length - 1].decode()
+            interface = body[8 : 8 + length - 1].decode()
             offset = 8 + length + (-length % 4)
             (version,) = struct.unpack_from("<I", body, offset)
             globals_[interface] = (name, version)
@@ -96,8 +99,13 @@ def main():
     def bind(interface, version):
         name, offered = globals_[interface]
         new = wire.new_id()
-        wire.send(registry, 0, struct.pack("<I", name) + wire.string(interface)
-                  + struct.pack("<II", min(version, offered), new))
+        wire.send(
+            registry,
+            0,
+            struct.pack("<I", name)
+            + wire.string(interface)
+            + struct.pack("<II", min(version, offered), new),
+        )
         return new
 
     seat = bind("wl_seat", 1)

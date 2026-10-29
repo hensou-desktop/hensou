@@ -18,7 +18,6 @@ Dialog {
     padding: PlatinumTokens.menuRightInset
     header: null
     footer: null
-    Accessible.name: title
     width: 440
     height: 240
     background: WindowScale {
@@ -48,6 +47,8 @@ Dialog {
         onTriggered: if (root.owner && root.owner.visible) root.owner.restoreFocus(root.returnTarget)
     }
     contentItem: WindowScale {
+        Accessible.role: Accessible.Dialog
+        Accessible.name: root.title
         devicePixelRatio: metrics.devicePixelRatio
         NativeWindowMetrics { id: metrics }
         ColumnLayout {
