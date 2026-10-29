@@ -6,7 +6,7 @@ mod ffi {
         include!("cxx-qt-lib/qstring.h");
         type QString = cxx_qt_lib::QString;
         include!("test_runner.h");
-        fn run_tests(directory: &QString) -> i32;
+        fn run_tests(directory: &QString, function: &QString) -> i32;
     }
 }
 
@@ -16,5 +16,9 @@ fn main() {
     let directory = std::env::args()
         .nth(1)
         .unwrap_or_else(|| "tests/demo".into());
-    std::process::exit(ffi::run_tests(&QString::from(directory.as_str())));
+    let function = std::env::args().nth(2).unwrap_or_default();
+    std::process::exit(ffi::run_tests(
+        &QString::from(directory.as_str()),
+        &QString::from(function.as_str()),
+    ));
 }

@@ -4,24 +4,24 @@ import QtQuick.Controls
 import Hensou
 import Hensou.Host
 
-Dialog {
+Popup {
     id: root
     required property var owner
     property string message: ""
     property string returnTarget: "dialog"
-    title: "Hensou dialog"
+    property string title: "Hensou dialog"
     parent: owner.contentItem
     popupType: Popup.Window
     modal: true
     focus: true
     closePolicy: Popup.CloseOnEscape
     padding: PlatinumTokens.menuRightInset
-    header: null
-    footer: null
     width: 440
     height: 240
-    x: Math.round((owner.width - width) / 2)
-    y: Math.round((owner.height - height) / 2)
+    readonly property real requestedX: Math.round((owner.width - width) / 2)
+    readonly property real requestedY: Math.round((owner.height - height) / 2)
+    x: requestedX
+    y: requestedY
     background: WindowScale {
         devicePixelRatio: metrics.devicePixelRatio
         Loader {

@@ -5,10 +5,11 @@ void HensouTestSetup::applicationAvailable() {
     if (!hensou::register_fonts(qEnvironmentVariable("HENSOU_FONT_DIRECTORY")))
         qFatal("Cannot register packaged fonts for the demo test");
 }
-int run_tests(const QString &directory) {
-    int argc = 1;
+int run_tests(const QString &directory, const QString &function) {
+    int argc = function.isEmpty() ? 1 : 2;
+    auto encodedFunction = function.toUtf8();
     char name[] = "hensou-demo-tests";
-    char *argv[] = {name, nullptr};
+    char *argv[] = {name, encodedFunction.data(), nullptr};
     HensouTestSetup setup;
     return quick_test_main_with_setup(argc, argv, "hensou-demo", directory.toUtf8().constData(), &setup);
 }

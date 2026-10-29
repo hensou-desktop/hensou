@@ -1,0 +1,7 @@
+[lint]
+select = ["E4", "E7", "E9", "F", "I", "EXE"]
+
+[lint.per-file-ignores]
+# Nix chooses Python on line 2. Keep the hermetic launcher and both directives.
+"run.py" = ["EXE003", "EXE005"]
+"pointer.py" = ["EXE003", "EXE005"]
