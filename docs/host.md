@@ -66,8 +66,10 @@ Switching drawing restores that state and semantic keyboard focus.
 The Increment action changes a local count. More supplies empty/one/many
 fixtures, disabled inputs, a native modal dialog and a second controls window.
 Enter on a list row opens its complete label, including unbroken long labels.
-The popup uses `Popup.Window`, not a clipped in-item menu. The dialog uses
-`Qt.WindowModal` with a real transient parent. Closing either returns focus.
+The popup uses `Popup.Window`, not a clipped in-item menu. The modal dialog uses the standard Qt Quick Controls `Dialog` with
+`Popup.Window`, a real native popup/grab and `modal: true`. A custom
+QQuickWindow/WindowModal blocked pointer actions but could leave Sway focus on
+the parent. The standard dialog avoids that keyboard trap. Closing either returns focus.
 
 `LayoutPlan.js` owns the guessed container fit thresholds. Narrow-tall stacks
 controls. Wide-short puts the form beside the list. At very small sizes the
