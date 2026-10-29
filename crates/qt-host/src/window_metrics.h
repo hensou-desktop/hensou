@@ -32,7 +32,6 @@ private:
 namespace hensou {
 void watch_theme(HostTheme &theme, const QString &directory);
 bool engine_has_roots(const QQmlApplicationEngine &engine);
-bool register_fonts(const QString &directory);
 }
 
 #endif
