@@ -22,5 +22,6 @@ fn main() {
         .file("src/test_main.rs")
         .include_dir("src")
         .cpp_file("src/test_runner.cpp")
+        .cpp_file("src/test_runner.h")
     .build();
 }

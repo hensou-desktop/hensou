@@ -1,6 +1,7 @@
 #include "window_metrics.h"
 #include "hensou-qt-host/src/theme.cxxqt.h"
 #include <QDir>
+#include <QFontDatabase>
 #include <QEvent>
 #include <QFileSystemWatcher>
 #include <QQuickWindow>
@@ -34,6 +35,18 @@ bool WindowMetrics::eventFilter(QObject *object, QEvent *event) {
 
 namespace hensou {
 bool engine_has_roots(const QQmlApplicationEngine &engine) { return !engine.rootObjects().isEmpty(); }
+bool register_fonts(const QString &directory) {
+    const QStringList files = {"ChicagoFLF.ttf", "W95FAGrid.ttf"};
+    const QStringList families = {"ChicagoFLF", "W95FA Grid"};
+    for (qsizetype i = 0; i < files.size(); ++i) {
+        const int id = QFontDatabase::addApplicationFont(directory + '/' + files[i]);
+        if (id < 0 || !QFontDatabase::applicationFontFamilies(id).contains(families[i])) {
+            qCritical() << "Cannot register packaged Hensou font" << files[i];
+            return false;
+        }
+    }
+    return true;
+}
 
 void watch_theme(HostTheme &theme, const QString &directory) {
     // Parent-owned native watchers have no detached thread or shutdown race.
