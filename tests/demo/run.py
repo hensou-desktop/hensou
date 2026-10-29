@@ -19,7 +19,7 @@ from protocol_trace import summarize
 assert os.uname().nodename.split(".")[0] == "aka"
 packaged = len(sys.argv) > 3 and sys.argv[3] == "--packaged"
 source = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-evidence = Path("/tmp/hensou-foundation-416d014746da/evidence") / f"demo-{source}"
+evidence = Path("/tmp/hensou-foundation-416d014746da/evidence") / f"demo-{source}{'-packaged' if packaged else ''}"
 evidence.mkdir(parents=True, exist_ok=True)
 (evidence / "source.json").write_text(
     json.dumps(
@@ -27,6 +27,12 @@ evidence.mkdir(parents=True, exist_ok=True)
             "hensou": source,
             "mountainous_baseline": "a905fd62309a3027a654ce01a504d54540dc7f6a",
             "hostname": "aka",
+            "sway_version": subprocess.check_output(["sway", "--version"], text=True).strip(),
+            "declared_renderer": {
+                "compositor": "gles2", "client": "OpenGL RHI", "software": "Mesa llvmpipe",
+                "egl_vendor": os.environ.get("__EGL_VENDOR_LIBRARY_FILENAMES"),
+                "dri_path": os.environ.get("LIBGL_DRIVERS_PATH"),
+            },
         },
         indent=2,
     )
@@ -44,7 +50,9 @@ with tempfile.TemporaryDirectory(prefix="hensou-demo-") as temporary:
         "WLR_BACKENDS": "headless",
         "WLR_HEADLESS_OUTPUTS": "2",
         "WLR_LIBINPUT_NO_DEVICES": "1",
-        "WLR_RENDERER": "pixman",
+        "WLR_RENDERER": "gles2",
+        "WLR_RENDERER_ALLOW_SOFTWARE": "1",
+        "LP_NUM_THREADS": "2",
         "QT_QPA_PLATFORM": "wayland",
         "LIBGL_ALWAYS_SOFTWARE": "1",
         "QSG_RHI_BACKEND": "opengl",
@@ -272,10 +280,26 @@ for_window [title=\"Hensou.*\"] floating enable
 
             for traced in (True, False):
                 test_env = env | ({"WAYLAND_DEBUG": "client"} if traced else {})
-                arguments = ["timeout", "--kill-after=5", "120", sys.argv[1], str(Path("tests/demo").resolve())]
+                arguments = [
+                    "timeout",
+                    "--kill-after=5",
+                    "120",
+                    sys.argv[1],
+                    str(Path("tests/demo").resolve()),
+                ]
                 if traced:
-                    arguments.append("StandaloneDemo::test_native_popup_and_modal_focus_return")
-                tests = subprocess.Popen(arguments, env=test_env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, start_new_session=True, close_fds=True)
+                    arguments.append(
+                        "StandaloneDemo::test_native_popup_and_modal_focus_return"
+                    )
+                tests = subprocess.Popen(
+                    arguments,
+                    env=test_env,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    start_new_session=True,
+                    close_fds=True,
+                )
                 filename = "wayland-modal.trace" if traced else "tests.log"
                 with (evidence / filename).open("w") as log:
                     for line in tests.stdout:
@@ -287,27 +311,47 @@ for_window [title=\"Hensou.*\"] floating enable
                         if match:
                             if traced and match[1].startswith("block-parent-"):
                                 summary = summarize((evidence / filename).read_text())
-                                modal = [key for key, value in summary["popups"].items() if value["phase"] == "open-native-dialog"]
+                                modal = [
+                                    key
+                                    for key, value in summary["popups"].items()
+                                    if value["phase"] == "open-native-dialog"
+                                ]
                                 if modal:
                                     bounds = summary["geometry"].get(modal[-1])
                                     if bounds:
                                         px, py = map(int, match[1].split("-")[-2:])
                                         dx, dy, dw, dh = bounds
-                                        assert not (dx <= px < dx + dw and dy <= py < dy + dh), bounds
-                                        print(f"NATIVE_POPUP_UNCOVERED rect={bounds} target={px},{py}", flush=True)
+                                        assert not (
+                                            dx <= px < dx + dw and dy <= py < dy + dh
+                                        ), bounds
+                                        print(
+                                            f"NATIVE_POPUP_UNCOVERED rect={bounds} target={px},{py}",
+                                            flush=True,
+                                        )
                             phase(match[1])
                 code = tests.wait(timeout=120)
                 if traced:
                     summary = summarize((evidence / filename).read_text())
-                    (evidence / "wayland-modal.json").write_text(json.dumps(summary, indent=2) + "\n")
+                    (evidence / "wayland-modal.json").write_text(
+                        json.dumps(summary, indent=2) + "\n"
+                    )
                 if code:
                     raise SystemExit(code)
                 if traced:
-                    modal = [key for key, value in summary["popups"].items() if value["phase"] == "open-native-dialog"]
+                    modal = [
+                        key
+                        for key, value in summary["popups"].items()
+                        if value["phase"] == "open-native-dialog"
+                    ]
                     assert modal, "No native xdg_popup role for the modal dialog"
                     modal = modal[-1]
-                    assert any(item["popup"] == modal for item in summary["grabs"]), "No native dialog grab"
-                    assert any(item["surface"] == summary["popups"][modal]["surface"] for item in summary["keyboard_enters"]), "No keyboard.enter for the native dialog surface"
+                    assert any(item["popup"] == modal for item in summary["grabs"]), (
+                        "No native dialog grab"
+                    )
+                    assert any(
+                        item["surface"] == summary["popups"][modal]["surface"]
+                        for item in summary["keyboard_enters"]
+                    ), "No keyboard.enter for the native dialog surface"
                     print("NATIVE_POPUP_ROLE_GRAB_KEYBOARD=PASS", flush=True)
             print(f"DEMO_EVIDENCE={evidence}")
             main_binary = (
