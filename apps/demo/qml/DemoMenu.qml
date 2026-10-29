@@ -39,7 +39,7 @@ Popup {
         devicePixelRatio: metrics.devicePixelRatio
         implicitWidth: panel.item ? panel.item.implicitWidth : 0
         implicitHeight: panel.item ? panel.item.implicitHeight : 0
-        WindowMetrics { id: metrics }
+        NativeWindowMetrics { id: metrics }
         Keys.onPressed: function(event) {
             if (event.key === Qt.Key_Down || event.key === Qt.Key_Up) {
                 const direction = event.key === Qt.Key_Down ? 1 : -1;
