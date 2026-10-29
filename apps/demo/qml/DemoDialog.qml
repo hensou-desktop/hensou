@@ -33,11 +33,47 @@ Window {
             anchors.fill: parent
             anchors.margins: PlatinumTokens.menuRightInset
             spacing: PlatinumTokens.menuGap
-            DemoLabel {
-                text: root.message
-                wrap: true
+            Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                Flickable {
+                    id: document
+                    objectName: "dialogDocument"
+                    anchors.fill: parent
+                    contentWidth: width
+                    contentHeight: messageLabel.implicitHeight
+                    boundsBehavior: Flickable.StopAtBounds
+                    clip: true
+                    activeFocusOnTab: true
+                    Keys.onPressed: function(event) {
+                        let next = contentY;
+                        if (event.key === Qt.Key_End) next = contentHeight;
+                        else if (event.key === Qt.Key_Home) next = 0;
+                        else if (event.key === Qt.Key_Down || event.key === Qt.Key_PageDown) next += height / 2;
+                        else if (event.key === Qt.Key_Up || event.key === Qt.Key_PageUp) next -= height / 2;
+                        else return;
+                        contentY = Math.max(0, Math.min(next, contentHeight - height));
+                        event.accepted = true;
+                    }
+                    DemoLabel {
+                        id: messageLabel
+                        objectName: "dialogMessage"
+                        width: document.width - (scrollbar.active ? scrollbar.width : 0)
+                        height: implicitHeight
+                        text: root.message
+                        wrap: true
+                    }
+                }
+                Loader {
+                    id: scrollbar
+                    anchors.right: parent.right
+                    height: parent.height
+                    width: item ? item.implicitWidth : 0
+                    active: document.contentHeight > document.height
+                    sourceComponent: Theme.name === "win98" ? win98Bar : platinumBar
+                }
+                Component { id: platinumBar; PlatinumScrollBar { flickable: document } }
+                Component { id: win98Bar; Win98ScrollBar { flickable: document } }
             }
             DemoButton {
                 id: closeButton
