@@ -105,13 +105,15 @@ for_window [title=\"Hensou.*\"] floating enable
                 for child in node.get("nodes", []) + node.get("floating_nodes", []):
                     yield from nodes(child)
 
-            def wait_window(title):
+            def wait_window(title, size=None):
                 deadline = time.monotonic() + 5
                 while time.monotonic() < deadline:
                     tree = json.loads(swaymsg("-t", "get_tree"))
                     matches = [node for node in nodes(tree) if node.get("name") == title and node.get("shell") == "xdg_shell"]
                     if matches:
-                        return max(matches, key=lambda node: node["id"])
+                        window = max(matches, key=lambda node: node["id"])
+                        if size is None or (window["rect"]["width"], window["rect"]["height"]) == size:
+                            return window
                     time.sleep(0.05)
                 raise TimeoutError(f"Wayland window {title!r} did not map; titles={[node.get('name') for node in nodes(tree)]}")
 
@@ -127,8 +129,13 @@ for_window [title=\"Hensou.*\"] floating enable
                     subprocess.run(["wtype", "-k", "Return"], env=env, check=True)
                 elif name == "close-native-menu":
                     subprocess.run(["wtype", "-k", "Escape"], env=env, check=True)
-                elif name.startswith("block-parent-"):
-                    _, _, x, y = name.split("-")
+                elif name.startswith(("block-parent-", "parent-click-")):
+                    x, y = map(int, name.split("-")[-2:])
+                    window = wait_window("Hensou demo", size=(640, 480))
+                    rect = window["rect"]
+                    x += rect["x"]
+                    y += rect["y"]
+                    print(f"REAL_PARENT_CLICK phase={name} layout={x},{y} native_rect={rect}", flush=True)
                     pointer_command(f"move {x} {y}")
                     pointer_command("click")
                 elif name == "close-native-dialog":

@@ -107,6 +107,11 @@ TestCase {
         compare(button.item.activeFocus, true);
         app.width = 640; app.height = 480;
         wait(30);
+        const increment = control("incrementButton");
+        const point = increment.mapToItem(app.contentItem, increment.width / 2, increment.height / 2);
+        const before = app.state.clicks;
+        console.log("HENSOU_PHASE parent-click-" + Math.round(point.x) + "-" + Math.round(point.y));
+        tryCompare(app.state, "clicks", before + 1);
         const dialogButton = control("dialogButton");
         dialogButton.takeFocus();
         keyClick(Qt.Key_Return);
@@ -116,8 +121,6 @@ TestCase {
         console.log("HENSOU_PHASE capture-modal");
         wait(100);
         const clicks = app.state.clicks;
-        const increment = control("incrementButton");
-        const point = increment.mapToGlobal(increment.width / 2, increment.height / 2);
         console.log("HENSOU_PHASE block-parent-" + Math.round(point.x) + "-" + Math.round(point.y));
         wait(150);
         compare(app.state.clicks, clicks);
