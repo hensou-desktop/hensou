@@ -21,12 +21,12 @@ with tempfile.TemporaryDirectory(prefix="hensou-demo-") as temporary:
     runtime = base / "runtime"
     runtime.mkdir(mode=0o700)
     state = base / "state" / "mountainous"
+    os.environ.pop("FONTCONFIG_FILE", None)
     env = os.environ | {
         "XDG_RUNTIME_DIR": str(runtime), "XDG_STATE_HOME": str(base / "state"),
         "WLR_BACKENDS": "headless", "WLR_HEADLESS_OUTPUTS": "2", "WLR_LIBINPUT_NO_DEVICES": "1",
         "WLR_RENDERER": "pixman", "QT_QPA_PLATFORM": "wayland", "QT_QUICK_BACKEND": "software",
         "QT_WAYLAND_DISABLE_WINDOWDECORATION": "1", "QML_DISABLE_DISK_CACHE": "1",
-        "FONTCONFIG_FILE": "/tmp/hensou-foundation-416d014746da/tools/fonts.conf",
     }
     config = base / "sway.conf"
     config.write_text("""output HEADLESS-1 mode 1600x1000 scale 1 position 0 0

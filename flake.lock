@@ -18,7 +18,35 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "chicagoflf-src": "chicagoflf-src",
+        "w95fa-src": "w95fa-src"
+      }
+    },
+    "chicagoflf-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1400766801,
+        "narHash": "sha256-eWA31QVZC8R1gw3/c6M2ooYDxcgD9lxdC8h9Wifrd7M=",
+        "type": "tarball",
+        "url": "https://fontlibrary.org/assets/downloads/chicagoflf/a2e4a3d14e40fa7076a0a1bc06f3de43/chicagoflf.zip"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://fontlibrary.org/assets/downloads/chicagoflf/a2e4a3d14e40fa7076a0a1bc06f3de43/chicagoflf.zip"
+      }
+    },
+    "w95fa-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1578028708,
+        "narHash": "sha256-eobn+Bvy0U6eRGOVCoTXpRTPKPZPCrlJlHRNxiyoizY=",
+        "type": "tarball",
+        "url": "https://fontsarena.com/wp-content/uploads/2020/01/W95FA.zip"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://fontsarena.com/wp-content/uploads/2020/01/W95FA.zip"
       }
     }
   },

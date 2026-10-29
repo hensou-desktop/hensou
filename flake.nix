@@ -3,8 +3,17 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
 
+  inputs.chicagoflf-src = {
+    url = "https://fontlibrary.org/assets/downloads/chicagoflf/a2e4a3d14e40fa7076a0a1bc06f3de43/chicagoflf.zip";
+    flake = false;
+  };
+  inputs.w95fa-src = {
+    url = "https://fontsarena.com/wp-content/uploads/2020/01/W95FA.zip";
+    flake = false;
+  };
+
   outputs =
-    { self, nixpkgs }:
+    { self, nixpkgs, chicagoflf-src, w95fa-src }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
@@ -15,6 +24,7 @@
         mkdir -p $out/lib/qt-6/qml
         cp -R ${./kit/qml}/Hensou $out/lib/qt-6/qml/Hensou
       '';
+      fonts = import ./nix/fonts.nix { inherit pkgs chicagoflf-src w95fa-src; };
       source = pkgs.lib.cleanSource self;
       tools = pkgs.rustPlatform.buildRustPackage {
         pname = "hensou-xtask";
@@ -37,6 +47,7 @@
         buildInputs = [ qt ];
         QMAKE = "${qt}/bin/qmake";
         qtWrapperArgs = [
+          "--set" "HENSOU_FONT_DIRECTORY" "${fonts.hensou-fonts}/share/fonts/truetype"
           "--set" "HENSOU_QML_IMPORT_PATH" "${kit}/lib/qt-6/qml"
           "--prefix" "QML_IMPORT_PATH" ":" "${kit}/lib/qt-6/qml"
         ];
@@ -50,6 +61,7 @@
     in
     {
       packages.${system} = {
+        inherit (fonts) chicagoflf w95fa-grid hensou-fonts;
         hensou-qml = kit;
         hensou-demo = demo;
         hensou-xtask = tools;
@@ -61,6 +73,7 @@
           cargo rustc rustfmt clippy pkg-config cmake ninja qt
           python3 nodejs sway grim wtype jq
         ];
+        HENSOU_FONT_DIRECTORY = "${fonts.hensou-fonts}/share/fonts/truetype";
         QMAKE = "${qt}/bin/qmake";
         QT_PLUGIN_PATH = "${qt}/lib/qt-6/plugins";
         QML_IMPORT_PATH = "${qt}/lib/qt-6/qml";
