@@ -1,6 +1,8 @@
 # Delivery phases
 
-Only phase 0 is covered by this scaffold. Every later phase ends with a buildable revision, review and verification of the deployed result. Do not change the running shell as part of repository setup.
+Phase 0 created the scaffold. Phase 1 builds the kit, standalone demo and unchanged-shell integration. Every phase ends with a buildable revision, review and deployment evidence where authorized.
+
+All compilation, Nix evaluation/builds, test suites, VM tests and headless rendering run on Aka under one shared heavy-job lock. Local machines edit and coordinate. Myoko only receives finished closures and runs light deployment checks. No local-build fallback is allowed. Never run aggregate flake checks.
 
 ## Phase 0: repository scaffold
 
@@ -14,11 +16,11 @@ Extract plain Qt Quick drawing and tokens from Mountainous. Add the Rust/Qt temp
 
 Verify both existing themes and all five appearances against baseline shell screenshots. The full shell lifecycle tests must pass. Deploy through Mountainous with rollback available. No visible change is intended.
 
-## Phase 2: Pyxamp migration
+## Foundation proof: standalone demo
 
-Import the existing app with its history and license notices. Move its face onto the shared kit. Extract library clients only with the consumer changes and fixture tests needed to prove parity. Keep playback behavior intact.
+Phase 1 includes a normal Rust/Qt demo as an independent kit consumer. Exercise real controls and fixture state, live switching, keyboard access, popup hosts and per-window scale. It contacts no backend services.
 
-Review, build and deploy before Files depends on this runtime.
+Pyxamp stays in its own repository. Hensou does not import its history, face, playback behavior or service clients. Pyxamp can adopt the kit later without blocking Files.
 
 ## Phase 3: Files local and SSH
 

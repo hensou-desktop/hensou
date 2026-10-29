@@ -2,7 +2,7 @@
 
 Hensou is a shared desktop kit and app workspace for Linux. Rust apps use Qt Quick through cxx-qt and share their theme drawing with the Quickshell desktop shell.
 
-**This repository is a scaffold.** The workspace checks build and run. The QML kit, Files and Pyxamp migration are not implemented yet. No running desktop has changed.
+**This repository is a scaffold.** The workspace checks build and run. The QML kit and Files are not implemented yet. Pyxamp stays in its own repository and is not part of this monorepo. No running desktop has changed.
 
 ## Work locally
 
@@ -23,7 +23,6 @@ Without Nix, rustup reads rust-toolchain.toml. Run cargo xtask check from the re
 | kit/qml/Hensou | Shared theme state, tokens and controls | Planned |
 | crates | Shared Rust runtime and library clients | Planned |
 | apps/files | Local and SSH file manager | Planned |
-| apps/pyxamp | Existing player migration | Planned; original repository unchanged |
 | tools/xtask | Formatting, Clippy and workspace tests | Runnable |
 | docs | Architecture, design and delivery phases | Written |
 

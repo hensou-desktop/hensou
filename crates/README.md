@@ -1,5 +1,5 @@
 # Shared Rust code
 
-Create a crate only when a working consumer needs it. Planned responsibilities are the cxx-qt app runtime, theme-state input, external process integration where required, and service catalog clients.
+Create a crate only when a working consumer needs it. Shared responsibilities are Rust/Qt hosting, theme-state input and generic desktop integration required by real consumers.
 
-No runtime or client crates exist yet. Shared crates must not import Files or Pyxamp. Preserve licenses and tests when extracting existing code.
+No runtime crates exist yet. Shared crates must not import app-specific behavior. Media playback, authentication and service clients stay outside the generic kit. Preserve licenses and tests when extracting existing code.
