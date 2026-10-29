@@ -14,6 +14,7 @@ import tempfile
 import time
 
 assert os.uname().nodename.split(".")[0] == "aka"
+packaged = len(sys.argv) > 3 and sys.argv[3] == "--packaged"
 source = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
 evidence = Path("/tmp/hensou-foundation-416d014746da/evidence") / f"demo-{source}"
 evidence.mkdir(parents=True, exist_ok=True)
@@ -30,6 +31,9 @@ with tempfile.TemporaryDirectory(prefix="hensou-demo-") as temporary:
         "WLR_RENDERER": "pixman", "QT_QPA_PLATFORM": "wayland", "QT_QUICK_BACKEND": "software",
         "QT_WAYLAND_DISABLE_WINDOWDECORATION": "1", "QML_DISABLE_DISK_CACHE": "1",
     }
+    if packaged:
+        for variable in ("LD_LIBRARY_PATH", "QML_IMPORT_PATH", "QML2_IMPORT_PATH", "QT_PLUGIN_PATH", "QT_QPA_PLATFORM_PLUGIN_PATH", "HENSOU_QML_IMPORT_PATH", "HENSOU_FONT_DIRECTORY"):
+            env.pop(variable, None)
     config = base / "sway.conf"
     config.write_text("""output HEADLESS-1 mode 1600x1000 scale 1 position 0 0
 output HEADLESS-2 mode 1800x1200 scale 1.5 position 1600 0
@@ -45,6 +49,7 @@ for_window [title=\"Hensou.*\"] floating enable
         tests = None
         keyboard = None
         pointer = None
+        main = None
         try:
             deadline = time.monotonic() + 15
             while time.monotonic() < deadline:
@@ -180,8 +185,28 @@ for_window [title=\"Hensou.*\"] floating enable
             print(f"DEMO_EVIDENCE={evidence}")
             if code:
                 raise SystemExit(code)
+            main_binary = Path(sys.argv[2]) if len(sys.argv) > 2 else Path(sys.argv[1]).with_name("hensou-demo")
+            with (evidence / "main.log").open("w") as main_log:
+                main = subprocess.Popen([str(main_binary)], env=env, stdout=main_log, stderr=subprocess.STDOUT, start_new_session=True, close_fds=True)
+                window = wait_window("Hensou demo")
+                criterion = f'[con_id={window["id"]}]'
+                swaymsg(criterion + " move to output HEADLESS-1")
+                swaymsg(criterion + " move absolute position 0 0")
+                swaymsg(criterion + " focus")
+                subprocess.run(["wtype", "-M", "ctrl", "-k", "a", "-m", "ctrl", "packaged draft"], env=env, check=True)
+                pointer_command("move 80 35")
+                pointer_command("click")
+                write(("platinum", "dark", "on"), atomic=True)
+                time.sleep(0.3)  # Finite wait for the real host's theme reload/frame.
+                if main.poll() is not None:
+                    raise RuntimeError("the actual demo exited during startup/interaction")
+                window = wait_window("Hensou demo")
+                rect = window["rect"]
+                geometry = f'{rect["x"]},{rect["y"]} {rect["width"]}x{rect["height"]}'
+                subprocess.run(["grim", "-g", geometry, str(evidence / "main-interactive.png")], env=env, check=True)
+                print(f"MAIN_READY executable={main_binary} clean_runtime={packaged} source={source}")
         finally:
-            for process in (tests, keyboard, pointer, sway):
+            for process in (main, tests, keyboard, pointer, sway):
                 if process is None or process.poll() is not None:
                     continue
                 os.killpg(process.pid, signal.SIGTERM)
