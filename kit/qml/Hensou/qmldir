@@ -33,3 +33,4 @@ Win98LevelBar 1.0 Win98LevelBar.qml
 singleton Theme 1.0 Theme.qml
 WindowScale 1.0 WindowScale.qml
 singleton WindowMetrics 1.0 WindowMetrics.qml
+Win98Dither 1.0 Win98Dither.qml
