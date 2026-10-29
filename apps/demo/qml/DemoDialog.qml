@@ -35,13 +35,11 @@ Dialog {
         returnTarget = target;
         message = text;
         open();
-        focusCloseTimer.restart();
     }
     onClosed: if (owner && owner.visible) returnFocusTimer.restart()
-    Timer {
-        id: focusCloseTimer
-        interval: 0
-        onTriggered: if (root.visible) closeButton.takeFocus()
+    onOpened: {
+        contentItem.forceActiveFocus();
+        closeButton.takeFocus();
     }
     Timer {
         id: returnFocusTimer
@@ -51,6 +49,7 @@ Dialog {
     contentItem: WindowScale {
         Accessible.role: Accessible.Dialog
         Accessible.name: root.title
+        Keys.onEscapePressed: root.close()
         devicePixelRatio: metrics.devicePixelRatio
         NativeWindowMetrics { id: metrics }
         ColumnLayout {
