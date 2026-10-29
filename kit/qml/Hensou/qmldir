@@ -1,0 +1,35 @@
+module Hensou
+singleton PlatinumTokens 1.0 PlatinumTokens.qml
+singleton PlatinumMetrics 1.0 PlatinumMetrics.qml
+PlatinumBevel 1.0 PlatinumBevel.qml
+PlatinumButton 1.0 PlatinumButton.qml
+PlatinumCheckBox 1.0 PlatinumCheckBox.qml
+PlatinumTextField 1.0 PlatinumTextField.qml
+PlatinumScrollBar 1.0 PlatinumScrollBar.qml
+PlatinumMenuList 1.0 PlatinumMenuList.qml
+PlatinumMenuListRow 1.0 PlatinumMenuListRow.qml
+PlatinumMenuFrame 1.0 PlatinumMenuFrame.qml
+PlatinumDialogFrame 1.0 PlatinumDialogFrame.qml
+PlatinumIcon 1.0 PlatinumIcon.qml
+singleton PlatinumIconStore 1.0 PlatinumIconStore.qml
+singleton Win98Tokens 1.0 Win98Tokens.qml
+Win98Bevel 1.0 Win98Bevel.qml
+Win98Button 1.0 Win98Button.qml
+Win98CheckBox 1.0 Win98CheckBox.qml
+Win98TextField 1.0 Win98TextField.qml
+Win98ListView 1.0 Win98ListView.qml
+Win98ListRow 1.0 Win98ListRow.qml
+Win98ScrollBar 1.0 Win98ScrollBar.qml
+Win98MenuPanel 1.0 Win98MenuPanel.qml
+Win98Window 1.0 Win98Window.qml
+Win98CaptionButton 1.0 Win98CaptionButton.qml
+Win98Text 1.0 Win98Text.qml
+Win98Svg 1.0 Win98Svg.qml
+Win98FocusRect 1.0 Win98FocusRect.qml
+Win98Icon 1.0 Win98Icon.qml
+singleton Win98IconStore 1.0 Win98IconStore.qml
+Win98Separator 1.0 Win98Separator.qml
+Win98LevelBar 1.0 Win98LevelBar.qml
+singleton Theme 1.0 Theme.qml
+WindowScale 1.0 WindowScale.qml
+singleton WindowMetrics 1.0 WindowMetrics.qml
