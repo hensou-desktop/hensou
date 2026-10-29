@@ -1,0 +1,6 @@
+/target/
+/.worktree/
+/.direnv/
+/result
+/result-*
+*.user
