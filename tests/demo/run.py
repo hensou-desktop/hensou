@@ -14,6 +14,8 @@ import tempfile
 import time
 from pathlib import Path
 
+from protocol_trace import summarize
+
 assert os.uname().nodename.split(".")[0] == "aka"
 packaged = len(sys.argv) > 3 and sys.argv[3] == "--packaged"
 source = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
@@ -268,32 +270,46 @@ for_window [title=\"Hensou.*\"] floating enable
                         check=True,
                     )
 
-            tests = subprocess.Popen(
-                [
-                    "timeout",
-                    "--kill-after=5",
-                    "120",
-                    sys.argv[1],
-                    str(Path("tests/demo").resolve()),
-                ],
-                env=env,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                start_new_session=True,
-                close_fds=True,
-            )
-            with (evidence / "tests.log").open("w") as log:
-                for line in tests.stdout:
-                    print(line, end="", flush=True)
-                    log.write(line)
-                    match = re.search(r"HENSOU_PHASE ([\w-]+)", line)
-                    if match:
-                        phase(match[1])
-            code = tests.wait(timeout=120)
+            for traced in (True, False):
+                test_env = env | ({"WAYLAND_DEBUG": "client"} if traced else {})
+                arguments = ["timeout", "--kill-after=5", "120", sys.argv[1], str(Path("tests/demo").resolve())]
+                if traced:
+                    arguments.append("StandaloneDemo::test_native_popup_and_modal_focus_return")
+                tests = subprocess.Popen(arguments, env=test_env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, start_new_session=True, close_fds=True)
+                filename = "wayland-modal.trace" if traced else "tests.log"
+                with (evidence / filename).open("w") as log:
+                    for line in tests.stdout:
+                        if not traced or not line.lstrip().startswith("["):
+                            print(line, end="", flush=True)
+                        log.write(line)
+                        log.flush()
+                        match = re.search(r"HENSOU_PHASE ([\w-]+)", line)
+                        if match:
+                            if traced and match[1].startswith("block-parent-"):
+                                summary = summarize((evidence / filename).read_text())
+                                modal = [key for key, value in summary["popups"].items() if value["phase"] == "open-native-dialog"]
+                                if modal:
+                                    bounds = summary["geometry"].get(modal[-1])
+                                    if bounds:
+                                        px, py = map(int, match[1].split("-")[-2:])
+                                        dx, dy, dw, dh = bounds
+                                        assert not (dx <= px < dx + dw and dy <= py < dy + dh), bounds
+                                        print(f"NATIVE_POPUP_UNCOVERED rect={bounds} target={px},{py}", flush=True)
+                            phase(match[1])
+                code = tests.wait(timeout=120)
+                if traced:
+                    summary = summarize((evidence / filename).read_text())
+                    (evidence / "wayland-modal.json").write_text(json.dumps(summary, indent=2) + "\n")
+                if code:
+                    raise SystemExit(code)
+                if traced:
+                    modal = [key for key, value in summary["popups"].items() if value["phase"] == "open-native-dialog"]
+                    assert modal, "No native xdg_popup role for the modal dialog"
+                    modal = modal[-1]
+                    assert any(item["popup"] == modal for item in summary["grabs"]), "No native dialog grab"
+                    assert any(item["surface"] == summary["popups"][modal]["surface"] for item in summary["keyboard_enters"]), "No keyboard.enter for the native dialog surface"
+                    print("NATIVE_POPUP_ROLE_GRAB_KEYBOARD=PASS", flush=True)
             print(f"DEMO_EVIDENCE={evidence}")
-            if code:
-                raise SystemExit(code)
             main_binary = (
                 Path(sys.argv[2])
                 if len(sys.argv) > 2
