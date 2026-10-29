@@ -12,9 +12,9 @@ QtObject {
         // Existing shell's out-of-window fallback. Hosts must supply a provider.
         return 1.5;
     }
-    function iconSource(item, name) {
+    function iconSource(item, name, checkOnly) {
         for (let p = item; p; p = p.parent) {
-            if (p.hensouIconResolver) return p.hensouIconResolver(name);
+            if (p.hensouIconResolver) return p.hensouIconResolver(name, checkOnly === true);
         }
         return "";
     }

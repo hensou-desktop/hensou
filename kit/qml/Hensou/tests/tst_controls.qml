@@ -170,6 +170,55 @@ TestCase {
         verify(!label.truncated);
         label.destroy();
     }
+    function test_platinum_extended_navigation_and_reveal() {
+        for (const count of [0, 1, 100]) {
+            const list = Qt.createQmlObject('import QtQuick; import Hensou; PlatinumMenuList { width: 200; height: 100; delegate: Item { width: 200; height: 20 } }', first, "navigationList");
+            list.model = count;
+            tryCompare(list, "count", count);
+            list.view.forceActiveFocus();
+            keyClick(Qt.Key_End);
+            tryCompare(list, "currentIndex", count - 1);
+            if (count > 0) {
+                tryVerify(() => list.view.currentItem !== null);
+                waitForRendering(list);
+                verify(list.view.currentItem.y >= list.view.contentY);
+                verify(list.view.currentItem.y + list.view.currentItem.height <= list.view.contentY + list.view.height);
+                keyClick(Qt.Key_Home);
+                compare(list.currentIndex, 0);
+                keyClick(Qt.Key_PageDown);
+                compare(list.currentIndex, Math.min(count - 1, 4));
+                keyClick(Qt.Key_PageUp);
+                compare(list.currentIndex, 0);
+                list.extendedNavigationEnabled = false;
+                keyClick(Qt.Key_End);
+                compare(list.currentIndex, 0, "legacy shell does not gain a child End handler");
+                list.enabled = false;
+                keyClick(Qt.Key_PageDown);
+                compare(list.currentIndex, 0);
+            }
+            list.destroy();
+        }
+    }
+    function test_icon_resolver_missing_menu_and_app_fallback() {
+        const requests = [];
+        const fallback = PlatinumIconStore.url("folder", "#000000", "transparent");
+        first.iconResolver = (name, checkOnly) => {
+            requests.push({name: name, checkOnly: checkOnly});
+            return checkOnly ? "" : fallback;
+        };
+        const menu = Qt.createQmlObject('import QtQuick; import Hensou; Win98MenuPanel {}', first, "missingIconMenu");
+        menu.items = [{text: "Unknown app", themeIcon: "missing-application"}];
+        waitForRendering(menu);
+        const glyph = findChild(menu, "menuGlyph0");
+        verify(glyph !== null);
+        compare(glyph.name, "doc", "missing menu art keeps the built-in document glyph");
+        const icon = Qt.createQmlObject('import QtQuick; import Hensou; Win98Icon { name: "theme:missing-application" }', first, "missingAppIcon");
+        waitForRendering(icon);
+        verify(requests.some(request => request.name === "missing-application" && request.checkOnly === true));
+        verify(requests.some(request => request.name === "missing-application" && request.checkOnly === false));
+        first.iconResolver = null;
+        menu.destroy(); icon.destroy();
+    }
     function test_resources_relocated() {
         verify(PlatinumIconStore.url("check", "#ffffff", "transparent").startsWith("data:image/svg+xml;utf8,"));
         verify(Win98IconStore.url("check", "#ffffff").startsWith("data:image/svg+xml;utf8,"));

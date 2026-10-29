@@ -10,6 +10,7 @@ Item {
     Accessible.name: ""
 
 
+    property bool extendedNavigationEnabled: true
     activeFocusOnTab: enabled
     signal activated(int index)
     property alias view: list
@@ -30,6 +31,20 @@ Item {
         anchors.fill: parent
         clip: true
         focus: true
+        Keys.onPressed: event => {
+            if (!root.extendedNavigationEnabled || !root.enabled || count === 0) return;
+            const pitch = Math.max(1, (currentItem ? currentItem.height : PlatinumTokens.menuLine) + spacing);
+            const page = Math.max(1, Math.floor(height / pitch) - 1);
+            let next = currentIndex;
+            if (event.key === Qt.Key_Home) next = 0;
+            else if (event.key === Qt.Key_End) next = count - 1;
+            else if (event.key === Qt.Key_PageDown) next = Math.min(count - 1, Math.max(0, currentIndex) + page);
+            else if (event.key === Qt.Key_PageUp) next = Math.max(0, currentIndex - page);
+            else return;
+            currentIndex = next;
+            positionViewAtIndex(next, ListView.Contain);
+            event.accepted = true;
+        }
         Keys.onReturnPressed: root.activated(currentIndex)
         Keys.onEnterPressed: root.activated(currentIndex)
         onCurrentIndexChanged: if (currentIndex >= 0) positionViewAtIndex(currentIndex, ListView.Contain)
