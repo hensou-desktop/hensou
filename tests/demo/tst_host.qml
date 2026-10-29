@@ -34,6 +34,7 @@ TestCase {
         phase("recreate");
         tryCompare(HostTheme, "name", "win98");
         tryCompare(HostTheme, "mode", "light");
+        Theme.name = "win98";
         const one = createTemporaryObject(windowComponent, null, { title: "Hensou scale one" });
         const fractional = createTemporaryObject(windowComponent, null, { title: "Hensou scale fractional" });
         verify(one); verify(fractional);

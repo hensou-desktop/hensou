@@ -13,8 +13,7 @@ fn main() {
                 "qml/DemoLabel.qml",
                 "qml/DemoMenu.qml",
                 "qml/DemoDialog.qml",
-            ])
-            .qml_file("qml/LayoutPlan.js"),
+            ]),
     )
     .qrc("qml/resources.qrc")
     .qt_module("Quick")
