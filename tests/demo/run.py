@@ -58,6 +58,7 @@ with tempfile.TemporaryDirectory(prefix="hensou-demo-") as temporary:
         "LIBGL_ALWAYS_SOFTWARE": "1",
         "QSG_RHI_BACKEND": "opengl",
         "QSG_INFO": "1",
+        "QT_LOGGING_RULES": "qt.gui.popup.debug=true;qt.quick.controls.popup.window.debug=true",
         "QT_WAYLAND_DISABLE_WINDOWDECORATION": "1",
         "QML_DISABLE_DISK_CACHE": "1",
     }
@@ -96,6 +97,9 @@ for_window [title=\"Hensou.*\"] floating enable
         keyboard = None
         pointer = None
         main = None
+        foreign = None
+        foreign_log = None
+        probe_state = {"baseline": 0}
         input_processes = []
         try:
             deadline = time.monotonic() + 15
@@ -195,6 +199,10 @@ for_window [title=\"Hensou.*\"] floating enable
                     f"Wayland window {title!r} did not map; titles={[node.get('name') for node in nodes(tree)]}"
                 )
 
+            def foreign_count():
+                values = re.findall(r"FOREIGN_F13 (\d+)", (evidence / "foreign-probe.trace").read_text())
+                return max(map(int, values), default=0)
+
             def phase(name):
                 if name == "prime-input":
                     window = wait_window("Hensou demo")
@@ -203,6 +211,27 @@ for_window [title=\"Hensou.*\"] floating enable
                     swaymsg(criterion + " move absolute position 0 0")
                     swaymsg(criterion + " focus")
                     send_key("Shift_L")
+                elif name == "probe-foreign-positive":
+                    window = wait_window("Hensou foreign probe")
+                    swaymsg(f'[con_id={window["id"]}] focus')
+                    before = foreign_count()
+                    send_key("F13")
+                    deadline = time.monotonic() + 5
+                    while time.monotonic() < deadline and foreign_count() != before + 1:
+                        time.sleep(0.02)
+                    assert foreign_count() == before + 1, "Foreign client did not receive the positive F13"
+                    probe_state["baseline"] = before + 1
+                    print(f"FOREIGN_POSITIVE_F13={foreign_count()} rect={window['rect']}", flush=True)
+                elif name == "probe-focus-owner":
+                    window = wait_window("Hensou demo")
+                    swaymsg(f'[con_id={window["id"]}] focus')
+                elif name == "probe-foreign-blocked":
+                    window = wait_window("Hensou foreign probe")
+                    swaymsg(f'[con_id={window["id"]}] focus')
+                    send_key("F13")
+                    time.sleep(0.15)
+                    assert foreign_count() == probe_state["baseline"], "Native grab leaked F13 to foreign client"
+                    print(f"FOREIGN_BLOCKED_F13={foreign_count()} attempted_con_id={window['id']}", flush=True)
                 elif name in ("resize-small-parent", "resize-large-parent"):
                     window = wait_window("Hensou demo")
                     width, height = (220, 180) if name == "resize-small-parent" else (640, 480)
@@ -295,18 +324,23 @@ for_window [title=\"Hensou.*\"] floating enable
                     pixels = struct.unpack(">II", (evidence / f"{name}.png").read_bytes()[16:24])
                     assert pixels == (round(rect["width"] * 1.5), round(rect["height"] * 1.5)), pixels
 
-            for traced in (True, False):
+            for mode in ("grab-probe", "modal", "suite"):
+                traced = mode != "suite"
+                if mode == "grab-probe":
+                    foreign_log = (evidence / "foreign-probe.trace").open("w")
+                    foreign = subprocess.Popen([sys.argv[1], str(Path("tests/foreign-probe").resolve())], env=env | {"WAYLAND_DEBUG": "client"}, stdout=foreign_log, stderr=subprocess.STDOUT, start_new_session=True, close_fds=True)
+                    wait_window("Hensou foreign probe")
                 test_env = env | ({"WAYLAND_DEBUG": "client"} if traced else {})
                 arguments = [
                     "timeout",
                     "--kill-after=5",
                     "120",
                     sys.argv[1],
-                    str(Path("tests/demo").resolve()),
+                    str(Path("tests/grab-probe" if mode == "grab-probe" else "tests/demo").resolve()),
                 ]
                 if traced:
                     arguments.append(
-                        "StandaloneDemo::test_native_popup_and_modal_focus_return"
+                        "NativeGrab::test_cross_client" if mode == "grab-probe" else "StandaloneDemo::test_native_popup_and_modal_focus_return"
                     )
                 tests = subprocess.Popen(
                     arguments,
@@ -317,7 +351,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     start_new_session=True,
                     close_fds=True,
                 )
-                filename = "wayland-modal.trace" if traced else "tests.log"
+                filename = f"wayland-{mode}.trace" if traced else "tests.log"
                 with (evidence / filename).open("w") as log:
                     for line in tests.stdout:
                         if not traced or not line.lstrip().startswith("["):
@@ -349,29 +383,32 @@ for_window [title=\"Hensou.*\"] floating enable
                 code = tests.wait(timeout=120)
                 if traced:
                     summary = summarize((evidence / filename).read_text())
-                    (evidence / "wayland-modal.json").write_text(
+                    (evidence / f"wayland-{mode}.json").write_text(
                         json.dumps(summary, indent=2) + "\n"
                     )
                 if code:
                     raise SystemExit(code)
                 if traced:
-                    modal = [
-                        key
-                        for key, value in summary["popups"].items()
-                        if value["phase"] == "open-native-dialog"
-                    ]
-                    assert modal, "No native xdg_popup role for the modal dialog"
-                    modal = modal[-1]
-                    assert any(item["popup"] == modal for item in summary["grabs"]), (
-                        "No native dialog grab"
-                    )
-                    assert any(
-                        item["surface"] == summary["popups"][modal]["surface"]
-                        for item in summary["keyboard_enters"]
-                    ), "No keyboard.enter for the native dialog surface"
+                    role_phase = "open-native-menu" if mode == "grab-probe" else "open-native-dialog"
+                    popups = [key for key, value in summary["popups"].items() if value["phase"] == role_phase]
+                    assert popups, "No actual native popup role"
+                    popup = popups[-1]
+                    assert any(item["popup"] == popup for item in summary["grabs"]), "No native grab request"
+                    # wlroots 0.20.2 installs a client grab but leaves current seat
+                    # focus unchanged. Its keyboard enter callback is a no-op.
+                    assert any(item["surface"] == summary["popups"][popup]["parent_surface"] for item in summary["keyboard_enters"]), "No actual retained-owner keyboard target"
                     assert summary["buffers"], "No actual Mesa wl_shm buffers recorded"
                     assert all(buffer["stride"] % 4 == 0 and buffer["stride"] >= buffer["width"] * 4 for buffer in summary["buffers"]), "Native host did not negotiate safe 32-bit buffers"
-                    print("NATIVE_POPUP_ROLE_GRAB_KEYBOARD_32BIT=PASS", flush=True)
+                    renderer = [line for line in (evidence / filename).read_text().splitlines() if "OpenGL VENDOR:" in line]
+                    assert any("RENDERER: llvmpipe" in line for line in renderer), "Not actual OpenGL llvmpipe rendering"
+                    (evidence / f"renderer-{mode}.json").write_text(json.dumps(renderer, indent=2) + "\n")
+                    print(f"NATIVE_POPUP_ROLE_GRAB_RETAINED_TARGET_32BIT={mode}:PASS", flush=True)
+                if mode == "grab-probe":
+                    foreign.terminate()
+                    foreign.wait(timeout=5)
+                    foreign_log.close()
+                    foreign = None
+                    foreign_log = None
             print(f"DEMO_EVIDENCE={evidence}")
             main_binary = (
                 Path(sys.argv[2])
@@ -417,7 +454,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     f"MAIN_READY executable={main_binary} clean_runtime={packaged} source={source}"
                 )
         finally:
-            for process in (main, tests, *input_processes, keyboard, pointer, sway):
+            for process in (main, tests, foreign, *input_processes, keyboard, pointer, sway):
                 if process is None or process.poll() is not None:
                     continue
                 os.killpg(process.pid, signal.SIGTERM)
