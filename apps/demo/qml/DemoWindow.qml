@@ -19,7 +19,7 @@ Window {
         property var rows: ["One row", "A long fixture label: every character remains available in the dialog", "UnbrokenLabelABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", "Fourth row", "Fifth row", "Sixth row", "Seventh row", "Eighth row", "Ninth row", "Tenth row", "Eleventh row", "Twelfth row", "Thirteenth row", "Fourteenth row", "Fifteenth row", "Sixteenth row", "Seventeenth row", "Eighteenth row", "Nineteenth row", "Twentieth row"]
     }
     property var companion: null
-    readonly property var layoutPlan: LayoutPlan.plan(width, height)
+    readonly property var layoutPlan: LayoutPlan.plan(width, height, { increment: increment.implicitWidth, menu: more.implicitWidth })
     readonly property real actualDpr: metrics.devicePixelRatio
     title: "Hensou demo"
     width: 640
@@ -47,7 +47,8 @@ Window {
         state.selectedIndex = count ? 0 : -1;
     }
     function action(name) {
-        if (name === "empty") fixture(0);
+        if (name === "increment") state.clicks++;
+        else if (name === "empty") fixture(0);
         else if (name === "one") fixture(1);
         else if (name === "many") fixture(100);
         else if (name === "enabled") state.editable = !state.editable;
@@ -75,6 +76,7 @@ Window {
                 DemoButton {
                     id: increment
                     wantsFocus: root.state.focusTarget === "increment"
+                    visible: root.layoutPlan.incrementInline
                     objectName: "incrementButton"
                     text: "Increment"
                     onClicked: root.state.clicks++
@@ -159,7 +161,7 @@ Window {
         id: menu
         objectName: "actionsMenu"
         owner: root
-        entries: [
+        entries: (root.layoutPlan.incrementInline ? [] : [{ text: "Increment", action: "increment" }]).concat([
             { text: "Open controls window", action: "second" },
             { text: "Open modal dialog", action: "dialog" },
             { text: "Empty fixture", action: "empty" },
@@ -167,7 +169,7 @@ Window {
             { text: "Many rows and long labels", action: "many" },
             { text: root.state.editable ? "Disable input and checkbox" : "Enable input and checkbox", action: "enabled" },
             { text: "Count: " + root.state.clicks, enabled: false, action: "count" }
-        ]
+        ])
         onChosen: function(action) { root.action(action); }
     }
     DemoDialog { id: dialog; objectName: "modalDialog"; owner: root }

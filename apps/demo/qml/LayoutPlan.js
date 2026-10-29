@@ -3,9 +3,10 @@ var minimumInlineWidth = 220;
 var minimumInlineHeight = 156;
 var splitWidth = 600;
 var shortHeight = 300;
-function plan(width, height) {
+function plan(width, height, controls) {
     var inline = width >= minimumInlineWidth && height >= minimumInlineHeight;
     return {
+        incrementInline: !controls || width >= controls.increment + controls.menu + 3 * Math.max(4, Math.min(12, Math.floor(Math.min(width, height) / 32))),
         structure: !inline ? "overflow" : width >= splitWidth && height < shortHeight ? "split" : "stack",
         gap: Math.max(4, Math.min(12, Math.floor(Math.min(width, height) / 32))),
         inline: inline ? ["field", "checkbox", "list"] : [],

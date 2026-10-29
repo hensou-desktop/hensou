@@ -23,12 +23,21 @@ TestCase {
     }
     function cleanup() { if (app) app.close(); }
     function control(name) { return findChild(app, name); }
-    function test_button_checkbox_disabled_and_keyboard() {
+    function test_button_checkbox_disabled_and_keyboard_data() {
+        return [{ tag: "platinum", name: "platinum" }, { tag: "win98", name: "win98" }];
+    }
+    function test_button_checkbox_disabled_and_keyboard(data) {
+        Theme.name = data.name;
+        wait(30);
         const button = control("incrementButton");
+        compare(button.item.Accessible.role, Accessible.Button);
+        compare(button.item.Accessible.name, "Increment");
         button.takeFocus();
         keyClick(Qt.Key_Return);
         compare(app.state.clicks, 1);
         const checkbox = control("checkboxControl");
+        compare(checkbox.item.Accessible.role, Accessible.CheckBox);
+        compare(checkbox.item.Accessible.name, "Keep this choice");
         checkbox.takeFocus();
         keyClick(Qt.Key_Space);
         compare(app.state.checked, true);
