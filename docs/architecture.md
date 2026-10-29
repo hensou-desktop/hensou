@@ -2,9 +2,9 @@
 
 ## One repository, separate products
 
-The Hensou monorepo holds the theme kit, shared Rust crates and themed apps. A theme or client change can update every caller in one commit. Each app will still have its own Nix package and focused tests.
+The Hensou monorepo holds the theme kit, shared Rust/Qt integration and desktop essentials such as Files and appearance settings. A shared control change can update its in-repository callers in one commit. Each desktop app has its own package and focused tests. Independent products consume a pinned Hensou release from their own repositories.
 
-Mountainous remains a separate fleet and deployment repository. Its Quickshell shell will import the same Hensou QML kit as the apps. Pyxis, Ossicle, Comics, Jellyfin and the Forgerie server remain separate services. Their clients belong here, not their servers.
+Mountainous remains a separate fleet and deployment repository. Its Quickshell shell imports the same Hensou QML kit as the apps. Pyxamp, Forgerie and the media services remain independent products. Their playback, authentication and service clients do not belong in the generic kit. Future catalog adapters belong to their consuming product unless real reuse justifies a separate SDK.
 
 ## Dependency direction
 
@@ -20,7 +20,7 @@ The selected app stack is Rust plus Qt Quick through cxx-qt. It is not Rust logi
 
 The kit does not exist yet. Before adopting it, fix per-window fractional scale at 1.5, separate Quickshell-specific theme watching and icons, and implement app popup hosts. Preserve the shell's flat-file loading behavior and avoid duplicate singleton instances.
 
-The first real consumer is Pyxamp. Import it with attribution and history before replacing its face and clients. Do not copy production code into empty crates merely to fill the directory layout.
+A standalone Rust/Qt demonstration app is the first independent host of the kit. It proves shared drawing, theme updates, focus, menus and scaling without services. Pyxamp adoption is optional work in its own repository, not a prerequisite for Files. Do not copy production code into empty crates merely to fill the directory layout.
 
 ## Builds
 
