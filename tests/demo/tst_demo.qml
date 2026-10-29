@@ -119,6 +119,29 @@ TestCase {
         wait(50);
         compare(dialogButton.item.activeFocus, true);
     }
+    function test_long_dialog_document_data() {
+        return [{ tag: "platinum", name: "platinum" }, { tag: "win98", name: "win98" }];
+    }
+    function test_long_dialog_document(data) {
+        Theme.name = data.name;
+        const dialog = control("modalDialog");
+        dialog.width = 220; dialog.height = 160;
+        const label = "UnbrokenABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".repeat(6);
+        dialog.openFrom("dialog", label);
+        tryCompare(dialog, "visible", true);
+        wait(50);
+        const document = control("dialogDocument");
+        verify(document.contentHeight > document.height);
+        const message = control("dialogMessage");
+        compare(message.text, label);
+        verify(message.width <= document.width);
+        document.forceActiveFocus();
+        keyClick(Qt.Key_End);
+        verify(document.contentY > 0);
+        control("closeDialog").takeFocus();
+        keyClick(Qt.Key_Return);
+        tryCompare(dialog, "visible", false);
+    }
     function test_menu_accessible_actions_data() {
         return [{ tag: "platinum", name: "platinum" }, { tag: "win98", name: "win98" }];
     }
