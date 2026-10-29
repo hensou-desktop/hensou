@@ -20,7 +20,9 @@ The wrapper supplies `HENSOU_QML_IMPORT_PATH` (the parent of `Hensou/`) and
 packaged faces before loading QML. This augments, rather than replaces, the
 user's fallback fonts. Missing or wrong packaged font families fail startup.
 The dev shell supplies the same fonts and one **merged Qt prefix** through
-`QMAKE`. A qtbase-only qmake cannot resolve QtQml's PRL files.
+`QMAKE`. libglvnd supplies Qt's GLX/OpenGL link dependencies. The app and dev
+shell use lld: cxx-qt 0.10 places initializer-call archives after their defining
+archives, which requires order-independent ELF archive resolution. A qtbase-only qmake cannot resolve QtQml's PRL files.
 
 The source inputs and font generator are copied from Mountainous
 `a905fd62309a3027a654ce01a504d54540dc7f6a`. The lock retains its exact archive

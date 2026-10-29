@@ -1,4 +1,8 @@
-{ pkgs, chicagoflf-src, w95fa-src }:
+{
+  pkgs,
+  chicagoflf-src,
+  w95fa-src,
+}:
 let
   chicagoflf = pkgs.stdenvNoCC.mkDerivation {
     pname = "chicagoflf";
@@ -25,10 +29,14 @@ let
     '';
     meta.license = pkgs.lib.licenses.ofl;
   };
-in {
+in
+{
   inherit chicagoflf w95fa-grid;
   hensou-fonts = pkgs.symlinkJoin {
     name = "hensou-fonts";
-    paths = [ chicagoflf w95fa-grid ];
+    paths = [
+      chicagoflf
+      w95fa-grid
+    ];
   };
 }
