@@ -3,7 +3,7 @@ import Hensou
 
 Loader {
     id: root
-    required property QtObject state
+    required property QtObject modelState
     signal activated(int index)
     signal focused()
     implicitWidth: item ? item.implicitWidth : 0
@@ -12,20 +12,20 @@ Loader {
     function takeFocus() { if (item) item.forceActiveFocus(); }
     onLoaded: Qt.callLater(function() {
         if (!root.item) return;
-        if (root.state.selectedIndex >= 0) root.item.view.positionViewAtIndex(root.state.selectedIndex, ListView.Contain);
-        if (root.state.focusTarget === "list") root.takeFocus();
+        if (root.modelState.selectedIndex >= 0) root.item.view.positionViewAtIndex(root.modelState.selectedIndex, ListView.Contain);
+        if (root.modelState.focusTarget === "list") root.takeFocus();
     })
     Component {
         id: platinum
         PlatinumMenuList {
             id: platinumList
             objectName: "fixtureList"
-            model: root.state.rows
-            currentIndex: root.state.selectedIndex
+            model: root.modelState.rows
+            currentIndex: root.modelState.selectedIndex
             activeFocusOnTab: true
             Accessible.role: Accessible.List
             Accessible.name: "Fixture rows"
-            onCurrentIndexChanged: if (currentIndex >= 0) root.state.selectedIndex = currentIndex
+            onCurrentIndexChanged: if (currentIndex >= 0) root.modelState.selectedIndex = currentIndex
             onActivated: function(index) { root.activated(index); }
             onActiveFocusChanged: if (activeFocus) root.focused()
             delegate: PlatinumMenuListRow {
@@ -37,7 +37,7 @@ Loader {
                 Accessible.role: Accessible.ListItem
                 Accessible.name: modelData
                 Accessible.selected: selected
-                onClicked: { root.state.selectedIndex = index; platinumList.forceActiveFocus(); }
+                onClicked: { root.modelState.selectedIndex = index; platinumList.forceActiveFocus(); }
                 onDoubleClicked: root.activated(index)
             }
             DemoLabel {
@@ -45,7 +45,7 @@ Loader {
                 width: parent.width
                 text: "No rows. Choose a fixture in More."
                 wrap: true
-                visible: root.state.rows.length === 0
+                visible: root.modelState.rows.length === 0
             }
         }
     }
@@ -54,13 +54,13 @@ Loader {
         Win98ListView {
             id: win98List
             objectName: "fixtureList"
-            model: root.state.rows
-            currentIndex: root.state.selectedIndex
+            model: root.modelState.rows
+            currentIndex: root.modelState.selectedIndex
             emptyText: "No rows. Choose a fixture in More."
             rowUnits: Win98Tokens.listRow
             Accessible.role: Accessible.List
             Accessible.name: "Fixture rows"
-            onCurrentIndexChanged: if (currentIndex >= 0) root.state.selectedIndex = currentIndex
+            onCurrentIndexChanged: if (currentIndex >= 0) root.modelState.selectedIndex = currentIndex
             onActivated: function(index) { root.activated(index); }
             onActiveFocusChanged: if (activeFocus) root.focused()
             delegate: Win98ListRow {
@@ -70,7 +70,7 @@ Loader {
                 Accessible.role: Accessible.ListItem
                 Accessible.name: modelData
                 Accessible.selected: selected
-                onClicked: { root.state.selectedIndex = index; win98List.forceActiveFocus(); }
+                onClicked: { root.modelState.selectedIndex = index; win98List.forceActiveFocus(); }
                 onDoubleClicked: root.activated(index)
             }
         }

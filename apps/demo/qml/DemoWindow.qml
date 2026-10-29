@@ -115,7 +115,7 @@ Window {
                     DemoField {
                         id: field
                         objectName: "fieldControl"
-                        state: root.state
+                        modelState: root.state
                         enabled: root.state.editable
                         Layout.fillWidth: true
                         onFocused: root.state.focusTarget = "field"
@@ -138,7 +138,7 @@ Window {
                 DemoList {
                     id: rows
                     objectName: "listControl"
-                    state: root.state
+                    modelState: root.state
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.minimumHeight: 0
