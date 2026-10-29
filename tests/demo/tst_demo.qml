@@ -125,6 +125,8 @@ TestCase {
         console.log("HENSOU_PHASE capture-modal");
         wait(100);
         const clicks = app.state.clicks;
+        verify(point.x < dialog.x || point.x > dialog.x + dialog.width || point.y < dialog.y || point.y > dialog.y + dialog.height,
+               "The blocked-parent target must not be covered by the dialog");
         console.log("HENSOU_PHASE block-parent-" + Math.round(point.x) + "-" + Math.round(point.y));
         wait(150);
         compare(app.state.clicks, clicks);

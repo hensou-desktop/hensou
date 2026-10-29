@@ -20,6 +20,8 @@ Dialog {
     footer: null
     width: 440
     height: 240
+    x: Math.round((owner.width - width) / 2)
+    y: Math.round((owner.height - height) / 2)
     background: WindowScale {
         devicePixelRatio: metrics.devicePixelRatio
         Loader {
