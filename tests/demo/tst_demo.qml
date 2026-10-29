@@ -95,7 +95,12 @@ TestCase {
         tryCompare(app, "width", 220);
         tryCompare(app, "height", 180);
         const button = control("moreButton");
+        tryCompare(app, "active", true);
         button.takeFocus();
+        tryCompare(button.item, "activeFocus", true);
+        button.clicked.connect(function() { console.log("HENSOU_MORE_CLICKED"); });
+        button.item.Keys.pressed.connect(function(event) { console.log("HENSOU_MORE_KEY", event.key, event.text, event.modifiers); });
+        console.log("HENSOU_PRE_MENU_KEY", app.active, app.activeFocusItem, button.item.activeFocus);
         console.log("HENSOU_PHASE open-native-menu");
         const menu = control("actionsMenu");
         tryCompare(menu, "opened", true);
