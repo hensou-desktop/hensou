@@ -8,6 +8,7 @@ TestCase {
     width: 800
     height: 600
     when: windowShown
+    visible: true
 
     WindowScale {
         id: first
@@ -69,8 +70,9 @@ TestCase {
             verify(nextChecked);
             compare(check.checked, false);
             nextChecked = false;
-            mouseClick(check);
-            verify(nextChecked);
+            waitForRendering(check);
+            mouseClick(check, check.width / 2, check.height / 2);
+            verify(nextChecked, "pointer " + check + " " + check.width + "x" + check.height);
             compare(check.checked, false);
         }
     }
