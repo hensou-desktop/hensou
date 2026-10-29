@@ -46,9 +46,12 @@ TestCase {
         const secondButton = findChild(fractional, "incrementButton");
         compare(oneButton.item.u * one.actualDpr, Math.round(oneButton.item.u * one.actualDpr));
         compare(secondButton.item.u * fractional.actualDpr, Math.round(secondButton.item.u * fractional.actualDpr));
+        const firstUnit = oneButton.item.u;
         phase("rescale");
         tryCompare(fractional, "actualDpr", 2);
         compare(one.actualDpr, 1);
+        compare(oneButton.item.u, firstUnit);
+        compare(secondButton.item.u, 1);
         phase("restore-scale");
         tryCompare(fractional, "actualDpr", 1.5);
         one.close(); fractional.close();

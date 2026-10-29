@@ -8,4 +8,6 @@ for (const [width, height, structure] of [[219, 640, "overflow"], [220, 640, "st
     assert.equal(plan.structure, structure);
     assert.deepEqual(Array.from(plan.inline).concat(Array.from(plan.overflow)).sort(), ["checkbox", "field", "list"]);
 }
+assert.equal(policy.plan(220, 640, { increment: 150, menu: 150 }).incrementInline, false);
+assert.equal(policy.plan(220, 640, { increment: 90, menu: 60 }).incrementInline, true);
 console.log("layout fit boundaries and whole-group reachability: PASS");
