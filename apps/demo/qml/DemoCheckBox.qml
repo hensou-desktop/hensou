@@ -28,7 +28,7 @@ Loader {
             text: root.text
             checked: root.checked
             Accessible.name: root.text
-            onToggled: root.changed(!root.checked)
+            onToggled: function(value) { root.changed(value); }
             onActiveFocusChanged: if (activeFocus) root.focused()
         }
     }
