@@ -253,7 +253,7 @@ Item {
                         // lettermark), when the item has no Win98 icon;
                         // the document icon when the theme lacks it.
                         readonly property string themeSource: row.separator || row.modelData.icon || !row.modelData.themeIcon ? ""
-                            : WindowMetrics.iconSource(root, row.modelData.themeIcon)
+                            : WindowMetrics.iconSource(root, row.modelData.themeIcon, true)
                         Image {
                             visible: iconCell.themeSource !== ""
                             source: iconCell.themeSource
@@ -267,6 +267,7 @@ Item {
                         }
                         Win98Icon {
                             id: rowIcon
+                            objectName: "menuGlyph" + row.index
                             readonly property string want: row.separator ? "" : (row.modelData.icon
                                 || (row.modelData.themeIcon !== undefined && iconCell.themeSource === "" ? "doc" : ""))
                             visible: want !== ""

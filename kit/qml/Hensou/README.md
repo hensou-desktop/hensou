@@ -19,8 +19,10 @@ fonts and glyph artwork come from those controls. No new aesthetic references.
   No Screen DPR and no singleton DPR writes. Missing-provider fallback is 1.5
   for legacy out-of-window drawing; a real host must bind a provider.
   Shell flat subclasses carry `hensouDevicePixelRatio` directly instead.
-- `WindowScale.iconResolver(name)` optionally resolves system-theme icon URLs.
-  Without it built-in glyphs still work; system-theme icons have no source.
+- `WindowScale.iconResolver(name, checkOnly=false)` optionally resolves system-theme icon URLs.
+  `checkOnly:true` requests an empty URL for missing theme art (menu document
+  fallback); false allows the host's ordinary app fallback. One-argument
+  callbacks remain compatible. Without it built-in glyphs still work; system-theme icons have no source.
 - Tokens are one module singleton per engine. Legacy `pixelRatio`, `u`, `hair`
   scalar properties are compatibility fallbacks only. Shared drawing uses the
   nearest provider. Shell drawing uses per-window token helpers.
@@ -48,6 +50,8 @@ properties remain. `qmldir` lists the selected support types too.
 - Lists: `model`, `delegate`, `view`, `currentIndex`, `count`; rows retain their
   original properties. `PlatinumMenuList.activated(index)` is additive. Hosts
   supply selection data and activation; list scrolling preserves focus reveal.
+  Platinum's Home/End/Page keys are enabled by `extendedNavigationEnabled:true`;
+  the shell adapter sets false to preserve its menu host's key ownership.
 - `Win98Text.wrapMode` defaults to Text.WordWrap. With `wrap:true`, app
   dialogs can request Text.WrapAnywhere for raw paths without modifying data.
 - `Win98MenuPanel` exposes PopupMenu and its existing action delegates expose
