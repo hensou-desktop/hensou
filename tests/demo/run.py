@@ -96,6 +96,7 @@ for_window [title=\"Hensou.*\"] floating enable
         keyboard = None
         pointer = None
         main = None
+        input_processes = []
         try:
             deadline = time.monotonic() + 15
             while time.monotonic() < deadline:
@@ -144,6 +145,11 @@ for_window [title=\"Hensou.*\"] floating enable
                 pointer.stdin.write(command + "\n")
                 pointer.stdin.flush()
                 assert pointer_reply() == "ok"
+
+            def send_key(key):
+                # Keep the device that supplied the real grab serial alive.
+                process = subprocess.Popen(["wtype", "-k", key, "-s", "300000"], env=env, start_new_session=True, close_fds=True)
+                input_processes.append(process)
 
             def swaymsg(*args):
                 return subprocess.check_output(["swaymsg", *args], env=env, text=True)
@@ -196,11 +202,16 @@ for_window [title=\"Hensou.*\"] floating enable
                     swaymsg(criterion + " move to output HEADLESS-1")
                     swaymsg(criterion + " move absolute position 0 0")
                     swaymsg(criterion + " focus")
-                    subprocess.run(["wtype", "-k", "Shift_L"], env=env, check=True)
+                    send_key("Shift_L")
+                elif name in ("resize-small-parent", "resize-large-parent"):
+                    window = wait_window("Hensou demo")
+                    width, height = (220, 180) if name == "resize-small-parent" else (640, 480)
+                    swaymsg(f'[con_id={window["id"]}] resize set width {width} px height {height} px')
+                    wait_window("Hensou demo", size=(width, height))
                 elif name in ("open-native-menu", "open-native-dialog"):
-                    subprocess.run(["wtype", "-k", "Return"], env=env, check=True)
+                    send_key("Return")
                 elif name == "close-native-menu":
-                    subprocess.run(["wtype", "-k", "Escape"], env=env, check=True)
+                    send_key("Escape")
                 elif name.startswith(("block-parent-", "parent-click-")):
                     x, y = map(int, name.split("-")[-2:])
                     window = wait_window("Hensou demo", size=(640, 480))
@@ -219,7 +230,7 @@ for_window [title=\"Hensou.*\"] floating enable
                         node.get("name") for node in nodes(tree) if node.get("focused")
                     ]
                     print("MODAL_COMPOSITOR_FOCUS=" + repr(focused), flush=True)
-                    subprocess.run(["wtype", "-k", "Escape"], env=env, check=True)
+                    send_key("Escape")
                 elif name == "create":
                     write(("win98", "light", "on"))
                 elif name == "invalid":
@@ -247,11 +258,14 @@ for_window [title=\"Hensou.*\"] floating enable
                         env=env,
                         check=True,
                     )
-                elif name == "prepare-capture":
+                elif name.startswith("prepare-capture-"):
                     window = wait_window("Hensou capture")
                     criterion = f"[con_id={window['id']}]"
                     swaymsg(criterion + " move to output HEADLESS-2")
                     swaymsg(criterion + " move absolute position 1600 0")
+                    width, height = (220, 640) if name.endswith("narrow") else (1000, 180)
+                    swaymsg(criterion + f" resize set width {width} px height {height} px")
+                    wait_window("Hensou capture", size=(width, height))
                 elif name.startswith("capture-"):
                     tree = json.loads(swaymsg("-t", "get_tree"))
                     window = next(
@@ -403,7 +417,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     f"MAIN_READY executable={main_binary} clean_runtime={packaged} source={source}"
                 )
         finally:
-            for process in (main, tests, keyboard, pointer, sway):
+            for process in (main, tests, *input_processes, keyboard, pointer, sway):
                 if process is None or process.poll() is not None:
                     continue
                 os.killpg(process.pid, signal.SIGTERM)
