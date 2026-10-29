@@ -15,6 +15,8 @@ Item {
     Accessible.name: name
     Accessible.description: detail
     Accessible.selected: selected
+    Accessible.selectable: true
+    Accessible.onPressAction: if (enabled) clicked()
 
     property string mark: ""
     property bool markDim: false

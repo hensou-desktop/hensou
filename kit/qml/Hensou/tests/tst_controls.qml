@@ -87,6 +87,43 @@ TestCase {
             compare(Win98Tokens.face.toString(), "#c0c0c0");
         }
     }
+    function test_menu_accessible_actions_and_disabled_state() {
+        const menu = Qt.createQmlObject('import QtQuick; import Hensou; Win98MenuPanel {}', first, "menu");
+        menu.items = [{text: "&Open", shortcut: "Enter"}, {separator: true},
+                      {text: "Unavailable", enabled: false}, {text: "Section", header: true}];
+        menu.highlighted = 0;
+        let activated = -1;
+        menu.clicked.connect(index => { activated = index; });
+        compare(menu.Accessible.role, Accessible.PopupMenu);
+        const action = findChild(menu, "menuAction0");
+        verify(action !== null);
+        compare(action.Accessible.role, Accessible.MenuItem);
+        compare(action.Accessible.name, "Open");
+        compare(action.Accessible.selected, true);
+        compare(action.enabled, true);
+        action.Accessible.pressAction();
+        compare(activated, 0);
+        for (const index of [1, 2, 3]) {
+            const item = findChild(menu, "menuAction" + index);
+            verify(item !== null);
+            compare(item.enabled, false);
+            activated = -1;
+            item.Accessible.pressAction();
+            compare(activated, -1);
+        }
+        compare(findChild(menu, "menuAction1").Accessible.ignored, true);
+        compare(findChild(menu, "menuAction3").Accessible.role, Accessible.StaticText);
+        const row = Qt.createQmlObject('import QtQuick; import Hensou; PlatinumMenuListRow { name: "Open" }', first, "row");
+        row.Accessible.role = Accessible.MenuItem;
+        row.clicked.connect(() => { activated = 4; });
+        row.Accessible.pressAction();
+        compare(activated, 4);
+        row.enabled = false;
+        activated = -1;
+        row.Accessible.pressAction();
+        compare(activated, -1);
+        menu.destroy(); row.destroy();
+    }
     function test_resources_relocated() {
         verify(PlatinumIconStore.url("check", "#ffffff", "transparent").startsWith("data:image/svg+xml;utf8,"));
         verify(Win98IconStore.url("check", "#ffffff").startsWith("data:image/svg+xml;utf8,"));
