@@ -12,8 +12,8 @@ cd "$prep/source"
 cargo generate-lockfile
 cargo fmt --all
 nixfmt flake.nix nix/fonts.nix
-ruff check --config tests/demo/ruff.toml --select I --fix tests/demo/run.py tests/demo/pointer.py
-ruff format --config tests/demo/ruff.toml tests/demo/run.py tests/demo/pointer.py
+ruff check --config tests/demo/ruff.toml --select I --fix tests/demo
+ruff format --config tests/demo/ruff.toml tests/demo
 out=/tmp/hensou-foundation-416d014746da/evidence/build-prep-$sha
 mkdir -p "$out"
 cp Cargo.lock "$out/Cargo.lock"
