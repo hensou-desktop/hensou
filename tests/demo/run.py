@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import shutil
 import signal
+import select
 import subprocess
 import sys
 import tempfile
@@ -43,6 +44,7 @@ for_window [title=\"Hensou.*\"] floating enable
         sway = subprocess.Popen(["sway", "--unsupported-gpu", "--config", str(config)], env=env, stdout=sway_log, stderr=subprocess.STDOUT, start_new_session=True, close_fds=True)
         tests = None
         keyboard = None
+        pointer = None
         try:
             deadline = time.monotonic() + 15
             while time.monotonic() < deadline:
@@ -60,6 +62,24 @@ for_window [title=\"Hensou.*\"] floating enable
                 raise TimeoutError("headless sway readiness")
 
             keyboard = subprocess.Popen(["wtype", "-s", "120000"], env=env, start_new_session=True, close_fds=True)
+
+            pointer = subprocess.Popen([sys.executable, "tests/demo/pointer.py", "2800", "1000"], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, start_new_session=True, close_fds=True)
+
+            def pointer_reply():
+                ready, _, _ = select.select([pointer.stdout], [], [], 5)
+                if not ready:
+                    raise TimeoutError("virtual pointer reply")
+                reply = pointer.stdout.readline().strip()
+                if not reply:
+                    raise RuntimeError("virtual pointer exited")
+                return reply
+
+            assert pointer_reply() == "pointer ready"
+
+            def pointer_command(command):
+                pointer.stdin.write(command + "\n")
+                pointer.stdin.flush()
+                assert pointer_reply() == "ok"
 
             def swaymsg(*args):
                 return subprocess.check_output(["swaymsg", *args], env=env, text=True)
@@ -100,6 +120,16 @@ for_window [title=\"Hensou.*\"] floating enable
                     subprocess.run(["wtype", "-k", "Shift_L"], env=env, check=True)
                 elif name == "open-native-menu":
                     subprocess.run(["wtype", "-k", "Return"], env=env, check=True)
+                elif name == "close-native-menu":
+                    subprocess.run(["wtype", "-k", "Escape"], env=env, check=True)
+                elif name.startswith("block-parent-"):
+                    _, _, x, y = name.split("-")
+                    pointer_command(f"move {x} {y}")
+                    pointer_command("click")
+                elif name == "close-native-dialog":
+                    window = wait_window("Hensou dialog")
+                    swaymsg(f'[con_id={window["id"]}] focus')
+                    subprocess.run(["wtype", "-k", "Escape"], env=env, check=True)
                 elif name == "create":
                     write(("win98", "light", "on"))
                 elif name == "invalid":
@@ -122,8 +152,10 @@ for_window [title=\"Hensou.*\"] floating enable
                 elif name in ("capture-menu-escape", "capture-modal"):
                     subprocess.run(["grim", "-o", "HEADLESS-1", str(evidence / f"{name}.png")], env=env, check=True)
                 elif name == "prepare-capture":
-                    swaymsg('[title="Hensou capture"] move to output HEADLESS-2')
-                    swaymsg('[title="Hensou capture"] move absolute position 1600 0')
+                    window = wait_window("Hensou capture")
+                    criterion = f'[con_id={window["id"]}]'
+                    swaymsg(criterion + " move to output HEADLESS-2")
+                    swaymsg(criterion + " move absolute position 1600 0")
                 elif name.startswith("capture-"):
                     tree = json.loads(swaymsg("-t", "get_tree"))
                     window = next(node for node in nodes(tree) if node.get("name") == "Hensou capture")
@@ -149,7 +181,7 @@ for_window [title=\"Hensou.*\"] floating enable
             if code:
                 raise SystemExit(code)
         finally:
-            for process in (tests, keyboard, sway):
+            for process in (tests, keyboard, pointer, sway):
                 if process is None or process.poll() is not None:
                     continue
                 os.killpg(process.pid, signal.SIGTERM)

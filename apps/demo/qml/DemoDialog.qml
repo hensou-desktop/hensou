@@ -22,9 +22,19 @@ Window {
         message = text;
         show();
         requestActivate();
-        Qt.callLater(function() { closeButton.takeFocus(); });
+        focusCloseTimer.restart();
     }
-    onVisibleChanged: if (!visible) Qt.callLater(function() { owner.restoreFocus(returnTarget); })
+    onVisibleChanged: if (!visible && owner && owner.visible) returnFocusTimer.restart()
+    Timer {
+        id: focusCloseTimer
+        interval: 0
+        onTriggered: if (root.visible) closeButton.takeFocus()
+    }
+    Timer {
+        id: returnFocusTimer
+        interval: 0
+        onTriggered: if (root.owner && root.owner.visible) root.owner.restoreFocus(root.returnTarget)
+    }
     WindowScale {
         anchors.fill: parent
         devicePixelRatio: metrics.devicePixelRatio
@@ -58,7 +68,7 @@ Window {
                     DemoLabel {
                         id: messageLabel
                         objectName: "dialogMessage"
-                        width: document.width - (scrollbar.active ? scrollbar.width : 0)
+                        width: document.width - scrollbar.width
                         height: implicitHeight
                         text: root.message
                         wrap: true
@@ -69,7 +79,8 @@ Window {
                     anchors.right: parent.right
                     height: parent.height
                     width: item ? item.implicitWidth : 0
-                    active: document.contentHeight > document.height
+                    // Keep the gutter stable: wrapping must not decide its own width.
+                    visible: document.contentHeight > document.height
                     sourceComponent: Theme.name === "win98" ? win98Bar : platinumBar
                 }
                 Component { id: platinumBar; PlatinumScrollBar { flickable: document } }

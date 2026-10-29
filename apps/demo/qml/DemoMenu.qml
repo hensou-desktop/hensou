@@ -34,7 +34,12 @@ Popup {
         chosen(entry.action);
     }
     onOpened: surface.forceActiveFocus()
-    onClosed: Qt.callLater(function() { owner.restoreFocus(returnTarget); })
+    onClosed: if (owner && owner.visible) returnFocusTimer.restart()
+    Timer {
+        id: returnFocusTimer
+        interval: 0
+        onTriggered: if (root.owner && root.owner.visible) root.owner.restoreFocus(root.returnTarget)
+    }
     contentItem: WindowScale {
         id: surface
         devicePixelRatio: metrics.devicePixelRatio

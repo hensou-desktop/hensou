@@ -101,7 +101,7 @@ TestCase {
         verify(menu.contentItem.width > app.width);
         console.log("HENSOU_PHASE capture-menu-escape");
         wait(100);
-        keyClick(Qt.Key_Escape);
+        console.log("HENSOU_PHASE close-native-menu");
         tryCompare(menu, "opened", false);
         wait(50);
         compare(button.item.activeFocus, true);
@@ -116,10 +116,12 @@ TestCase {
         console.log("HENSOU_PHASE capture-modal");
         wait(100);
         const clicks = app.state.clicks;
-        mouseClick(control("incrementButton").item);
+        const increment = control("incrementButton");
+        const point = increment.mapToGlobal(increment.width / 2, increment.height / 2);
+        console.log("HENSOU_PHASE block-parent-" + Math.round(point.x) + "-" + Math.round(point.y));
+        wait(150);
         compare(app.state.clicks, clicks);
-        control("closeDialog").takeFocus();
-        keyClick(Qt.Key_Return);
+        console.log("HENSOU_PHASE close-native-dialog");
         tryCompare(dialog, "visible", false);
         wait(50);
         compare(dialogButton.item.activeFocus, true);
