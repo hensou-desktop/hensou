@@ -8,6 +8,8 @@ function plan(width, height, controls) {
     var gap = Math.max(4, Math.min(12, Math.floor(Math.min(width, height) / 32)));
     return {
         incrementInline: !controls || width >= controls.increment + controls.menu + 3 * gap,
+        dialogInline: !controls || width >= controls.increment + controls.menu + controls.dialog + 4 * gap,
+        readoutInline: !controls || width >= controls.increment + controls.menu + controls.dialog + controls.readout + 5 * gap,
         structure: !inline ? "overflow" : width >= splitWidth && height < shortHeight ? "split" : "stack",
         gap: gap,
         inline: inline ? ["field", "checkbox", "list"] : [],

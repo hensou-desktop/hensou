@@ -19,7 +19,7 @@ Window {
         property var rows: ["One row", "A long fixture label: every character remains available in the dialog", "UnbrokenLabelABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", "Fourth row", "Fifth row", "Sixth row", "Seventh row", "Eighth row", "Ninth row", "Tenth row", "Eleventh row", "Twelfth row", "Thirteenth row", "Fourteenth row", "Fifteenth row", "Sixteenth row", "Seventeenth row", "Eighteenth row", "Nineteenth row", "Twentieth row"]
     }
     property var companion: null
-    readonly property var layoutPlan: LayoutPlan.plan(width, height, { increment: increment.implicitWidth, menu: more.implicitWidth })
+    readonly property var layoutPlan: LayoutPlan.plan(width, height, { increment: increment.implicitWidth, menu: more.implicitWidth, dialog: dialogButton.implicitWidth, readout: counter.implicitWidth })
     readonly property real actualDpr: metrics.devicePixelRatio
     title: "Hensou demo"
     width: 640
@@ -95,13 +95,14 @@ Window {
                     wantsFocus: root.state.focusTarget === "dialog"
                     objectName: "dialogButton"
                     text: "Dialog"
-                    visible: frame.width > 370
+                    visible: root.layoutPlan.dialogInline
                     onClicked: dialog.openFrom("dialog", "This is a modal dialog. The parent cannot receive input until you close it.")
                     onFocused: root.state.focusTarget = "dialog"
                 }
                 DemoLabel {
+                    id: counter
                     text: "Count: " + root.state.clicks
-                    visible: frame.width > 480
+                    visible: root.layoutPlan.readoutInline
                     Layout.fillWidth: true
                 }
             }
