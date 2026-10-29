@@ -4,6 +4,8 @@ import Hensou
 Loader {
     id: root
     property string text: ""
+    property bool wantsFocus: false
+    onLoaded: Qt.callLater(function() { if (root.wantsFocus) root.takeFocus(); })
     signal clicked()
     signal focused()
     implicitWidth: item ? item.implicitWidth : 0

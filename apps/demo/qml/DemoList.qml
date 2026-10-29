@@ -9,7 +9,11 @@ Loader {
     implicitWidth: item ? item.implicitWidth : 0
     implicitHeight: item ? item.implicitHeight : 0
     sourceComponent: Theme.name === "win98" ? win98 : platinum
-    function takeFocus() { if (item) item.forceActiveFocus(); }
+    function takeFocus() { if (item) item.view.forceActiveFocus(); }
+    Connections {
+        target: root.item ? root.item.view : null
+        function onActiveFocusChanged() { if (target.activeFocus) root.focused(); }
+    }
     onLoaded: Qt.callLater(function() {
         if (!root.item) return;
         if (root.modelState.selectedIndex >= 0) root.item.view.positionViewAtIndex(root.modelState.selectedIndex, ListView.Contain);
@@ -37,7 +41,7 @@ Loader {
                 Accessible.role: Accessible.ListItem
                 Accessible.name: modelData
                 Accessible.selected: selected
-                onClicked: { root.modelState.selectedIndex = index; platinumList.forceActiveFocus(); }
+                onClicked: { root.modelState.selectedIndex = index; platinumList.view.forceActiveFocus(); }
                 onDoubleClicked: root.activated(index)
             }
             DemoLabel {
@@ -70,7 +74,7 @@ Loader {
                 Accessible.role: Accessible.ListItem
                 Accessible.name: modelData
                 Accessible.selected: selected
-                onClicked: { root.modelState.selectedIndex = index; win98List.forceActiveFocus(); }
+                onClicked: { root.modelState.selectedIndex = index; win98List.view.forceActiveFocus(); }
                 onDoubleClicked: root.activated(index)
             }
         }

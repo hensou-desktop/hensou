@@ -5,6 +5,8 @@ Loader {
     id: root
     property string text: "Keep this choice"
     property bool checked: false
+    property bool wantsFocus: false
+    onLoaded: Qt.callLater(function() { if (root.wantsFocus) root.takeFocus(); })
     signal changed(bool value)
     signal focused()
     implicitWidth: item ? item.implicitWidth : 0

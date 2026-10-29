@@ -74,6 +74,7 @@ Window {
                 spacing: root.layoutPlan.gap
                 DemoButton {
                     id: increment
+                    wantsFocus: root.state.focusTarget === "increment"
                     objectName: "incrementButton"
                     text: "Increment"
                     onClicked: root.state.clicks++
@@ -81,6 +82,7 @@ Window {
                 }
                 DemoButton {
                     id: more
+                    wantsFocus: root.state.focusTarget === "menu"
                     objectName: "moreButton"
                     text: "More"
                     onClicked: menu.openAt(more)
@@ -88,6 +90,7 @@ Window {
                 }
                 DemoButton {
                     id: dialogButton
+                    wantsFocus: root.state.focusTarget === "dialog"
                     objectName: "dialogButton"
                     text: "Dialog"
                     visible: frame.width > 370
@@ -122,6 +125,7 @@ Window {
                     }
                     DemoCheckBox {
                         id: checkbox
+                        wantsFocus: root.state.focusTarget === "checkbox"
                         objectName: "checkboxControl"
                         checked: root.state.checked
                         enabled: root.state.editable
