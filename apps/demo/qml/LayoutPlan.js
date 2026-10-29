@@ -5,10 +5,11 @@ var splitWidth = 600;
 var shortHeight = 300;
 function plan(width, height, controls) {
     var inline = width >= minimumInlineWidth && height >= minimumInlineHeight;
+    var gap = Math.max(4, Math.min(12, Math.floor(Math.min(width, height) / 32)));
     return {
-        incrementInline: !controls || width >= controls.increment + controls.menu + 3 * Math.max(4, Math.min(12, Math.floor(Math.min(width, height) / 32))),
+        incrementInline: !controls || width >= controls.increment + controls.menu + 3 * gap,
         structure: !inline ? "overflow" : width >= splitWidth && height < shortHeight ? "split" : "stack",
-        gap: Math.max(4, Math.min(12, Math.floor(Math.min(width, height) / 32))),
+        gap: gap,
         inline: inline ? ["field", "checkbox", "list"] : [],
         overflow: inline ? [] : ["field", "checkbox", "list"]
     };
