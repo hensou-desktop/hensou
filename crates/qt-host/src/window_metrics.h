@@ -11,7 +11,7 @@ class HostTheme;
 // Qt actually uses for this surface. A QQuickItem follows reparenting too.
 class WindowMetrics : public QQuickItem {
     Q_OBJECT
-    QML_ELEMENT
+    QML_NAMED_ELEMENT(NativeWindowMetrics)
     Q_PROPERTY(qreal devicePixelRatio READ devicePixelRatio NOTIFY devicePixelRatioChanged FINAL)
 public:
     explicit WindowMetrics(QQuickItem *parent = nullptr);

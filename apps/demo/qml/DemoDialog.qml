@@ -28,7 +28,7 @@ Window {
     WindowScale {
         anchors.fill: parent
         devicePixelRatio: metrics.devicePixelRatio
-        WindowMetrics { id: metrics }
+        NativeWindowMetrics { id: metrics }
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: PlatinumTokens.menuRightInset

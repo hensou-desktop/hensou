@@ -17,5 +17,9 @@ fn main() {
             .qml_file("qml/LayoutPlan.js"),
     )
     .qt_module("Quick")
+        .qt_module("QuickTest")
+        .file("src/test_main.rs")
+        .include_dir("src")
+        .cpp_file("src/test_runner.cpp")
     .build();
 }

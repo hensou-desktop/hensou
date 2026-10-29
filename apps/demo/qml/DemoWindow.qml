@@ -63,7 +63,7 @@ Window {
         id: scale
         anchors.fill: parent
         devicePixelRatio: metrics.devicePixelRatio
-        WindowMetrics { id: metrics }
+        NativeWindowMetrics { id: metrics }
         ColumnLayout {
             id: frame
             anchors.fill: parent
