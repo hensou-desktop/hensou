@@ -1,5 +1,7 @@
 #pragma once
 #include <QQuickItem>
+#include <QPointer>
+#include <QFileInfo>
 #include <QQmlApplicationEngine>
 #include <QtQml/qqmlregistration.h>
 

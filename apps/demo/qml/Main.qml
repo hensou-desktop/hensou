@@ -1,11 +1,10 @@
 import QtQuick
+import Hensou
 import Hensou.Host
 
-Window {
-    width: 640
-    height: 480
-    visible: true
-    title: "Hensou host bootstrap"
-    WindowMetrics { id: metrics }
-    Component.onCompleted: console.log("HOST_READY", HostTheme.name, HostTheme.mode, metrics.devicePixelRatio)
+DemoWindow {
+    // Exactly one kit singleton in this engine. Watching stays in the host.
+    Binding { target: Theme; property: "name"; value: HostTheme.name }
+    Binding { target: Theme; property: "mode"; value: HostTheme.mode }
+    Binding { target: Theme; property: "extraState"; value: HostTheme.extraState }
 }
