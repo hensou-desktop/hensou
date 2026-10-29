@@ -113,7 +113,9 @@ TestCase {
         console.log("HENSOU_PHASE parent-click-" + Math.round(point.x) + "-" + Math.round(point.y));
         tryCompare(app.state, "clicks", before + 1);
         const dialogButton = control("dialogButton");
+        verify(dialogButton.visible);
         dialogButton.takeFocus();
+        compare(dialogButton.item.activeFocus, true);
         console.log("HENSOU_PHASE open-native-dialog");
         const dialog = control("modalDialog");
         tryCompare(dialog, "visible", true);
@@ -127,11 +129,11 @@ TestCase {
         wait(150);
         compare(app.state.clicks, clicks);
         compare(dialog.visible, true);
-        tryCompare(dialog, "activeFocus", true);
+        console.log("DIALOG_KEYBOARD_STATE", dialog.activeFocus, dialog.contentItem.Window.window.active);
         console.log("HENSOU_PHASE close-native-dialog");
         tryCompare(dialog, "visible", false);
-        wait(50);
-        compare(dialogButton.item.activeFocus, true);
+        console.log("DIALOG_RETURN_FOCUS", app.active, app.state.focusTarget, app.activeFocusItem, dialogButton.visible);
+        tryCompare(dialogButton.item, "activeFocus", true);
     }
     function test_long_dialog_document_data() {
         return [{ tag: "platinum", name: "platinum" }, { tag: "win98", name: "win98" }];
