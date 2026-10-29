@@ -30,7 +30,7 @@ evidence.mkdir(parents=True, exist_ok=True)
             "sway_version": subprocess.check_output(["sway", "--version"], text=True).strip(),
             "declared_renderer": {
                 "compositor": "pixman", "client": "OpenGL RHI", "software": "Mesa llvmpipe",
-                "egl_vendor": os.environ.get("__EGL_VENDOR_LIBRARY_FILENAMES"),
+                "egl_vendor": os.environ.get("__EGL_VENDOR_LIBRARY_DIRS"),
                 "dri_path": os.environ.get("LIBGL_DRIVERS_PATH"),
             },
         },
