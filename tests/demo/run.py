@@ -132,8 +132,9 @@ for_window [title=\"Hensou.*\"] floating enable
                     pointer_command(f"move {x} {y}")
                     pointer_command("click")
                 elif name == "close-native-dialog":
-                    window = wait_window("Hensou dialog")
-                    swaymsg(f'[con_id={window["id"]}] focus')
+                    tree = json.loads(swaymsg("-t", "get_tree"))
+                    focused = [node.get("name") for node in nodes(tree) if node.get("focused")]
+                    print("MODAL_COMPOSITOR_FOCUS=" + repr(focused), flush=True)
                     subprocess.run(["wtype", "-k", "Escape"], env=env, check=True)
                 elif name == "create":
                     write(("win98", "light", "on"))
