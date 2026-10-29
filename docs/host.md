@@ -91,14 +91,21 @@ From a committed source snapshot on Aka, under the shared wrapper:
   Cargo check and focused Clippy.
 - `bash tools/test-demo.sh`: layout boundaries, compile the real app/test
   binary, then run native Qt Quick tests under isolated headless Wayland.
+- `bash tools/check-style.sh`: focused Nix/Python/shell checks.
+- `bash tools/test-package.sh`: build the independent package, clear borrowed
+  Qt/library/font paths, then exercise its wrapped tests and actual app.
 - `nix build --builders '' --max-jobs 1 --cores 2 .#hensou-qml`
 - `nix build --builders '' --max-jobs 1 --cores 2 .#hensou-demo`
 
 `tests/demo/run.py` records the full Hensou SHA and baseline Mountainous SHA,
-logs and images beneath the active run's `evidence/demo-SHA/`. It drives real
+logs, native/compositor geometry and images beneath the active run's `evidence/demo-SHA/`. It drives real
 filesystem changes, native windows and two output scales. It does not use the
 baseline's FONTCONFIG_FILE. The test binary uses the same compiled demo module
-and native host as the executable. Parent runs the combined suite once.
+and native host as the executable. Real Wayland keyboard/pointer fixtures prove
+a positive parent click, blocked click, native popup grabs and Escape/focus
+return. Test-only synthetic Qt input is not evidence of native modal blocking.
+Both the test and real app processes run with a finite timeout and grouped
+cleanup of the private compositor/input devices. Parent runs the combined suite once.
 
 For a deliberate Cargo.lock/format update, `tools/prepare-cargo.sh` only changes
 a temporary copy. Bring its patch/lock back, commit them, transfer a new bundle,

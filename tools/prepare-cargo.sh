@@ -12,6 +12,7 @@ cd "$prep/source"
 cargo generate-lockfile
 cargo fmt --all
 nixfmt flake.nix nix/fonts.nix
+ruff format tests/demo/run.py tests/demo/pointer.py
 out=/tmp/hensou-foundation-416d014746da/evidence/build-prep-$sha
 mkdir -p "$out"
 cp Cargo.lock "$out/Cargo.lock"
