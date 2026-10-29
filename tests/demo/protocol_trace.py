@@ -23,11 +23,12 @@ def summarize(text):
         if match:
             surfaces[int(match[1])] = int(match[2])
         match = re.search(
-            r"xdg_surface[@#](\d+)\.get_popup\(new id xdg_popup[@#](\d+)", line
+            r"xdg_surface[@#](\d+)\.get_popup\(new id xdg_popup[@#](\d+), xdg_surface[@#](\d+)", line
         )
         if match:
             popups[int(match[2])] = {
                 "surface": surfaces.get(int(match[1])),
+                "parent_surface": surfaces.get(int(match[3])),
                 "phase": phase,
             }
         match = re.search(r"xdg_popup[@#](\d+)\.grab\(", line)
