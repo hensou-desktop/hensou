@@ -10,11 +10,17 @@ fn main() {
     // The installed kit is independent of this executable. A single import URI
     // prevents a second Theme singleton through a directory-import alias.
     if let Some(path) = std::env::var_os("HENSOU_QML_IMPORT_PATH") {
-        engine.as_mut().add_import_path(&QString::from(path.to_string_lossy().as_ref()));
+        engine
+            .as_mut()
+            .add_import_path(&QString::from(path.to_string_lossy().as_ref()));
     }
-    engine.as_mut().load(&QUrl::from("qrc:/qt/qml/Hensou/Demo/qml/Main.qml"));
+    engine
+        .as_mut()
+        .load(&QUrl::from("qrc:/qt/qml/Hensou/Demo/qml/Main.qml"));
     if !hensou_qt_host::engine_has_roots(&engine) {
-        eprintln!("Cannot load Hensou demo; set HENSOU_QML_IMPORT_PATH to the parent of Hensou/qmldir");
+        eprintln!(
+            "Cannot load Hensou demo; set HENSOU_QML_IMPORT_PATH to the parent of Hensou/qmldir"
+        );
         std::process::exit(1);
     }
     if let Some(mut app) = app.as_mut() {
