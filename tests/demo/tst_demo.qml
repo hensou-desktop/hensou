@@ -78,16 +78,23 @@ TestCase {
         }
     }
     function test_native_popup_and_modal_focus_return() {
+        app.width = 220;
+        app.height = 180;
+        wait(30);
         const button = control("moreButton");
         button.takeFocus();
         keyClick(Qt.Key_Return);
         const menu = control("actionsMenu");
         tryCompare(menu, "opened", true);
         compare(menu.popupType, 1); // Popup.Window
+        verify(menu.contentItem.Window.window !== app);
+        verify(menu.contentItem.width > app.width);
         keyClick(Qt.Key_Escape);
         tryCompare(menu, "opened", false);
         wait(50);
         compare(button.item.activeFocus, true);
+        app.width = 640; app.height = 480;
+        wait(30);
         const dialogButton = control("dialogButton");
         dialogButton.takeFocus();
         keyClick(Qt.Key_Return);
