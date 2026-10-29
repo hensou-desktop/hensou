@@ -123,7 +123,7 @@
           cmake
           ninja
           qt
-          mesa.drivers
+          mesa
           python3
           nodejs
           sway
@@ -141,8 +141,8 @@
           pkgs.libglvnd
           pkgs.stdenv.cc.cc.lib
         ];
-        LIBGL_DRIVERS_PATH = "${pkgs.mesa.drivers}/lib/dri";
-        __EGL_VENDOR_LIBRARY_FILENAMES = "${pkgs.mesa.drivers}/share/glvnd/egl_vendor.d/50_mesa.json";
+        LIBGL_DRIVERS_PATH = "${pkgs.mesa}/lib/dri";
+        __EGL_VENDOR_LIBRARY_FILENAMES = "${pkgs.mesa}/share/glvnd/egl_vendor.d/50_mesa.json";
         RUSTFLAGS = "-C link-arg=-fuse-ld=lld";
         HENSOU_FONT_DIRECTORY = "${fonts.hensou-fonts}/share/fonts/truetype";
         QMAKE = "${qt}/bin/qmake";
