@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -39,8 +40,9 @@ for_window [app_id=\"hensou-demo-tests\"] floating enable
 for_window [title=\"Hensou.*\"] floating enable
 """)
     with (evidence / "sway.log").open("w") as sway_log:
-        sway = subprocess.Popen(["sway", "--unsupported-gpu", "--config", str(config)], env=env, stdout=sway_log, stderr=subprocess.STDOUT)
+        sway = subprocess.Popen(["sway", "--unsupported-gpu", "--config", str(config)], env=env, stdout=sway_log, stderr=subprocess.STDOUT, start_new_session=True, close_fds=True)
         tests = None
+        keyboard = None
         try:
             deadline = time.monotonic() + 15
             while time.monotonic() < deadline:
@@ -56,6 +58,8 @@ for_window [title=\"Hensou.*\"] floating enable
                 time.sleep(0.05)
             else:
                 raise TimeoutError("headless sway readiness")
+
+            keyboard = subprocess.Popen(["wtype", "-s", "120000"], env=env, start_new_session=True, close_fds=True)
 
             def swaymsg(*args):
                 return subprocess.check_output(["swaymsg", *args], env=env, text=True)
@@ -76,12 +80,26 @@ for_window [title=\"Hensou.*\"] floating enable
                 for child in node.get("nodes", []) + node.get("floating_nodes", []):
                     yield from nodes(child)
 
+            def wait_window(title):
+                deadline = time.monotonic() + 5
+                while time.monotonic() < deadline:
+                    tree = json.loads(swaymsg("-t", "get_tree"))
+                    matches = [node for node in nodes(tree) if node.get("name") == title and node.get("shell") == "xdg_shell"]
+                    if matches:
+                        return max(matches, key=lambda node: node["id"])
+                    time.sleep(0.05)
+                raise TimeoutError(f"Wayland window {title!r} did not map; titles={[node.get('name') for node in nodes(tree)]}")
+
             def phase(name):
                 if name == "prime-input":
-                    swaymsg('[title="Hensou demo"] move to output HEADLESS-1')
-                    swaymsg('[title="Hensou demo"] move absolute position 0 0')
-                    swaymsg('[title="Hensou demo"] focus')
+                    window = wait_window("Hensou demo")
+                    criterion = f'[con_id={window["id"]}]'
+                    swaymsg(criterion + " move to output HEADLESS-1")
+                    swaymsg(criterion + " move absolute position 0 0")
+                    swaymsg(criterion + " focus")
                     subprocess.run(["wtype", "-k", "Shift_L"], env=env, check=True)
+                elif name == "open-native-menu":
+                    subprocess.run(["wtype", "-k", "Return"], env=env, check=True)
                 elif name == "create":
                     write(("win98", "light", "on"))
                 elif name == "invalid":
@@ -118,7 +136,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     geometry = f'{rect["x"]},{rect["y"]} {rect["width"]}x{rect["height"]}'
                     subprocess.run(["grim", "-g", geometry, str(evidence / f"{name}.png")], env=env, check=True)
 
-            tests = subprocess.Popen(["timeout", "--kill-after=5", "120", sys.argv[1], str(Path("tests/demo").resolve())], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            tests = subprocess.Popen(["timeout", "--kill-after=5", "120", sys.argv[1], str(Path("tests/demo").resolve())], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, start_new_session=True, close_fds=True)
             with (evidence / "tests.log").open("w") as log:
                 for line in tests.stdout:
                     print(line, end="", flush=True)
@@ -131,8 +149,12 @@ for_window [title=\"Hensou.*\"] floating enable
             if code:
                 raise SystemExit(code)
         finally:
-            if tests is not None and tests.poll() is None:
-                tests.terminate()
-                tests.wait(timeout=10)
-            sway.terminate()
-            sway.wait(timeout=10)
+            for process in (tests, keyboard, sway):
+                if process is None or process.poll() is not None:
+                    continue
+                os.killpg(process.pid, signal.SIGTERM)
+                try:
+                    process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    os.killpg(process.pid, signal.SIGKILL)
+                    process.wait(timeout=5)

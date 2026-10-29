@@ -93,7 +93,7 @@ TestCase {
         wait(30);
         const button = control("moreButton");
         button.takeFocus();
-        keyClick(Qt.Key_Return);
+        console.log("HENSOU_PHASE open-native-menu");
         const menu = control("actionsMenu");
         tryCompare(menu, "opened", true);
         compare(menu.popupType, 1); // Popup.Window
