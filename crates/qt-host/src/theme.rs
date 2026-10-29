@@ -18,6 +18,7 @@ pub mod qml {
         fn watch_theme(theme: Pin<&mut HostTheme>, path: &QString);
         #[namespace = "hensou"]
         fn engine_has_roots(engine: &QQmlApplicationEngine) -> bool;
+        include!("fonts.h");
         #[namespace = "hensou"]
         fn register_fonts(directory: &QString) -> bool;
     }

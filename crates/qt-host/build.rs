@@ -6,5 +6,6 @@ fn main() {
         .file("src/theme.rs")
         .include_dir("src")
         .cpp_files(["src/window_metrics.h", "src/host.cpp"])
-        .build();
+        .build()
+        .export();
 }

@@ -1,5 +1,5 @@
 #include "test_runner.h"
-#include "hensou-qt-host/src/window_metrics.h"
+#include "hensou-qt-host/src/fonts.h"
 #include <QtQuickTest/quicktest.h>
 void HensouTestSetup::applicationAvailable() {
     if (!hensou::register_fonts(qEnvironmentVariable("HENSOU_FONT_DIRECTORY")))

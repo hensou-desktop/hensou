@@ -1,4 +1,5 @@
 #include "window_metrics.h"
+#include "fonts.h"
 #include "hensou-qt-host/src/theme.cxxqt.h"
 #include <QDir>
 #include <QFontDatabase>
