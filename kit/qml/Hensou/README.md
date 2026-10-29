@@ -48,6 +48,15 @@ properties remain. `qmldir` lists the selected support types too.
 - Lists: `model`, `delegate`, `view`, `currentIndex`, `count`; rows retain their
   original properties. `PlatinumMenuList.activated(index)` is additive. Hosts
   supply selection data and activation; list scrolling preserves focus reveal.
+- `Win98MenuPanel` exposes PopupMenu and its existing action delegates expose
+  MenuItem semantics with access marks removed from names. Their disabled
+  accessibility target is separate from the original hover surface, so disabled
+  rows can still be highlighted by the shell without activation. Separators are
+  ignored; `header:true` is non-actionable. Accessible press uses the same
+  `clicked(index)` path, with no new MouseArea or keyboard owner.
+- `PlatinumMenuListRow` stays ListItem for collections. Menu hosts override its
+  existing `Accessible.role` to MenuItem; accessible press routes to `clicked()`
+  and respects `enabled`. Frame names/PopupMenu and dialog roles are supplied.
 - Frames only draw. Native menu escape, modality and focus return are host
   composition, not shell dependencies hidden in the kit.
 

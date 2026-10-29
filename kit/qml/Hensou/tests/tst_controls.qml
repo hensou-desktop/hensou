@@ -18,10 +18,10 @@ TestCase {
             spacing: 12
             PlatinumButton { id: pbutton; text: "Change value"; onClicked: test.clicks++ }
             PlatinumTextField { id: pinput; Accessible.name: "Platinum draft" }
-            PlatinumCheckBox { id: pcheck; text: "Keep draft"; interactive: true; onToggled: value => test.nextChecked = value }
+            PlatinumCheckBox { id: pcheck; text: "Keep draft"; interactive: true; onToggled: value => { test.nextChecked = value; test.toggleCount++; } }
             Win98Button { id: wbutton; text: "&Change value"; onClicked: test.clicks++ }
             Win98TextField { id: winput; Accessible.name: "Win98 draft" }
-            Win98CheckBox { id: wcheck; text: "&Keep draft"; onToggled: value => test.nextChecked = value }
+            Win98CheckBox { id: wcheck; text: "&Keep draft"; onToggled: value => { test.nextChecked = value; test.toggleCount++; } }
         }
     }
     WindowScale {
@@ -32,9 +32,10 @@ TestCase {
     }
     property int clicks: 0
     property bool nextChecked: false
+    property int toggleCount: 0
 
     function init() {
-        clicks = 0; nextChecked = false;
+        clicks = 0; nextChecked = false; toggleCount = 0;
         first.devicePixelRatio = 1.5;
         second.devicePixelRatio = 1;
         pbutton.enabled = true; wbutton.enabled = true;
@@ -54,7 +55,10 @@ TestCase {
     function test_button_keys_and_disabled() {
         for (const button of [pbutton, wbutton]) {
             button.forceActiveFocus();
-            keyClick(Qt.Key_Space); keyClick(Qt.Key_Return);
+            keyPress(Qt.Key_Space);
+            verify(button.down, "Space draws the pressed state");
+            keyRelease(Qt.Key_Space);
+            keyClick(Qt.Key_Return);
             compare(clicks, 2);
             button.enabled = false;
             mouseClick(button);
@@ -65,14 +69,17 @@ TestCase {
     function test_checkbox_next_value_is_not_owner_mutation() {
         for (const check of [pcheck, wcheck]) {
             check.checked = false;
+            toggleCount = 0;
             check.forceActiveFocus();
             keyClick(Qt.Key_Space);
             verify(nextChecked);
+            compare(toggleCount, 1);
             compare(check.checked, false);
             nextChecked = false;
             waitForRendering(check);
             mouseClick(check, check.width / 2, check.height / 2);
             verify(nextChecked, "pointer " + check + " " + check.width + "x" + check.height);
+            compare(toggleCount, 2);
             compare(check.checked, false);
         }
     }
@@ -92,6 +99,7 @@ TestCase {
         menu.items = [{text: "&Open", shortcut: "Enter"}, {separator: true},
                       {text: "Unavailable", enabled: false}, {text: "Section", header: true}];
         menu.highlighted = 0;
+        waitForRendering(menu);
         let activated = -1;
         menu.clicked.connect(index => { activated = index; });
         compare(menu.Accessible.role, Accessible.PopupMenu);
@@ -123,6 +131,25 @@ TestCase {
         row.Accessible.pressAction();
         compare(activated, -1);
         menu.destroy(); row.destroy();
+    }
+    function test_long_and_mixed_content_renders() {
+        // Generic controls have no async data owner: loading/error UI belongs
+        // to their consuming view. Empty/missing text uses the empty string.
+        const labels = ["", "A", "Built-in Speakers", "Galaxy Buds2 Pro", "U2723QE (HDMI 1)",
+                        "UnbrokenLabel".repeat(30), "0", "-1", "999999999999999999999", "—"];
+        for (const label of labels) {
+            for (const type of ["PlatinumMenuListRow", "Win98ListRow"]) {
+                const row = Qt.createQmlObject('import QtQuick; import Hensou; ' + type +
+                    ' { width: 200; height: 40 }', first, type);
+                if (type === "Win98ListRow") row.title = label;
+                else row.name = label;
+                waitForRendering(row);
+                verify(isFinite(row.implicitWidth));
+                verify(isFinite(row.implicitHeight));
+                compare(row.Accessible.name, label);
+                row.destroy();
+            }
+        }
     }
     function test_resources_relocated() {
         verify(PlatinumIconStore.url("check", "#ffffff", "transparent").startsWith("data:image/svg+xml;utf8,"));
