@@ -121,6 +121,8 @@ TestCase {
         console.log("HENSOU_PHASE block-parent-" + Math.round(point.x) + "-" + Math.round(point.y));
         wait(150);
         compare(app.state.clicks, clicks);
+        console.log("HENSOU_MODAL_ACTIVE", app.active, dialog.active, dialog.activeFocusItem);
+        tryCompare(dialog, "active", true);
         console.log("HENSOU_PHASE close-native-dialog");
         tryCompare(dialog, "visible", false);
         wait(50);
