@@ -41,6 +41,7 @@ Window {
             }
             DemoButton {
                 id: closeButton
+                wantsFocus: root.visible
                 objectName: "closeDialog"
                 text: "Close dialog"
                 onClicked: root.close()
