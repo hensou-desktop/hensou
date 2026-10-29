@@ -135,7 +135,11 @@
           lld
         ];
         buildInputs = [ pkgs.libglvnd ];
-        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ qt pkgs.libglvnd pkgs.stdenv.cc.cc.lib ];
+        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+          qt
+          pkgs.libglvnd
+          pkgs.stdenv.cc.cc.lib
+        ];
         RUSTFLAGS = "-C link-arg=-fuse-ld=lld";
         HENSOU_FONT_DIRECTORY = "${fonts.hensou-fonts}/share/fonts/truetype";
         QMAKE = "${qt}/bin/qmake";
