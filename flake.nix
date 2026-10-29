@@ -65,6 +65,7 @@
         doCheck = false;
         nativeBuildInputs = [
           pkgs.pkg-config
+          pkgs.autoPatchelfHook
           pkgs.lld
           pkgs.qt6.wrapQtAppsHook
         ];
@@ -74,10 +75,15 @@
           qtwayland
           qtsvg
           pkgs.libglvnd
+          pkgs.stdenv.cc.cc.lib
         ];
         # cxx-qt initialization archives require an order-independent ELF linker.
         RUSTFLAGS = "-C link-arg=-fuse-ld=lld";
         QMAKE = "${qt}/bin/qmake";
+        # Qt setup hooks select qtbase qmake; restore the merged PRL prefix.
+        preBuild = ''
+          export QMAKE=${qt}/bin/qmake
+        '';
         qtWrapperArgs = [
           "--set"
           "HENSOU_FONT_DIRECTORY"
@@ -129,7 +135,7 @@
           lld
         ];
         buildInputs = [ pkgs.libglvnd ];
-        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ qt pkgs.libglvnd ];
+        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ qt pkgs.libglvnd pkgs.stdenv.cc.cc.lib ];
         RUSTFLAGS = "-C link-arg=-fuse-ld=lld";
         HENSOU_FONT_DIRECTORY = "${fonts.hensou-fonts}/share/fonts/truetype";
         QMAKE = "${qt}/bin/qmake";
