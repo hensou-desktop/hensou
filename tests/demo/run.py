@@ -8,6 +8,7 @@ import re
 import select
 import shutil
 import signal
+import struct
 import subprocess
 import sys
 import tempfile
@@ -277,6 +278,8 @@ for_window [title=\"Hensou.*\"] floating enable
                         env=env,
                         check=True,
                     )
+                    pixels = struct.unpack(">II", (evidence / f"{name}.png").read_bytes()[16:24])
+                    assert pixels == (round(rect["width"] * 1.5), round(rect["height"] * 1.5)), pixels
 
             for traced in (True, False):
                 test_env = env | ({"WAYLAND_DEBUG": "client"} if traced else {})
@@ -352,7 +355,9 @@ for_window [title=\"Hensou.*\"] floating enable
                         item["surface"] == summary["popups"][modal]["surface"]
                         for item in summary["keyboard_enters"]
                     ), "No keyboard.enter for the native dialog surface"
-                    print("NATIVE_POPUP_ROLE_GRAB_KEYBOARD=PASS", flush=True)
+                    assert summary["buffers"], "No actual Mesa wl_shm buffers recorded"
+                    assert all(buffer["stride"] % 4 == 0 and buffer["stride"] >= buffer["width"] * 4 for buffer in summary["buffers"]), "Native host did not negotiate safe 32-bit buffers"
+                    print("NATIVE_POPUP_ROLE_GRAB_KEYBOARD_32BIT=PASS", flush=True)
             print(f"DEMO_EVIDENCE={evidence}")
             main_binary = (
                 Path(sys.argv[2])

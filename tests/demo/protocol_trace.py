@@ -10,8 +10,12 @@ def summarize(text):
     enters = []
     geometry = {}
     done = []
+    buffers = []
     phase = "startup"
     for line in text.splitlines():
+        match = re.search(r"wl_shm_pool[@#]\d+\.create_buffer\(new id wl_buffer[@#]\d+, \d+, (\d+), (\d+), (\d+), (\d+)\)", line)
+        if match:
+            buffers.append(dict(zip(("width", "height", "stride", "format"), map(int, match.groups()))))
         marker = re.search(r"HENSOU_PHASE ([\w-]+)", line)
         if marker:
             phase = marker[1]
@@ -48,4 +52,5 @@ def summarize(text):
         "keyboard_enters": enters,
         "geometry": geometry,
         "popup_done": done,
+        "buffers": buffers,
     }
