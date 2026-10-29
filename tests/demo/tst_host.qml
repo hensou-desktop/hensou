@@ -10,8 +10,15 @@ TestCase {
     width: 32
     height: 32
     Component { id: windowComponent; DemoWindow {} }
+    Component { id: mainComponent; Main { title: "Hensou live host" } }
     function phase(name) { console.log("HENSOU_PHASE " + name); }
     function test_appearance_files_and_real_window_scale() {
+        const live = createTemporaryObject(mainComponent, null);
+        verify(live);
+        live.state.text = "preserved draft";
+        live.state.checked = true;
+        live.state.selectedIndex = 7;
+        wait(80);
         compare(HostTheme.name, "platinum");
         compare(HostTheme.mode, "dark");
         compare(HostTheme.extraState, "off");
@@ -19,6 +26,10 @@ TestCase {
         tryCompare(HostTheme, "name", "win98");
         tryCompare(HostTheme, "mode", "light");
         tryCompare(HostTheme, "extraState", "on");
+        compare(Theme.name, "win98");
+        compare(findChild(live, "editableInput").text, "preserved draft");
+        compare(live.state.checked, true);
+        compare(live.state.selectedIndex, 7);
         phase("invalid");
         tryCompare(HostTheme, "name", "platinum");
         tryCompare(HostTheme, "extraState", "off");
@@ -34,6 +45,9 @@ TestCase {
         phase("recreate");
         tryCompare(HostTheme, "name", "win98");
         tryCompare(HostTheme, "mode", "light");
+        live.close();
+        live.destroy();
+        wait(30);
         Theme.name = "win98";
         const one = createTemporaryObject(windowComponent, null, { title: "Hensou scale one" });
         const fractional = createTemporaryObject(windowComponent, null, { title: "Hensou scale fractional" });

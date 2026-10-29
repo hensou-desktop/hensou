@@ -119,6 +119,29 @@ TestCase {
         wait(50);
         compare(dialogButton.item.activeFocus, true);
     }
+    function test_menu_accessible_actions_data() {
+        return [{ tag: "platinum", name: "platinum" }, { tag: "win98", name: "win98" }];
+    }
+    function test_menu_accessible_actions(data) {
+        Theme.name = data.name;
+        wait(30);
+        const menu = control("actionsMenu");
+        menu.openAt(control("moreButton"));
+        tryCompare(menu, "opened", true);
+        const index = menu.entries.findIndex(entry => entry.action === "empty");
+        const action = findChild(menu.contentItem, "menuAction" + index);
+        verify(action);
+        compare(action.Accessible.role, Accessible.MenuItem);
+        compare(action.Accessible.name, "Empty fixture");
+        const disabled = findChild(menu.contentItem, "menuAction" + (menu.entries.length - 1));
+        verify(disabled);
+        compare(disabled.enabled, false);
+        disabled.Accessible.pressAction();
+        compare(app.state.rows.length, 20);
+        action.Accessible.pressAction();
+        tryCompare(menu, "opened", false);
+        compare(app.state.rows.length, 0);
+    }
     function test_awkward_shapes_keep_capabilities_reachable() {
         for (const size of [[220, 640], [1000, 180], [180, 100]]) {
             app.width = size[0]; app.height = size[1];
