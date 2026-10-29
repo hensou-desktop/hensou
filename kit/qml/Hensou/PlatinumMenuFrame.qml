@@ -12,6 +12,8 @@ import QtQuick.Layouts
 // edge of every row moves in by the scroll bar, all together.
 Item {
     id: root
+    Accessible.role: Accessible.PopupMenu
+    Accessible.name: title
 
     property string title: ""
     property string detail: ""

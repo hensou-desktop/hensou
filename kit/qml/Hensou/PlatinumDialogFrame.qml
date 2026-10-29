@@ -8,6 +8,8 @@ import QtQuick
 // WindowShade box.
 Item {
     id: root
+    Accessible.role: Accessible.Dialog
+    Accessible.name: title
 
     property string title: ""
     property bool closable: true

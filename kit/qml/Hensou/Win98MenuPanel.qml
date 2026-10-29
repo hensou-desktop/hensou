@@ -20,6 +20,7 @@ import QtQuick
 // (only when it has no separators).
 Item {
     id: root
+    Accessible.role: Accessible.PopupMenu
 
     property var items: []
     property bool big: false
@@ -204,13 +205,32 @@ Item {
                     required property int index
                     readonly property bool separator: !!(modelData && modelData.separator)
                     readonly property bool on: !separator && index === root.highlighted
-                    readonly property bool usable: !separator && modelData.enabled !== false
+                    readonly property bool header: !separator && modelData.header === true
+                    readonly property bool usable: !separator && !header && modelData.enabled !== false
                     readonly property bool sub: !separator && !!modelData.submenu && modelData.submenu.length > 0
                     readonly property color ink: on ? Win98Tokens.selectionText : Win98Tokens.text
                     x: root.rowX(index)
                     y: root.rowBase(index) - root.pad - root.scrollY
                     width: root.columnWidth
                     height: separator ? 8 * root.u : root.rowH
+
+                    // Native disabled state derives from Item.enabled. Keep this
+                    // semantic target separate from the existing hover surface:
+                    // classic shell menus can highlight a disabled row without
+                    // activating it. No second paint or input handler is added.
+                    Item {
+                        objectName: "menuAction" + row.index
+                        anchors.fill: parent
+                        enabled: row.usable
+                        Accessible.role: row.separator ? Accessible.Separator
+                            : row.header ? Accessible.StaticText : Accessible.MenuItem
+                        Accessible.ignored: row.separator
+                        Accessible.name: row.separator ? "" : Win98Tokens.plainText(row.modelData.text || "")
+                        Accessible.description: row.separator ? "" : (row.modelData.shortcut || "")
+                        Accessible.selectable: !row.separator && !row.header
+                        Accessible.selected: row.on
+                        Accessible.onPressAction: if (row.usable && root.enabled) root.clicked(row.index)
+                    }
 
                     Win98Separator {
                         visible: row.separator

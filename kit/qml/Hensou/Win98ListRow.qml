@@ -16,6 +16,13 @@ Item {
     Accessible.name: title
     Accessible.description: detail
     Accessible.selected: selected
+    Accessible.selectable: true
+    Accessible.onPressAction: if (enabled) {
+        const view = root.ListView.view;
+        if (view) view.currentIndex = root.rowIndex();
+        root.clicked();
+        if (root.list) root.list.activated(root.rowIndex());
+    }
 
     property string title: ""
     property string detail: ""
