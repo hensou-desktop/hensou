@@ -68,8 +68,11 @@
           pkgs.lld
           pkgs.qt6.wrapQtAppsHook
         ];
-        buildInputs = [
-          qt
+        buildInputs = with pkgs.qt6; [
+          qtbase
+          qtdeclarative
+          qtwayland
+          qtsvg
           pkgs.libglvnd
         ];
         # cxx-qt initialization archives require an order-independent ELF linker.
@@ -126,6 +129,7 @@
           lld
         ];
         buildInputs = [ pkgs.libglvnd ];
+        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ qt pkgs.libglvnd ];
         RUSTFLAGS = "-C link-arg=-fuse-ld=lld";
         HENSOU_FONT_DIRECTORY = "${fonts.hensou-fonts}/share/fonts/truetype";
         QMAKE = "${qt}/bin/qmake";
