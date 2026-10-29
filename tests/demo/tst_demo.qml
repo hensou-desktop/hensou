@@ -19,6 +19,7 @@ TestCase {
         app = createTemporaryObject(appComponent, null);
         verify(app);
         app.requestActivate();
+        console.log("HENSOU_PHASE prime-input");
         wait(100);
     }
     function cleanup() { if (app) app.close(); }
@@ -62,7 +63,7 @@ TestCase {
             wait(80);
             compare(app.state.text, "hi");
             compare(control("editableInput").text, "hi");
-            compare(control("editableInput").selectionStart, 0);
+            compare(control("editableInput").selectionStart, 0, "selection in " + appearance[0] + " owner=" + app.state.selectionStart + ":" + app.state.selectionEnd);
             compare(control("editableInput").selectionEnd, 1);
             compare(app.state.checked, true);
             compare(app.state.selectedIndex, 7);
@@ -98,6 +99,8 @@ TestCase {
         compare(menu.popupType, 1); // Popup.Window
         verify(menu.contentItem.Window.window !== app);
         verify(menu.contentItem.width > app.width);
+        console.log("HENSOU_PHASE capture-menu-escape");
+        wait(100);
         keyClick(Qt.Key_Escape);
         tryCompare(menu, "opened", false);
         wait(50);
@@ -110,6 +113,8 @@ TestCase {
         const dialog = control("modalDialog");
         tryCompare(dialog, "visible", true);
         compare(dialog.modality, Qt.WindowModal);
+        console.log("HENSOU_PHASE capture-modal");
+        wait(100);
         const clicks = app.state.clicks;
         mouseClick(control("incrementButton").item);
         compare(app.state.clicks, clicks);
