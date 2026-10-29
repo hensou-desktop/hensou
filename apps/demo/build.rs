@@ -16,12 +16,12 @@ fn main() {
             ])
             .qml_file("qml/LayoutPlan.js"),
     )
-        .qrc("qml/resources.qrc")
+    .qrc("qml/resources.qrc")
     .qt_module("Quick")
-        .qt_module("QuickTest")
-        .file("src/test_main.rs")
-        .include_dir("src")
-        .cpp_file("src/test_runner.cpp")
-        .cpp_file("src/test_runner.h")
+    .qt_module("QuickTest")
+    .file("src/test_main.rs")
+    .include_dir("src")
+    .cpp_file("src/test_runner.cpp")
+    .cpp_file("src/test_runner.h")
     .build();
 }
