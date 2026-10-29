@@ -18,13 +18,13 @@ The selected app stack is Rust plus Qt Quick through cxx-qt. It is not Rust logi
 
 ## Extraction constraints
 
-The kit does not exist yet. Before adopting it, fix per-window fractional scale at 1.5, separate Quickshell-specific theme watching and icons, and implement app popup hosts. Preserve the shell's flat-file loading behavior and avoid duplicate singleton instances.
+The foundation kit separates shared drawing from host I/O and compositor behavior. Each window supplies actual native DPR through WindowScale. Hosts own watching and popup lifetime. Preserve the shell's flat-file loading behavior and avoid duplicate singleton instances. See [the Qt host contract](host.md).
 
 A standalone Rust/Qt demonstration app is the first independent host of the kit. It proves shared drawing, theme updates, focus, menus and scaling without services. Pyxamp adoption is optional work in its own repository, not a prerequisite for Files. Do not copy production code into empty crates merely to fill the directory layout.
 
 ## Builds
 
-The initial flake supports x86_64-linux. The dev shell supplies one merged Qt prefix and Rust tools. The runnable package currently builds only the verification tool.
+The flake supports x86_64-linux. It exports independent hensou-qml and hensou-demo packages plus shared theme-font packages. The dev shell supplies one merged Qt prefix, exact fonts and Rust tools.
 
 A Cargo workspace provides one lockfile and can reuse a local target directory. It does not automatically provide shared Nix dependency derivations. Add a measured dependency-cache strategy when real apps enter the workspace. The scaffold promises neither a working Qt app nor a binary cache.
 

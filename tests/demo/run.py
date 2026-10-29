@@ -101,7 +101,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     geometry = f'{rect["x"]},{rect["y"]} {rect["width"]}x{rect["height"]}'
                     subprocess.run(["grim", "-g", geometry, str(evidence / f"{name}.png")], env=env, check=True)
 
-            tests = subprocess.Popen([sys.argv[1], str(Path("tests/demo").resolve())], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            tests = subprocess.Popen(["timeout", "--kill-after=5", "120", sys.argv[1], str(Path("tests/demo").resolve())], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
             with (evidence / "tests.log").open("w") as log:
                 for line in tests.stdout:
                     print(line, end="", flush=True)

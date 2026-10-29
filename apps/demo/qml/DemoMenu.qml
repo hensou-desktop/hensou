@@ -33,6 +33,7 @@ Popup {
         close();
         chosen(entry.action);
     }
+    onOpened: surface.forceActiveFocus()
     onClosed: Qt.callLater(function() { owner.restoreFocus(returnTarget); })
     contentItem: WindowScale {
         id: surface
