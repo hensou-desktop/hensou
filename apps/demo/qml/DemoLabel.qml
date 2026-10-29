@@ -26,6 +26,7 @@ Loader {
         Win98Text {
             text: root.text
             wrap: root.wrap
+            wrapMode: Text.WrapAnywhere
             accessMarks: false
             Accessible.role: Accessible.StaticText
             Accessible.name: root.text
