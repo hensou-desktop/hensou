@@ -48,6 +48,8 @@ properties remain. `qmldir` lists the selected support types too.
 - Lists: `model`, `delegate`, `view`, `currentIndex`, `count`; rows retain their
   original properties. `PlatinumMenuList.activated(index)` is additive. Hosts
   supply selection data and activation; list scrolling preserves focus reveal.
+- `Win98Text.wrapMode` defaults to Text.WordWrap. With `wrap:true`, app
+  dialogs can request Text.WrapAnywhere for raw paths without modifying data.
 - `Win98MenuPanel` exposes PopupMenu and its existing action delegates expose
   MenuItem semantics with access marks removed from names. Their disabled
   accessibility target is separate from the original hover surface, so disabled
