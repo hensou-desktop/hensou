@@ -44,10 +44,13 @@ with tempfile.TemporaryDirectory(prefix="hensou-demo-") as temporary:
         "WLR_LIBINPUT_NO_DEVICES": "1",
         "WLR_RENDERER": "pixman",
         "QT_QPA_PLATFORM": "wayland",
-        "QT_QUICK_BACKEND": "software",
+        "LIBGL_ALWAYS_SOFTWARE": "1",
+        "QSG_RHI_BACKEND": "opengl",
+        "QSG_INFO": "1",
         "QT_WAYLAND_DISABLE_WINDOWDECORATION": "1",
         "QML_DISABLE_DISK_CACHE": "1",
     }
+    env.pop("QT_QUICK_BACKEND", None)
     if packaged:
         for variable in (
             "LD_LIBRARY_PATH",

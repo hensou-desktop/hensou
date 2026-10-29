@@ -7,5 +7,5 @@ class HensouTestSetup : public QObject {
 public slots:
     void applicationAvailable();
 };
-int run_tests(const QString &directory);
+int run_tests(const QString &directory, const QString &function);
 #endif
