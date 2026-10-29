@@ -148,7 +148,7 @@ for_window [title=\"Hensou.*\"] floating enable
 
             def send_key(key):
                 # Keep the device that supplied the real grab serial alive.
-                process = subprocess.Popen(["wtype", "-k", key, "-s", "300000"], env=env, start_new_session=True, close_fds=True)
+                process = subprocess.Popen(["wtype", "-P", key, "-s", "100", "-p", key, "-s", "300000"], env=env, start_new_session=True, close_fds=True)
                 input_processes.append(process)
 
             def swaymsg(*args):

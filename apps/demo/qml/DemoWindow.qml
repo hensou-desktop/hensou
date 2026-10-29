@@ -1,10 +1,11 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Hensou
 import Hensou.Host
 import "LayoutPlan.js" as LayoutPlan
 
-Window {
+ApplicationWindow {
     id: root
     property QtObject state: QtObject {
         property string text: "Type here"
@@ -18,6 +19,8 @@ Window {
         property string focusTarget: "field"
         property var rows: ["One row", "A long fixture label: every character remains available in the dialog", "UnbrokenLabelABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", "Fourth row", "Fifth row", "Sixth row", "Seventh row", "Eighth row", "Ninth row", "Tenth row", "Eleventh row", "Twelfth row", "Thirteenth row", "Fourteenth row", "Fifteenth row", "Sixteenth row", "Seventeenth row", "Eighteenth row", "Nineteenth row", "Twentieth row"]
     }
+    background: null
+    readonly property Item popupOverlay: scale.Overlay.overlay
     property var companion: null
     property var controlsWindowFactory: null
     readonly property var layoutPlan: LayoutPlan.plan(width, height, { increment: increment.implicitWidth, menu: more.implicitWidth, dialog: dialogButton.implicitWidth, readout: counter.implicitWidth })

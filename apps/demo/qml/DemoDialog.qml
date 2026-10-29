@@ -10,7 +10,7 @@ Popup {
     property string message: ""
     property string returnTarget: "dialog"
     property string title: "Hensou dialog"
-    parent: owner.contentItem
+    parent: owner.popupOverlay
     popupType: Popup.Window
     modal: true
     focus: true

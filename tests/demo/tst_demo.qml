@@ -18,6 +18,7 @@ TestCase {
         Theme.extraState = "off";
         app = createTemporaryObject(appComponent, null);
         verify(app);
+        verify(app.popupOverlay);
         app.requestActivate();
         console.log("HENSOU_PHASE prime-input");
         wait(100);
