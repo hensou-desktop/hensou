@@ -15,12 +15,12 @@ Popup {
     padding: 0
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-    parent: owner.contentItem
+    parent: owner.popupOverlay
     implicitWidth: surface.implicitWidth
     implicitHeight: surface.implicitHeight
     background: Item {}
     function openAt(control) {
-        const point = control.mapToItem(owner.contentItem, 0, control.height);
+        const point = control.mapToItem(owner.popupOverlay, 0, control.height);
         x = point.x;
         y = point.y;
         returnTarget = owner.state.focusTarget;
