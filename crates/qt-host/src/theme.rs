@@ -46,12 +46,18 @@ pub struct HostThemeRust {
 
 impl Default for HostThemeRust {
     fn default() -> Self {
-        let base = std::env::var_os("XDG_STATE_HOME").filter(|v| !v.is_empty())
+        let base = std::env::var_os("XDG_STATE_HOME")
+            .filter(|v| !v.is_empty())
             .map(PathBuf::from)
-            .unwrap_or_else(|| PathBuf::from(std::env::var_os("HOME").unwrap_or_default()).join(".local/state"));
+            .unwrap_or_else(|| {
+                PathBuf::from(std::env::var_os("HOME").unwrap_or_default()).join(".local/state")
+            });
         Self {
-            name: QString::from("platinum"), mode: QString::from("dark"), extra_state: QString::from("off"),
-            directory: base.join("mountainous"), appearance: Appearance::default(),
+            name: QString::from("platinum"),
+            mode: QString::from("dark"),
+            extra_state: QString::from("off"),
+            directory: base.join("mountainous"),
+            appearance: Appearance::default(),
         }
     }
 }
@@ -61,7 +67,8 @@ impl qml::HostTheme {
         let next = self.rust().appearance.read(&self.rust().directory);
         self.as_mut().set_name(QString::from(next.name));
         self.as_mut().set_mode(QString::from(next.mode));
-        self.as_mut().set_extra_state(QString::from(next.extra_state));
+        self.as_mut()
+            .set_extra_state(QString::from(next.extra_state));
         self.rust_mut().appearance = next;
     }
 }
