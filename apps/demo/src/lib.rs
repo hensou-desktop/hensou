@@ -28,7 +28,7 @@ pub fn run() -> i32 {
         );
         std::process::exit(1);
     }
-    if let Some(mut app) = app.as_mut() {
+    if let Some(app) = app.as_mut() {
         return app.exec();
     }
     1
