@@ -19,10 +19,12 @@ fonts and glyph artwork come from those controls. No new aesthetic references.
   No Screen DPR and no singleton DPR writes. Missing-provider fallback is 1.5
   for legacy out-of-window drawing; a real host must bind a provider.
   Shell flat subclasses carry `hensouDevicePixelRatio` directly instead.
-- `WindowScale.iconResolver(name, checkOnly=false)` optionally resolves system-theme icon URLs.
+- `WindowScale.iconResolver(name, checkOnly=false)` optionally resolves
+  system-theme icon URLs.
   `checkOnly:true` requests an empty URL for missing theme art (menu document
   fallback); false allows the host's ordinary app fallback. One-argument
-  callbacks remain compatible. Without it built-in glyphs still work; system-theme icons have no source.
+  callbacks remain compatible. Without it built-in glyphs still work;
+  system-theme icons have no source.
 - Tokens are one module singleton per engine. Legacy `pixelRatio`, `u`, `hair`
   scalar properties are compatibility fallbacks only. Shared drawing uses the
   nearest provider. Shell drawing uses per-window token helpers.
@@ -74,9 +76,11 @@ full value (for example in a selected-row detail/dialog). No new motion.
 
 `python3 kit/generate-resources.py` regenerates `kit/qml/Hensou/resources.js`;
 `--check` verifies it. `python3 kit/check-boundary.py` checks isolation and the
-explicit module entry point. Run `qmltestrunner -input kit/qml/Hensou/tests`
-with `QML2_IMPORT_PATH=kit/qml` and the packaged Qt environment. The control
-fixtures cover two independent scales, keys, disabled, owner state, live
-appearance and 0/1/100 rows. The consuming demo owns the full view stress set
+explicit module entry point. Run `bash kit/qml/Hensou/tests/run.sh` inside
+its pinned Qt dependency environment. The runner retains the merged Qt QML
+paths as well as the kit URI path; do not replace those paths with the kit alone.
+The control fixtures cover two independent scales, keys, disabled, owner state,
+live appearance, accessible menu activation, raw-word wrapping, icon fallback
+and 0/1/100-row navigation/reveal. The consuming demo owns the full view stress set
 (blank/loading/partial/error/ideal, long words and mixed numeric/missing data),
 and native popup/modal behavior. All workflow heavy checks execute on Aka.
