@@ -4,15 +4,15 @@
 
 import json
 import os
-from pathlib import Path
 import re
+import select
 import shutil
 import signal
-import select
 import subprocess
 import sys
 import tempfile
 import time
+from pathlib import Path
 
 assert os.uname().nodename.split(".")[0] == "aka"
 packaged = len(sys.argv) > 3 and sys.argv[3] == "--packaged"
