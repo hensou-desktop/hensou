@@ -103,11 +103,10 @@ for_window [title=\"Hensou.*\"] floating enable
                     swaymsg("output HEADLESS-2 scale 1.5")
                 elif name in ("capture-menu-escape", "capture-modal"):
                     subprocess.run(["grim", "-o", "HEADLESS-1", str(evidence / f"{name}.png")], env=env, check=True)
-                elif name.startswith("capture-"):
+                elif name == "prepare-capture":
                     swaymsg('[title="Hensou capture"] move to output HEADLESS-2')
                     swaymsg('[title="Hensou capture"] move absolute position 1600 0')
-                    time.sleep(0.2)  # Finite wait for the native DPR change/frame.
-
+                elif name.startswith("capture-"):
                     tree = json.loads(swaymsg("-t", "get_tree"))
                     window = next(node for node in nodes(tree) if node.get("name") == "Hensou capture")
                     rect = window["rect"]

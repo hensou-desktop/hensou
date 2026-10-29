@@ -79,7 +79,11 @@ TestCase {
             for (const shape of [[220, 640, "narrow"], [1000, 180, "wide"]]) {
                 app.width = shape[0]; app.height = shape[1];
                 app.fixture(shape[2] === "narrow" ? 100 : 1);
-                wait(160);
+                phase("prepare-capture");
+                wait(300);
+                compare(app.width, shape[0]); compare(app.height, shape[1]);
+                compare(app.actualDpr, 1.5);
+                console.log("HENSOU_GEOMETRY", app.width, app.height, app.actualDpr);
                 phase("capture-" + tag + "-" + shape[2]);
                 wait(100);
             }
