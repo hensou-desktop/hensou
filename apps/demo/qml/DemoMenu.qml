@@ -80,6 +80,7 @@ Popup {
                     model: root.entries
                     PlatinumMenuListRow {
                         required property int index
+                        objectName: "menuAction" + index
                         required property var modelData
                         Layout.fillWidth: true
                         name: modelData.text
