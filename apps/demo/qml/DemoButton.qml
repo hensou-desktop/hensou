@@ -1,2 +1,31 @@
 import QtQuick
-Item {}
+import Hensou
+
+Loader {
+    id: root
+    property string text: ""
+    signal clicked()
+    signal focused()
+    implicitWidth: item ? item.implicitWidth : 0
+    implicitHeight: item ? item.implicitHeight : 0
+    sourceComponent: Theme.name === "win98" ? win98 : platinum
+    function takeFocus() { if (item) item.forceActiveFocus(); }
+    Component {
+        id: platinum
+        PlatinumButton {
+            text: root.text
+            Accessible.name: root.text
+            onClicked: root.clicked()
+            onActiveFocusChanged: if (activeFocus) root.focused()
+        }
+    }
+    Component {
+        id: win98
+        Win98Button {
+            text: root.text
+            Accessible.name: root.text
+            onClicked: root.clicked()
+            onActiveFocusChanged: if (activeFocus) root.focused()
+        }
+    }
+}
