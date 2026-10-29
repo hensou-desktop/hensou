@@ -6,8 +6,6 @@ Loader {
     required property QtObject modelState
     signal activated(int index)
     signal focused()
-    implicitWidth: item ? item.implicitWidth : 0
-    implicitHeight: item ? item.implicitHeight : 0
     sourceComponent: Theme.name === "win98" ? win98 : platinum
     function takeFocus() { if (item) item.view.forceActiveFocus(); }
     Connections {

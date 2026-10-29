@@ -5,8 +5,6 @@ Loader {
     id: root
     property string text: ""
     property bool wrap: false
-    implicitWidth: item ? item.implicitWidth : 0
-    implicitHeight: item ? item.implicitHeight : 0
     sourceComponent: Theme.name === "win98" ? win98 : platinum
     Component {
         id: platinum

@@ -6,8 +6,6 @@ Loader {
     required property QtObject modelState
     property bool restoring: true
     signal focused()
-    implicitWidth: item ? item.implicitWidth : 0
-    implicitHeight: item ? item.implicitHeight : 0
     sourceComponent: Theme.name === "win98" ? win98 : platinum
     onSourceComponentChanged: restoring = true
     onLoaded: Qt.callLater(restore)
