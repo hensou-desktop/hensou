@@ -35,6 +35,7 @@ Item {
     // Disabled text: grey, with a 1-u emboss in light.
     property bool disabledLook: false
     property bool wrap: false
+    property int wrapMode: Text.WordWrap
     property int maximumLineCount: 1000
     property int elide: Text.ElideRight
     property int horizontalAlignment: Text.AlignLeft
@@ -83,7 +84,7 @@ Item {
             text: root.plain
             textFormat: Text.PlainText
             renderType: Text.NativeRendering
-            wrapMode: root.wrap ? Text.WordWrap : Text.NoWrap
+            wrapMode: root.wrap ? root.wrapMode : Text.NoWrap
             maximumLineCount: root.maximumLineCount
             elide: root.elide
             horizontalAlignment: root.horizontalAlignment

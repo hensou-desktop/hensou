@@ -151,6 +151,25 @@ TestCase {
             }
         }
     }
+    function test_unbroken_wrap_mode_preserves_default() {
+        const label = Qt.createQmlObject('import QtQuick; import Hensou; Win98Text { width: 110; wrap: true; accessMarks: false; elide: Text.ElideNone }', first, "wrappedLabel");
+        label.text = "UnbrokenRawPath".repeat(30);
+        compare(label.wrapMode, Text.WordWrap);
+        label.wrapMode = Text.WrapAnywhere;
+        waitForRendering(label);
+        let face = null;
+        for (const child of label.children[0].children) {
+            if (child.visible && child.contentWidth !== undefined) { face = child; break; }
+        }
+        verify(face !== null);
+        compare(face.wrapMode, Text.WrapAnywhere);
+        verify(face.lineCount > 1);
+        verify(face.contentWidth * label.k * label.size <= label.width,
+               "wrapped raw text stays inside its requested width");
+        compare(label.drawnText, label.text);
+        verify(!label.truncated);
+        label.destroy();
+    }
     function test_resources_relocated() {
         verify(PlatinumIconStore.url("check", "#ffffff", "transparent").startsWith("data:image/svg+xml;utf8,"));
         verify(Win98IconStore.url("check", "#ffffff").startsWith("data:image/svg+xml;utf8,"));
