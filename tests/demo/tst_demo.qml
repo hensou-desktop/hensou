@@ -90,14 +90,19 @@ TestCase {
     function test_native_popup_and_modal_focus_return() {
         app.width = 220;
         app.height = 180;
-        wait(30);
+        console.log("HENSOU_PHASE resize-small-parent");
+        wait(150);
+        tryCompare(app, "width", 220);
+        tryCompare(app, "height", 180);
         const button = control("moreButton");
         button.takeFocus();
         console.log("HENSOU_PHASE open-native-menu");
         const menu = control("actionsMenu");
         tryCompare(menu, "opened", true);
         compare(menu.popupType, 1); // Popup.Window
-        verify(menu.contentItem.Window.window !== app);
+        tryVerify(function() { return menu.contentItem.Window.window && menu.contentItem.Window.window.visible && menu.contentItem.Window.window !== app; });
+        wait(150);
+        console.log("NATIVE_MENU_GEOMETRY", app.width, app.height, menu.contentItem.width, menu.contentItem.Window.window.width);
         verify(menu.contentItem.width > app.width);
         console.log("HENSOU_PHASE capture-menu-escape");
         wait(100);
@@ -106,7 +111,9 @@ TestCase {
         wait(50);
         compare(button.item.activeFocus, true);
         app.width = 640; app.height = 480;
-        wait(30);
+        console.log("HENSOU_PHASE resize-large-parent");
+        wait(150);
+        tryCompare(app, "width", 640); tryCompare(app, "height", 480);
         const increment = control("incrementButton");
         const point = increment.mapToItem(app.contentItem, increment.width / 2, increment.height / 2);
         const before = app.state.clicks;

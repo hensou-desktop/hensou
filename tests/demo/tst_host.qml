@@ -79,7 +79,7 @@ TestCase {
             for (const shape of [[220, 640, "narrow"], [1000, 180, "wide"]]) {
                 app.width = shape[0]; app.height = shape[1];
                 app.fixture(shape[2] === "narrow" ? 100 : 1);
-                phase("prepare-capture");
+                phase("prepare-capture-" + shape[2]);
                 wait(300);
                 compare(app.width, shape[0]); compare(app.height, shape[1]);
                 compare(app.actualDpr, 1.5);
