@@ -1,7 +1,9 @@
 #include "test_runner.h"
 #include "hensou-qt-host/src/fonts.h"
+#include "hensou-qt-host/src/graphics.h"
 #include <QtQuickTest/quicktest.h>
 void HensouTestSetup::applicationAvailable() {
+    hensou::configure_graphics();
     if (!hensou::register_fonts(qEnvironmentVariable("HENSOU_FONT_DIRECTORY")))
         qFatal("Cannot register packaged fonts for the demo test");
 }

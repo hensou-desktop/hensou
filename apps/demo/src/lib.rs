@@ -2,6 +2,7 @@ use cxx_qt_lib::{QGuiApplication, QQmlApplicationEngine, QString, QUrl};
 
 pub fn run() -> i32 {
     let mut app = QGuiApplication::new();
+    hensou_qt_host::configure_graphics();
     let fonts = std::env::var("HENSOU_FONT_DIRECTORY").unwrap_or_default();
     if !hensou_qt_host::register_fonts(&QString::from(fonts.as_str())) {
         eprintln!("Set HENSOU_FONT_DIRECTORY to the packaged Hensou fonts");

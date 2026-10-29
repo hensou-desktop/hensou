@@ -29,7 +29,7 @@ evidence.mkdir(parents=True, exist_ok=True)
             "hostname": "aka",
             "sway_version": subprocess.check_output(["sway", "--version"], text=True).strip(),
             "declared_renderer": {
-                "compositor": "gles2", "client": "OpenGL RHI", "software": "Mesa llvmpipe",
+                "compositor": "pixman", "client": "OpenGL RHI", "software": "Mesa llvmpipe",
                 "egl_vendor": os.environ.get("__EGL_VENDOR_LIBRARY_FILENAMES"),
                 "dri_path": os.environ.get("LIBGL_DRIVERS_PATH"),
             },
@@ -50,7 +50,7 @@ with tempfile.TemporaryDirectory(prefix="hensou-demo-") as temporary:
         "WLR_BACKENDS": "headless",
         "WLR_HEADLESS_OUTPUTS": "2",
         "WLR_LIBINPUT_NO_DEVICES": "1",
-        "WLR_RENDERER": "gles2",
+        "WLR_RENDERER": "pixman",
         "WLR_RENDERER_ALLOW_SOFTWARE": "1",
         "LP_NUM_THREADS": "2",
         "QT_QPA_PLATFORM": "wayland",
@@ -84,7 +84,7 @@ for_window [title=\"Hensou.*\"] floating enable
 """)
     with (evidence / "sway.log").open("w") as sway_log:
         sway = subprocess.Popen(
-            ["sway", "--unsupported-gpu", "--config", str(config)],
+            ["sway", "--debug", "--unsupported-gpu", "--config", str(config)],
             env=env,
             stdout=sway_log,
             stderr=subprocess.STDOUT,
@@ -106,7 +106,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     env["SWAYSOCK"] = str(ipc[0])
                     break
                 if sway.poll() is not None:
-                    raise RuntimeError("headless sway exited before readiness")
+                    raise RuntimeError(f"headless sway exited before readiness: returncode={sway.returncode}; log={evidence / 'sway.log'}")
                 time.sleep(0.05)
             else:
                 raise TimeoutError("headless sway readiness")

@@ -1,5 +1,6 @@
 #include "window_metrics.h"
 #include "fonts.h"
+#include "graphics.h"
 #include "hensou-qt-host/src/theme.cxxqt.h"
 #include <QDir>
 #include <QFontDatabase>
@@ -35,6 +36,12 @@ bool WindowMetrics::eventFilter(QObject *object, QEvent *event) {
 }
 
 namespace hensou {
+void configure_graphics() {
+    // Without alpha Mesa chose RGB565, including 226-byte rows for an odd-width
+    // popup. Pixman requires four-byte row alignment. Native 32-bit alpha
+    // surfaces also preserve the kit's full color values in normal hosts.
+    QQuickWindow::setDefaultAlphaBuffer(true);
+}
 bool engine_has_roots(const QQmlApplicationEngine &engine) { return !engine.rootObjects().isEmpty(); }
 bool register_fonts(const QString &directory) {
     const QStringList files = {"ChicagoFLF.ttf", "W95FAGrid.ttf"};
