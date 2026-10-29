@@ -71,7 +71,7 @@
       devShells.${system}.default = pkgs.mkShell {
         packages = with pkgs; [
           cargo rustc rustfmt clippy pkg-config cmake ninja qt
-          python3 nodejs sway grim wtype jq
+          python3 nodejs sway grim wtype jq nixfmt ruff shellcheck
         ];
         HENSOU_FONT_DIRECTORY = "${fonts.hensou-fonts}/share/fonts/truetype";
         QMAKE = "${qt}/bin/qmake";
