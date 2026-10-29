@@ -19,6 +19,7 @@ Window {
         property var rows: ["One row", "A long fixture label: every character remains available in the dialog", "UnbrokenLabelABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", "Fourth row", "Fifth row", "Sixth row", "Seventh row", "Eighth row", "Ninth row", "Tenth row", "Eleventh row", "Twelfth row", "Thirteenth row", "Fourteenth row", "Fifteenth row", "Sixteenth row", "Seventeenth row", "Eighteenth row", "Nineteenth row", "Twentieth row"]
     }
     property var companion: null
+    property var controlsWindowFactory: null
     readonly property var layoutPlan: LayoutPlan.plan(width, height, { increment: increment.implicitWidth, menu: more.implicitWidth, dialog: dialogButton.implicitWidth, readout: counter.implicitWidth })
     readonly property real actualDpr: metrics.devicePixelRatio
     title: "Hensou demo"
@@ -36,7 +37,19 @@ Window {
         else more.takeFocus();
     }
     function showControlsWindow() {
-        if (!companion) companion = windowComponent.createObject(null, { state: root.state });
+        if (!companion) {
+            if (!controlsWindowFactory)
+                controlsWindowFactory = Qt.createComponent(Qt.resolvedUrl("DemoWindow.qml"), Component.PreferSynchronous, root);
+            if (controlsWindowFactory.status !== Component.Ready) {
+                console.error("Cannot load controls window:", controlsWindowFactory.errorString());
+                return;
+            }
+            companion = controlsWindowFactory.createObject(null, { state: root.state, title: "Hensou controls window" });
+            if (!companion) {
+                console.error("Cannot create controls window:", controlsWindowFactory.errorString());
+                return;
+            }
+        }
         companion.show();
         companion.requestActivate();
     }
@@ -55,7 +68,6 @@ Window {
         else if (name === "dialog") dialog.openFrom("menu", "This is a modal dialog. The parent cannot receive input until you close it.");
         else if (name === "second") showControlsWindow();
     }
-    Component { id: windowComponent; DemoWindow { title: "Hensou controls window" } }
     onClosing: {
         if (companion) companion.destroy();
         companion = null;
