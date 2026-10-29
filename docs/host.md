@@ -66,10 +66,13 @@ Switching drawing restores that state and semantic keyboard focus.
 The Increment action changes a local count. More supplies empty/one/many
 fixtures, disabled inputs, a native modal dialog and a second controls window.
 Enter on a list row opens its complete label, including unbroken long labels.
-The popup uses `Popup.Window`, not a clipped in-item menu. The modal dialog uses the standard Qt Quick Controls `Dialog` with
-`Popup.Window`, a real native popup/grab and `modal: true`. A custom
-QQuickWindow/WindowModal blocked pointer actions but could leave Sway focus on
-the parent. The standard dialog avoids that keyboard trap. Closing either returns focus.
+The popup uses `Popup.Window`, not a clipped in-item menu. The modal surface uses standard Qt Quick Controls `Popup` with `Popup.Window`,
+`modal: true` and an `Accessible.Dialog` content Item. The real Wayland grab,
+keyboard target, positive parent click and blocked click decide acceptance.
+Neither the `Dialog` class name nor a `Qt.WindowModal` enum proves that behavior.
+On the test compositor, regular native dialog toplevels blocked pointer actions
+but left keyboard routing at the owner. A native Qt popup avoids private window
+flag changes and test-only refocusing. Closing either returns focus.
 
 `LayoutPlan.js` owns the guessed container fit thresholds. Narrow-tall stacks
 controls. Wide-short puts the form beside the list. At very small sizes the
@@ -100,10 +103,13 @@ From a committed source snapshot on Aka, under the shared wrapper:
 `tests/demo/run.py` records the full Hensou SHA and baseline Mountainous SHA,
 logs, native/compositor geometry and images beneath the active run's `evidence/demo-SHA/`. It drives real
 filesystem changes, native windows and two output scales. It does not use the
-baseline's FONTCONFIG_FILE. The test binary uses the same compiled demo module
+baseline's FONTCONFIG_FILE. Final rendering uses Mesa llvmpipe with OpenGL RHI,
+with pinned EGL vendor/DRI paths. The Qt software scenegraph is not paint
+evidence. Production wrappers do not force this test renderer. The test binary uses the same compiled demo module
 and native host as the executable. Real Wayland keyboard/pointer fixtures prove
 a positive parent click, blocked click, native popup grabs and Escape/focus
-return. Test-only synthetic Qt input is not evidence of native modal blocking.
+return. A bounded `WAYLAND_DEBUG=client` trace records real popup roles, grabs,
+configures and `wl_keyboard.enter` surface identities. Test-only synthetic Qt input is not evidence of native modal blocking.
 Both the test and real app processes run with a finite timeout and grouped
 cleanup of the private compositor/input devices. Parent runs the combined suite once.
 
