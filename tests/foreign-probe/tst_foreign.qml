@@ -7,7 +7,10 @@ Item {
     Window {
         id: foreignWindow
         onActiveChanged: {
-            if (active) sink.forceActiveFocus();
+            if (active) {
+                sink.forceActiveFocus();
+                Qt.callLater(function() { console.log("FOREIGN_READY", foreignWindow.active, sink.activeFocus, foreignWindow.activeFocusItem); });
+            }
             console.log("FOREIGN_ACTIVE", active, sink.activeFocus, activeFocusItem);
         }
         title: "Hensou foreign probe"
