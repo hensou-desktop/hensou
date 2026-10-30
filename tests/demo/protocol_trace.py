@@ -14,9 +14,19 @@ def summarize(text):
     last_parent_surface = None
     phase = "startup"
     for line in text.splitlines():
-        match = re.search(r"wl_shm_pool[@#]\d+\.create_buffer\(new id wl_buffer[@#]\d+, \d+, (\d+), (\d+), (\d+), (\d+)\)", line)
+        match = re.search(
+            r"wl_shm_pool[@#]\d+\.create_buffer\(new id wl_buffer[@#]\d+, \d+, (\d+), (\d+), (\d+), (\d+)\)",
+            line,
+        )
         if match:
-            buffers.append(dict(zip(("width", "height", "stride", "format"), map(int, match.groups()))))
+            buffers.append(
+                dict(
+                    zip(
+                        ("width", "height", "stride", "format"),
+                        map(int, match.groups()),
+                    )
+                )
+            )
         marker = re.search(r"HENSOU_PHASE ([\w-]+)", line)
         if marker:
             phase = marker[1]
@@ -24,7 +34,8 @@ def summarize(text):
         if match:
             surfaces[int(match[1])] = int(match[2])
         match = re.search(
-            r"xdg_surface[@#](\d+)\.get_popup\(new id xdg_popup[@#](\d+), xdg_surface[@#](\d+)", line
+            r"xdg_surface[@#](\d+)\.get_popup\(new id xdg_popup[@#](\d+), xdg_surface[@#](\d+)",
+            line,
         )
         if match:
             last_parent_surface = surfaces.get(int(match[3]))
