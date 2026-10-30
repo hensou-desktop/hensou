@@ -1,5 +1,9 @@
-# Theme identifiers are not renamed in the scaffold
+# The Windows-inspired theme is called Memphis
 
-The existing desktop uses platinum and win98 as persisted theme identifiers. The owner asked for a different public name for the Windows-inspired theme, but has not selected one. Memphis and Tempo were suggestions, not accepted names or legal clearance.
+The owner chose **Memphis** as the public name of the Windows-inspired theme on 2026-10-30. Memphis was the Windows 98 codename. Earlier, Memphis and Tempo were only suggestions. No legal or trademark clearance has been done for the name.
 
-Keep these identifiers as compatibility references until naming is settled. Do not invent a replacement or silently invalidate persisted choices. When renaming, specify aliases and migration tests. The scaffold includes no upstream theme art, fonts or trademarks as project branding.
+The persisted identifiers stay `platinum` and `win98`. The existing desktop saves them in theme state, and code, file names and tests use them. Renaming the public name does not rename an identifier.
+
+User-visible text uses Memphis: theme pickers, labels, documentation and release notes. Code and saved state keep `win98`. A later identifier rename needs aliases for the old value and migration tests. Do not silently invalidate a saved choice.
+
+The Mac-inspired theme keeps the name Platinum. The scaffold includes no upstream theme art, fonts or trademarks as project branding.
