@@ -20,11 +20,17 @@ TestCase {
         app = createTemporaryObject(appComponent, null);
         verify(app);
         verify(app.popupOverlay);
+        app.activeChanged.connect(function() { console.log("OWNER_ACTIVE", app.active, "application", Qt.application.state, "harness", test.Window.window.active); });
         app.requestActivate();
         console.log("HENSOU_PHASE prime-input");
         wait(100);
     }
-    function cleanup() { if (app) app.close(); }
+    function cleanup() {
+        console.log("OWNER_FINAL_ACTIVE", app.active, "application", Qt.application.state, "harness", test.Window.window.active);
+        console.log("HENSOU_PHASE fixture-state");
+        wait(100);
+        if (app) app.close();
+    }
     function control(name) { return findChild(app, name); }
     function test_button_checkbox_disabled_and_keyboard_data() {
         return [{ tag: "platinum", name: "platinum" }, { tag: "win98", name: "win98" }];

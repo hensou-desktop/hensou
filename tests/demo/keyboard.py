@@ -4,6 +4,8 @@
 import array
 import ctypes
 import hashlib
+import json
+import re
 import os
 import socket
 import struct
@@ -27,6 +29,15 @@ def keymap_text():
     library.xkb_keymap_new_from_names.restype = ctypes.c_void_p
     library.xkb_keymap_get_as_string.argtypes = [ctypes.c_void_p, ctypes.c_int]
     library.xkb_keymap_get_as_string.restype = ctypes.c_void_p
+    library.xkb_keymap_new_from_string.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
+    library.xkb_keymap_new_from_string.restype = ctypes.c_void_p
+    library.xkb_state_new.argtypes = [ctypes.c_void_p]
+    library.xkb_state_new.restype = ctypes.c_void_p
+    library.xkb_state_key_get_one_sym.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+    library.xkb_state_key_get_one_sym.restype = ctypes.c_uint32
+    library.xkb_state_unref.argtypes = [ctypes.c_void_p]
+    library.xkb_keysym_get_name.argtypes = [ctypes.c_uint32, ctypes.c_char_p, ctypes.c_size_t]
+    library.xkb_keysym_get_name.restype = ctypes.c_int
     library.xkb_keymap_unref.argtypes = [ctypes.c_void_p]
     library.xkb_context_unref.argtypes = [ctypes.c_void_p]
     context = library.xkb_context_new(1)  # XKB_CONTEXT_NO_DEFAULT_INCLUDES
@@ -44,7 +55,29 @@ def keymap_text():
         text = library.xkb_keymap_get_as_string(keymap, 1)
         if not text:
             raise RuntimeError("keymap serialization")
-        return ctypes.string_at(text) + b"\0"
+        original = ctypes.string_at(text).decode()
+        replaced, count = re.subn(r"key\s+<FK13>\s*\{[^}]*\}", "key <FK13> { [ F13 ] }", original, count=1)
+        if count != 1:
+            raise RuntimeError("No FK13 in the pinned full US keymap")
+        final = library.xkb_keymap_new_from_string(context, replaced.encode(), 1, 0)
+        if not final:
+            raise RuntimeError("F13 override did not compile")
+        try:
+            state = library.xkb_state_new(final)
+            if not state:
+                raise RuntimeError("F13 state")
+            try:
+                symbol = library.xkb_state_key_get_one_sym(state, 183 + 8)
+                name = ctypes.create_string_buffer(64)
+                library.xkb_keysym_get_name(symbol, name, len(name))
+                info = {"physical_code": 183, "xkb_code": 191, "keysym": symbol, "keysym_name": name.value.decode()}
+                if name.value != b"F13":
+                    raise RuntimeError(f"Not an actual F13 key: {info}")
+                return replaced.encode() + b"\0", info
+            finally:
+                library.xkb_state_unref(state)
+        finally:
+            library.xkb_keymap_unref(final)
     finally:
         if text:
             libc = ctypes.CDLL(None)
@@ -78,7 +111,7 @@ def main():
     manager = bind("zwp_virtual_keyboard_manager_v1")
     keyboard = wire.new_id()
     wire.send(manager, 0, struct.pack("<II", seat, keyboard))
-    text = keymap_text()
+    text, info = keymap_text()
     fd = os.memfd_create("hensou-keymap", os.MFD_CLOEXEC)
     try:
         with os.fdopen(fd, "wb", closefd=False) as file:
@@ -102,7 +135,7 @@ def main():
         wire.send(keyboard, 1, struct.pack("<III", int(time.monotonic() * 1000) & 0xFFFFFFFF, code, 0))
         wire.roundtrip(lambda *args: None)
 
-    print("keyboard ready " + hashlib.sha256(text).hexdigest(), flush=True)
+    print("keyboard ready " + json.dumps(info | {"sha256": hashlib.sha256(text).hexdigest()}), flush=True)
     for line in sys.stdin:
         command, _, value = line.rstrip("\n").partition(" ")
         if command == "key":
