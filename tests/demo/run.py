@@ -288,7 +288,16 @@ for_window [title=\"Hensou.*\"] floating enable
                     print("FIXTURE_COMPOSITOR_STATE=" + repr(snapshot), flush=True)
                 elif name == "probe-foreign-positive":
                     window = wait_window("Hensou foreign probe")
+                    trace = evidence / "foreign-probe.trace"
+                    start = len(trace.read_text())
                     swaymsg(f"[con_id={window['id']}] focus")
+                    deadline = time.monotonic() + 5
+                    while time.monotonic() < deadline:
+                        if "FOREIGN_READY true true" in trace.read_text()[start:]:
+                            break
+                        time.sleep(0.02)
+                    else:
+                        raise TimeoutError("Foreign native activation/receiver focus acknowledgement")
                     before = foreign_count()
                     send_key("F13")
                     deadline = time.monotonic() + 5
@@ -444,15 +453,17 @@ for_window [title=\"Hensou.*\"] floating enable
                 elif name.startswith("prepare-capture-"):
                     window = wait_window("Hensou capture")
                     criterion = f"[con_id={window['id']}]"
-                    swaymsg(criterion + " move to output HEADLESS-2")
-                    swaymsg(criterion + " move absolute position 1600 0")
                     width, height = (
                         (220, 640) if name.endswith("narrow") else (1000, 180)
                     )
                     swaymsg(
                         criterion + f" resize set width {width} px height {height} px"
                     )
-                    wait_window("Hensou capture", size=(width, height))
+                    resized = wait_window("Hensou capture", size=(width, height), settled=True)
+                    swaymsg(criterion + " move to output HEADLESS-2")
+                    swaymsg(criterion + " move absolute position 1600 0")
+                    placed = wait_window("Hensou capture", size=(width, height), position=(1600, 0), settled=True)
+                    (evidence / f"geometry-{name}.json").write_text(json.dumps({"resized": resized["rect"], "requested_position": [1600, 0], "settled": placed["rect"]}, indent=2) + "\n")
                 elif name.startswith("capture-"):
                     tree = json.loads(swaymsg("-t", "get_tree"))
                     window = next(

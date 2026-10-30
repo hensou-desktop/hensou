@@ -82,7 +82,7 @@ TestCase {
                 phase("prepare-capture-" + shape[2]);
                 wait(300);
                 compare(app.width, shape[0]); compare(app.height, shape[1]);
-                compare(app.actualDpr, 1.5);
+                tryCompare(app, "actualDpr", 1.5);
                 console.log("HENSOU_GEOMETRY", app.width, app.height, app.actualDpr);
                 phase("capture-" + tag + "-" + shape[2]);
                 wait(100);
