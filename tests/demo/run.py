@@ -252,7 +252,7 @@ for_window [title=\"Hensou.*\"] floating enable
                             stable = 0
                     time.sleep(0.05)
                 raise TimeoutError(
-                    f"Wayland window {title!r} did not map; titles={[node.get('name') for node in nodes(tree)]}"
+                    f"Wayland window {title!r} did not settle: size={size} position={position}; matches={[(node.get('id'), node.get('name'), node.get('rect'), node.get('pid')) for node in nodes(tree) if node.get('name') == title]}"
                 )
 
             def foreign_count():
