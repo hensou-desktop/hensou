@@ -113,8 +113,6 @@ TestCase {
         compare(app.state.clicks, 3);
     }
     function test_native_popup_and_modal_focus_return() {
-        app.width = 220;
-        app.height = 180;
         console.log("HENSOU_PHASE resize-small-parent");
         wait(150);
         tryCompare(app, "width", 220);
@@ -140,7 +138,6 @@ TestCase {
         tryCompare(menu, "opened", false);
         wait(50);
         compare(button.item.activeFocus, true);
-        app.width = 640; app.height = 480;
         console.log("HENSOU_PHASE resize-large-parent");
         wait(150);
         tryCompare(app, "width", 640); tryCompare(app, "height", 480);

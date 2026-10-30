@@ -77,7 +77,6 @@ TestCase {
             Theme.name = appearance[0]; Theme.mode = appearance[1]; Theme.extraState = appearance[2];
             const tag = appearance[0] + "-" + appearance[1] + (appearance[2] === "on" ? "-extra" : "");
             for (const shape of [[220, 640, "narrow"], [1000, 180, "wide"]]) {
-                app.width = shape[0]; app.height = shape[1];
                 app.fixture(shape[2] === "narrow" ? 100 : 1);
                 phase("prepare-capture-" + shape[2]);
                 wait(300);
