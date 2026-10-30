@@ -8,4 +8,4 @@ fi
 nixfmt --check flake.nix nix/fonts.nix
 ruff check --config tests/demo/ruff.toml tests/demo
 ruff format --config tests/demo/ruff.toml --check tests/demo
-shellcheck tools/build-native.sh tools/prepare-cargo.sh tools/test-demo.sh tools/check-style.sh tools/build-package.sh tools/test-package.sh
+shellcheck --shell=bash tools/build-native.sh tools/prepare-cargo.sh tools/test-demo.sh tools/check-style.sh tools/build-package.sh tools/test-package.sh
