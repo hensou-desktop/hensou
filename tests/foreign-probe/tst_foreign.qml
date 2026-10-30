@@ -5,11 +5,18 @@ Item {
     id: root
     property int received: 0
     Window {
+        id: foreignWindow
+        onActiveChanged: {
+            if (active) sink.forceActiveFocus();
+            console.log("FOREIGN_ACTIVE", active, sink.activeFocus, activeFocusItem);
+        }
         title: "Hensou foreign probe"
         width: 200
         height: 160
         visible: true
         Item {
+            id: sink
+            onActiveFocusChanged: console.log("FOREIGN_ITEM_FOCUS", activeFocus)
             anchors.fill: parent
             focus: true
             Keys.onPressed: function(event) {
@@ -25,6 +32,10 @@ Item {
     TestCase {
         name: "ForeignProbe"
         when: windowShown
-        function test_listen() { wait(90000); }
+        function test_listen() {
+            sink.forceActiveFocus();
+            console.log("FOREIGN_INITIAL", foreignWindow.active, sink.activeFocus, foreignWindow.activeFocusItem);
+            wait(90000);
+        }
     }
 }
