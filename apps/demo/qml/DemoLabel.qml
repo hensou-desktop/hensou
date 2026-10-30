@@ -11,7 +11,7 @@ Loader {
         Text {
             text: root.text
             textFormat: Text.PlainText
-            wrapMode: root.wrap ? Text.WrapAnywhere : Text.NoWrap
+            wrapMode: root.wrap ? Text.WrapAtWordBoundaryOrAnywhere : Text.NoWrap
             elide: root.wrap ? Text.ElideNone : Text.ElideRight
             font.family: PlatinumTokens.platinumFont
             font.pixelSize: PlatinumTokens.platinumText
@@ -26,7 +26,7 @@ Loader {
         Win98Text {
             text: root.text
             wrap: root.wrap
-            wrapMode: Text.WrapAnywhere
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             accessMarks: false
             Accessible.role: Accessible.StaticText
             Accessible.name: root.text
