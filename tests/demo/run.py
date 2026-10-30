@@ -23,7 +23,10 @@ modes = os.environ.get("HENSOU_TEST_MODES", "grab-probe,modal,suite").split(",")
 assert modes and set(modes) <= {"grab-probe", "modal", "suite"}
 mode_suffix = "" if modes == ["grab-probe", "modal", "suite"] else "-" + "-".join(modes)
 source = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-evidence = Path("/tmp/hensou-foundation-416d014746da/evidence") / f"demo-{source}{'-packaged' if packaged else ''}{mode_suffix}"
+evidence = (
+    Path("/tmp/hensou-foundation-416d014746da/evidence")
+    / f"demo-{source}{'-packaged' if packaged else ''}{mode_suffix}"
+)
 evidence.mkdir(parents=True, exist_ok=True)
 (evidence / "source.json").write_text(
     json.dumps(
@@ -32,9 +35,13 @@ evidence.mkdir(parents=True, exist_ok=True)
             "mountainous_baseline": "a905fd62309a3027a654ce01a504d54540dc7f6a",
             "hostname": "aka",
             "modes": modes,
-            "sway_version": subprocess.check_output(["sway", "--version"], text=True).strip(),
+            "sway_version": subprocess.check_output(
+                ["sway", "--version"], text=True
+            ).strip(),
             "declared_renderer": {
-                "compositor": "pixman", "client": "OpenGL RHI", "software": "Mesa llvmpipe",
+                "compositor": "pixman",
+                "client": "OpenGL RHI",
+                "software": "Mesa llvmpipe",
                 "egl_vendor": os.environ.get("__EGL_VENDOR_LIBRARY_DIRS"),
                 "dri_path": os.environ.get("LIBGL_DRIVERS_PATH"),
             },
@@ -116,7 +123,9 @@ for_window [title=\"Hensou.*\"] floating enable
                     env["SWAYSOCK"] = str(ipc[0])
                     break
                 if sway.poll() is not None:
-                    raise RuntimeError(f"headless sway exited before readiness: returncode={sway.returncode}; log={evidence / 'sway.log'}")
+                    raise RuntimeError(
+                        f"headless sway exited before readiness: returncode={sway.returncode}; log={evidence / 'sway.log'}"
+                    )
                 time.sleep(0.05)
             else:
                 raise TimeoutError("headless sway readiness")
@@ -147,7 +156,15 @@ for_window [title=\"Hensou.*\"] floating enable
                 pointer.stdin.flush()
                 assert pointer_reply() == "ok"
 
-            keyboard = subprocess.Popen([sys.executable, "tests/demo/keyboard.py"], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, start_new_session=True, close_fds=True)
+            keyboard = subprocess.Popen(
+                [sys.executable, "tests/demo/keyboard.py"],
+                env=env,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                text=True,
+                start_new_session=True,
+                close_fds=True,
+            )
 
             def keyboard_reply():
                 ready, _, _ = select.select([keyboard.stdout], [], [], 5)
@@ -160,7 +177,17 @@ for_window [title=\"Hensou.*\"] floating enable
 
             ready = keyboard_reply()
             assert ready.startswith("keyboard ready "), ready
-            (evidence / "keyboard.json").write_text(json.dumps(json.loads(ready.removeprefix("keyboard ready ")) | {"xkb_library": env["HENSOU_XKBCOMMON_LIBRARY"], "xkb_root": env["XKB_CONFIG_ROOT"]}, indent=2) + "\n")
+            (evidence / "keyboard.json").write_text(
+                json.dumps(
+                    json.loads(ready.removeprefix("keyboard ready "))
+                    | {
+                        "xkb_library": env["HENSOU_XKBCOMMON_LIBRARY"],
+                        "xkb_root": env["XKB_CONFIG_ROOT"],
+                    },
+                    indent=2,
+                )
+                + "\n"
+            )
 
             def keyboard_command(command):
                 keyboard.stdin.write(command + "\n")
@@ -206,8 +233,12 @@ for_window [title=\"Hensou.*\"] floating enable
                     if matches:
                         window = max(matches, key=lambda node: node["id"])
                         if (
-                            (size is None or (window["rect"]["width"], window["rect"]["height"]) == size)
-                            and (position is None or (window["rect"]["x"], window["rect"]["y"]) == position)
+                            size is None
+                            or (window["rect"]["width"], window["rect"]["height"])
+                            == size
+                        ) and (
+                            position is None
+                            or (window["rect"]["x"], window["rect"]["y"]) == position
                         ):
                             stable = stable + 1 if window["rect"] == previous else 1
                             previous = window["rect"]
@@ -221,7 +252,9 @@ for_window [title=\"Hensou.*\"] floating enable
                 )
 
             def foreign_count():
-                values = re.findall(r"FOREIGN_F13 (\d+)", (evidence / "foreign-probe.trace").read_text())
+                values = re.findall(
+                    r"FOREIGN_F13 (\d+)", (evidence / "foreign-probe.trace").read_text()
+                )
                 return max(map(int, values), default=0)
 
             def phase(name, trace_path):
@@ -234,42 +267,88 @@ for_window [title=\"Hensou.*\"] floating enable
                     send_key("Shift_L")
                 elif name == "fixture-state":
                     tree = json.loads(swaymsg("-t", "get_tree"))
-                    snapshot = [{key: node.get(key) for key in ("id", "name", "pid", "app_id", "focused", "rect")} for node in nodes(tree) if node.get("shell") == "xdg_shell"]
-                    (evidence / "fixture-state.json").write_text(json.dumps(snapshot, indent=2) + "\n")
+                    snapshot = [
+                        {
+                            key: node.get(key)
+                            for key in (
+                                "id",
+                                "name",
+                                "pid",
+                                "app_id",
+                                "focused",
+                                "rect",
+                            )
+                        }
+                        for node in nodes(tree)
+                        if node.get("shell") == "xdg_shell"
+                    ]
+                    (evidence / "fixture-state.json").write_text(
+                        json.dumps(snapshot, indent=2) + "\n"
+                    )
                     print("FIXTURE_COMPOSITOR_STATE=" + repr(snapshot), flush=True)
                 elif name == "probe-foreign-positive":
                     window = wait_window("Hensou foreign probe")
-                    swaymsg(f'[con_id={window["id"]}] focus')
+                    swaymsg(f"[con_id={window['id']}] focus")
                     before = foreign_count()
                     send_key("F13")
                     deadline = time.monotonic() + 5
                     while time.monotonic() < deadline and foreign_count() != before + 1:
                         time.sleep(0.02)
-                    assert foreign_count() == before + 1, "Foreign client did not receive the positive F13"
+                    assert foreign_count() == before + 1, (
+                        "Foreign client did not receive the positive F13"
+                    )
                     probe_state["baseline"] = before + 1
-                    print(f"FOREIGN_POSITIVE_F13={foreign_count()} rect={window['rect']}", flush=True)
+                    print(
+                        f"FOREIGN_POSITIVE_F13={foreign_count()} rect={window['rect']}",
+                        flush=True,
+                    )
                 elif name == "probe-focus-owner":
                     window = wait_window("Hensou demo")
-                    swaymsg(f'[con_id={window["id"]}] focus')
+                    swaymsg(f"[con_id={window['id']}] focus")
                 elif name == "probe-foreign-focus":
                     window = wait_window("Hensou foreign probe")
-                    swaymsg(f'[con_id={window["id"]}] focus')
+                    swaymsg(f"[con_id={window['id']}] focus")
                 elif name == "probe-foreign-key":
                     window = wait_window("Hensou foreign probe")
                     send_key("F13")
                     time.sleep(0.15)
-                    assert foreign_count() == probe_state["baseline"], "Native grab leaked F13 to foreign client"
-                    print(f"FOREIGN_BLOCKED_F13={foreign_count()} attempted_con_id={window['id']}", flush=True)
+                    assert foreign_count() == probe_state["baseline"], (
+                        "Native grab leaked F13 to foreign client"
+                    )
+                    print(
+                        f"FOREIGN_BLOCKED_F13={foreign_count()} attempted_con_id={window['id']}",
+                        flush=True,
+                    )
                 elif name in ("resize-small-parent", "resize-large-parent"):
                     window = wait_window("Hensou demo")
-                    width, height = (220, 180) if name == "resize-small-parent" else (640, 480)
-                    swaymsg(f'[con_id={window["id"]}] resize set width {width} px height {height} px')
+                    width, height = (
+                        (220, 180) if name == "resize-small-parent" else (640, 480)
+                    )
+                    swaymsg(
+                        f"[con_id={window['id']}] resize set width {width} px height {height} px"
+                    )
                     wait_window("Hensou demo", size=(width, height), settled=True)
                     # Sway preserves a floating window's centre while resizing.
                     # Place it only after its new native size has settled.
-                    swaymsg(f'[con_id={window["id"]}] move absolute position 0 0')
-                    placed = wait_window("Hensou demo", size=(width, height), position=(0, 0), settled=True)
-                    (evidence / f"geometry-{name}.json").write_text(json.dumps({"before": window["rect"], "requested_size": [width, height], "requested_position": [0, 0], "settled": placed["rect"]}, indent=2) + "\n")
+                    swaymsg(f"[con_id={window['id']}] move absolute position 0 0")
+                    placed = wait_window(
+                        "Hensou demo",
+                        size=(width, height),
+                        position=(0, 0),
+                        settled=True,
+                    )
+                    (evidence / f"geometry-{name}.json").write_text(
+                        json.dumps(
+                            {
+                                "before": window["rect"],
+                                "requested_size": [width, height],
+                                "requested_position": [0, 0],
+                                "settled": placed["rect"],
+                            },
+                            indent=2,
+                        )
+                        + "\n"
+                    )
                 elif name in ("open-native-menu", "open-native-dialog"):
                     send_key("Return")
                 elif name == "close-native-menu":
@@ -280,21 +359,53 @@ for_window [title=\"Hensou.*\"] floating enable
                     rect = window["rect"]
                     x += rect["x"]
                     y += rect["y"]
-                    outputs = [output["rect"] for output in json.loads(swaymsg("-t", "get_outputs")) if output.get("active")]
-                    assert rect["x"] <= x < rect["x"] + rect["width"] and rect["y"] <= y < rect["y"] + rect["height"], (rect, x, y)
-                    assert any(output["x"] <= rect["x"] and output["y"] <= rect["y"] and rect["x"] + rect["width"] <= output["x"] + output["width"] and rect["y"] + rect["height"] <= output["y"] + output["height"] for output in outputs), (rect, outputs)
-                    assert any(output["x"] <= x < output["x"] + output["width"] and output["y"] <= y < output["y"] + output["height"] for output in outputs), (x, y, outputs)
-                    (evidence / f"geometry-{name}.json").write_text(json.dumps({"owner": rect, "target": [x, y], "outputs": outputs}, indent=2) + "\n")
+                    outputs = [
+                        output["rect"]
+                        for output in json.loads(swaymsg("-t", "get_outputs"))
+                        if output.get("active")
+                    ]
+                    assert (
+                        rect["x"] <= x < rect["x"] + rect["width"]
+                        and rect["y"] <= y < rect["y"] + rect["height"]
+                    ), (rect, x, y)
+                    assert any(
+                        output["x"] <= rect["x"]
+                        and output["y"] <= rect["y"]
+                        and rect["x"] + rect["width"] <= output["x"] + output["width"]
+                        and rect["y"] + rect["height"] <= output["y"] + output["height"]
+                        for output in outputs
+                    ), (rect, outputs)
+                    assert any(
+                        output["x"] <= x < output["x"] + output["width"]
+                        and output["y"] <= y < output["y"] + output["height"]
+                        for output in outputs
+                    ), (x, y, outputs)
+                    (evidence / f"geometry-{name}.json").write_text(
+                        json.dumps(
+                            {"owner": rect, "target": [x, y], "outputs": outputs},
+                            indent=2,
+                        )
+                        + "\n"
+                    )
                     print(
                         f"REAL_PARENT_CLICK phase={name} layout={x},{y} native_rect={rect}",
                         flush=True,
                     )
-                    owner_surface = summarize(trace_path.read_text())["last_parent_surface"]
+                    owner_surface = summarize(trace_path.read_text())[
+                        "last_parent_surface"
+                    ]
                     assert owner_surface is not None, "No actual owner surface"
-                    input_state["pending"] = {"surface": owner_surface, "x": x - rect["x"], "y": y - rect["y"], "phase": name}
+                    input_state["pending"] = {
+                        "surface": owner_surface,
+                        "x": x - rect["x"],
+                        "y": y - rect["y"],
+                        "phase": name,
+                    }
                     # Force a fresh real enter/motion, including when the target
                     # is unchanged from the positive-control click.
-                    pointer_command(f"move {rect['x'] + rect['width'] - 12} {rect['y'] + rect['height'] - 12}")
+                    pointer_command(
+                        f"move {rect['x'] + rect['width'] - 12} {rect['y'] + rect['height'] - 12}"
+                    )
                     pointer_command(f"move {x} {y}")
                 elif name == "close-native-dialog":
                     tree = json.loads(swaymsg("-t", "get_tree"))
@@ -335,8 +446,12 @@ for_window [title=\"Hensou.*\"] floating enable
                     criterion = f"[con_id={window['id']}]"
                     swaymsg(criterion + " move to output HEADLESS-2")
                     swaymsg(criterion + " move absolute position 1600 0")
-                    width, height = (220, 640) if name.endswith("narrow") else (1000, 180)
-                    swaymsg(criterion + f" resize set width {width} px height {height} px")
+                    width, height = (
+                        (220, 640) if name.endswith("narrow") else (1000, 180)
+                    )
+                    swaymsg(
+                        criterion + f" resize set width {width} px height {height} px"
+                    )
                     wait_window("Hensou capture", size=(width, height))
                 elif name.startswith("capture-"):
                     tree = json.loads(swaymsg("-t", "get_tree"))
@@ -364,14 +479,26 @@ for_window [title=\"Hensou.*\"] floating enable
                         env=env,
                         check=True,
                     )
-                    pixels = struct.unpack(">II", (evidence / f"{name}.png").read_bytes()[16:24])
-                    assert pixels == (round(rect["width"] * 1.5), round(rect["height"] * 1.5)), pixels
+                    pixels = struct.unpack(
+                        ">II", (evidence / f"{name}.png").read_bytes()[16:24]
+                    )
+                    assert pixels == (
+                        round(rect["width"] * 1.5),
+                        round(rect["height"] * 1.5),
+                    ), pixels
 
             for mode in modes:
                 traced = mode != "suite"
                 if mode == "grab-probe":
                     foreign_log = (evidence / "foreign-probe.trace").open("w")
-                    foreign = subprocess.Popen([sys.argv[1], str(Path("tests/foreign-probe").resolve())], env=env | {"WAYLAND_DEBUG": "client"}, stdout=foreign_log, stderr=subprocess.STDOUT, start_new_session=True, close_fds=True)
+                    foreign = subprocess.Popen(
+                        [sys.argv[1], str(Path("tests/foreign-probe").resolve())],
+                        env=env | {"WAYLAND_DEBUG": "client"},
+                        stdout=foreign_log,
+                        stderr=subprocess.STDOUT,
+                        start_new_session=True,
+                        close_fds=True,
+                    )
                     wait_window("Hensou foreign probe")
                 test_env = env | {"WAYLAND_DEBUG": "client"}
                 input_state["pending"] = None
@@ -381,11 +508,17 @@ for_window [title=\"Hensou.*\"] floating enable
                     "--kill-after=5",
                     "120",
                     sys.argv[1],
-                    str(Path("tests/grab-probe" if mode == "grab-probe" else "tests/demo").resolve()),
+                    str(
+                        Path(
+                            "tests/grab-probe" if mode == "grab-probe" else "tests/demo"
+                        ).resolve()
+                    ),
                 ]
                 if traced:
                     arguments.append(
-                        "NativeGrab::test_cross_client" if mode == "grab-probe" else "StandaloneDemo::test_native_popup_and_modal_focus_return"
+                        "NativeGrab::test_cross_client"
+                        if mode == "grab-probe"
+                        else "StandaloneDemo::test_native_popup_and_modal_focus_return"
                     )
                 tests = subprocess.Popen(
                     arguments,
@@ -405,9 +538,15 @@ for_window [title=\"Hensou.*\"] floating enable
                         log.write(line)
                         log.flush()
                         position = None
-                        enter = re.search(r"wl_pointer[@#]\d+\.enter\(\d+, wl_surface[@#](\d+), ([^,]+), ([^)]+)\)", line)
+                        enter = re.search(
+                            r"wl_pointer[@#]\d+\.enter\(\d+, wl_surface[@#](\d+), ([^,]+), ([^)]+)\)",
+                            line,
+                        )
                         leave = re.search(r"wl_pointer[@#]\d+\.leave\(", line)
-                        motion = re.search(r"wl_pointer[@#]\d+\.motion\([^,]+, ([^,]+), ([^)]+)\)", line)
+                        motion = re.search(
+                            r"wl_pointer[@#]\d+\.motion\([^,]+, ([^,]+), ([^)]+)\)",
+                            line,
+                        )
                         if enter:
                             input_state["focus"] = int(enter[1])
                             position = (float(enter[2]), float(enter[3]))
@@ -416,12 +555,20 @@ for_window [title=\"Hensou.*\"] floating enable
                         elif motion:
                             position = (float(motion[1]), float(motion[2]))
                         pending = input_state["pending"]
-                        if pending and position and input_state["focus"] == pending["surface"] and abs(position[0] - pending["x"]) < 1 and abs(position[1] - pending["y"]) < 1:
+                        if (
+                            pending
+                            and position
+                            and input_state["focus"] == pending["surface"]
+                            and abs(position[0] - pending["x"]) < 1
+                            and abs(position[1] - pending["y"]) < 1
+                        ):
                             print(f"OWNER_POINTER_READY={pending}", flush=True)
                             input_state["pending"] = None
                             pointer_command("click")
                         match = re.search(r"HENSOU_PHASE ([\w-]+)", line)
-                        if match and (phase_error is None or match[1] == "fixture-state"):
+                        if match and (
+                            phase_error is None or match[1] == "fixture-state"
+                        ):
                             if traced and match[1].startswith("block-parent-"):
                                 summary = summarize((evidence / filename).read_text())
                                 modal = [
@@ -445,7 +592,10 @@ for_window [title=\"Hensou.*\"] floating enable
                                 phase(match[1], evidence / filename)
                             except Exception as error:
                                 phase_error = error
-                                print(f"FIXTURE_PHASE_ERROR={error!r}; draining the native client trace", flush=True)
+                                print(
+                                    f"FIXTURE_PHASE_ERROR={error!r}; draining the native client trace",
+                                    flush=True,
+                                )
                 code = tests.wait(timeout=120)
                 if traced:
                     summary = summarize((evidence / filename).read_text())
@@ -454,24 +604,54 @@ for_window [title=\"Hensou.*\"] floating enable
                     )
                 if phase_error is not None:
                     raise phase_error
-                assert input_state["pending"] is None, "No actual owner pointer focus/motion before click"
+                assert input_state["pending"] is None, (
+                    "No actual owner pointer focus/motion before click"
+                )
                 if code:
                     raise SystemExit(code)
                 if traced:
-                    role_phase = "open-native-menu" if mode == "grab-probe" else "open-native-dialog"
-                    popups = [key for key, value in summary["popups"].items() if value["phase"] == role_phase]
+                    role_phase = (
+                        "open-native-menu"
+                        if mode == "grab-probe"
+                        else "open-native-dialog"
+                    )
+                    popups = [
+                        key
+                        for key, value in summary["popups"].items()
+                        if value["phase"] == role_phase
+                    ]
                     assert popups, "No actual native popup role"
                     popup = popups[-1]
-                    assert any(item["popup"] == popup for item in summary["grabs"]), "No native grab request"
+                    assert any(item["popup"] == popup for item in summary["grabs"]), (
+                        "No native grab request"
+                    )
                     # wlroots 0.20.2 installs a client grab but leaves current seat
                     # focus unchanged. Its keyboard enter callback is a no-op.
-                    assert any(item["surface"] == summary["popups"][popup]["parent_surface"] for item in summary["keyboard_enters"]), "No actual retained-owner keyboard target"
+                    assert any(
+                        item["surface"] == summary["popups"][popup]["parent_surface"]
+                        for item in summary["keyboard_enters"]
+                    ), "No actual retained-owner keyboard target"
                     assert summary["buffers"], "No actual Mesa wl_shm buffers recorded"
-                    assert all(buffer["stride"] % 4 == 0 and buffer["stride"] >= buffer["width"] * 4 for buffer in summary["buffers"]), "Native host did not negotiate safe 32-bit buffers"
-                    renderer = [line for line in (evidence / filename).read_text().splitlines() if "OpenGL VENDOR:" in line]
-                    assert any("RENDERER: llvmpipe" in line for line in renderer), "Not actual OpenGL llvmpipe rendering"
-                    (evidence / f"renderer-{mode}.json").write_text(json.dumps(renderer, indent=2) + "\n")
-                    print(f"NATIVE_POPUP_ROLE_GRAB_RETAINED_TARGET_32BIT={mode}:PASS", flush=True)
+                    assert all(
+                        buffer["stride"] % 4 == 0
+                        and buffer["stride"] >= buffer["width"] * 4
+                        for buffer in summary["buffers"]
+                    ), "Native host did not negotiate safe 32-bit buffers"
+                    renderer = [
+                        line
+                        for line in (evidence / filename).read_text().splitlines()
+                        if "OpenGL VENDOR:" in line
+                    ]
+                    assert any("RENDERER: llvmpipe" in line for line in renderer), (
+                        "Not actual OpenGL llvmpipe rendering"
+                    )
+                    (evidence / f"renderer-{mode}.json").write_text(
+                        json.dumps(renderer, indent=2) + "\n"
+                    )
+                    print(
+                        f"NATIVE_POPUP_ROLE_GRAB_RETAINED_TARGET_32BIT={mode}:PASS",
+                        flush=True,
+                    )
                 if mode == "grab-probe":
                     foreign.terminate()
                     foreign.wait(timeout=5)

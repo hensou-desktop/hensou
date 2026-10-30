@@ -5,7 +5,12 @@ fn main() {
         .qt_module("Quick")
         .file("src/theme.rs")
         .include_dir("src")
-        .cpp_files(["src/window_metrics.h", "src/host.cpp", "src/modal_input_guard.h", "src/modal_input_guard.cpp"])
+        .cpp_files([
+            "src/window_metrics.h",
+            "src/host.cpp",
+            "src/modal_input_guard.h",
+            "src/modal_input_guard.cpp",
+        ])
         .build()
         .export();
 }
