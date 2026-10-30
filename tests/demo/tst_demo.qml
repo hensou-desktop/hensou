@@ -78,6 +78,30 @@ TestCase {
             compare(control("fixtureList").currentIndex, 7);
         }
     }
+    function test_live_switch_preserves_backward_selection() {
+        const field = control("fieldControl");
+        field.takeFocus();
+        const input = control("editableInput");
+        input.selectAll();
+        keyClick(Qt.Key_H);
+        keyClick(Qt.Key_I);
+        keyClick(Qt.Key_Left, Qt.ShiftModifier);
+        compare(input.selectionStart, 1);
+        compare(input.selectionEnd, 2);
+        compare(input.cursorPosition, 1, "Shift+Left leaves the cursor at the start");
+        for (const appearance of [["win98", "light", "off"], ["platinum", "dark", "off"], ["win98", "dark", "on"]]) {
+            Theme.name = appearance[0]; Theme.mode = appearance[1]; Theme.extraState = appearance[2];
+            wait(80);
+            const restored = control("editableInput");
+            compare(restored.selectionStart, 1, "selection in " + appearance.join("/"));
+            compare(restored.selectionEnd, 2);
+            compare(restored.cursorPosition, 1, "cursor stays at the start in " + appearance.join("/"));
+        }
+        // A backward selection extends to the left; a forward one would shrink.
+        keyClick(Qt.Key_Left, Qt.ShiftModifier);
+        compare(control("editableInput").selectionStart, 0);
+        compare(control("editableInput").selectionEnd, 2);
+    }
     function test_empty_one_many_and_keyboard_reveals_selection() {
         for (const name of ["platinum", "win98"]) {
             Theme.name = name;
