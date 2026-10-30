@@ -167,3 +167,18 @@ cleanup of the private compositor/input devices. Parent runs the combined suite 
 For a deliberate Cargo.lock/format update, `tools/prepare-cargo.sh` only changes
 a temporary copy. Bring its patch/lock back, commit them, transfer a new bundle,
 and verify that immutable revision. Preparation output is not build evidence.
+
+### Server-observed native grab proof
+
+Sway 1.12 `seat.c::send_unfocus` closes popups before changing focus. Both IPC
+focus and focus-follows-mouse use this path. Such dismissal is not keyboard
+leakage, and the demo does not override compositor policy. The isolated probe
+keeps normal `focus_follows_mouse no`. It compares identical owner-to-foreign
+pointer motion before, during and after the popup, plus real F13 receipt.
+
+`tests/demo/grab_observer.c` is a test-only pass-through observer of public
+`wlr_seat_keyboard_notify_key`. It logs actual default/non-default/default grab
+state during real F13 dispatch and always calls the original unchanged. The
+preload applies only to private Sway, never Qt or shipped binaries. Headers
+and runtime come from pinned wlroots 0.20.2. This unstable server-header ABI
+adds test maintenance on wlroots upgrades; it is not a production dependency.
