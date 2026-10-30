@@ -342,7 +342,24 @@ for_window [title=\"Hensou.*\"] floating enable
                     # Sway may already have warped into this output on focus.
                     # Use the identical owner-to-foreign motion in all controls.
                     owner = wait_window("Hensou demo")["rect"]
-                    pointer_command(f"move {owner['x'] + owner['width'] // 2} {owner['y'] + owner['height'] // 2}")
+                    pointer_events = re.findall(
+                        r"wl_pointer[@#]\d+\.(enter|leave)\(", trace.read_text()
+                    )
+                    off_start = len(trace.read_text())
+                    pointer_command(
+                        f"move {owner['x'] + owner['width'] // 2} {owner['y'] + owner['height'] // 2}"
+                    )
+                    if pointer_events and pointer_events[-1] == "enter":
+                        deadline = time.monotonic() + 5
+                        while time.monotonic() < deadline:
+                            if re.search(
+                                r"wl_pointer[@#]\d+\.leave\(",
+                                trace.read_text()[off_start:],
+                            ):
+                                break
+                            time.sleep(0.02)
+                        else:
+                            raise TimeoutError("Foreign pointer leave acknowledgement")
                     before_enters = foreign_enters()
                     move_to_foreign()
                     deadline = time.monotonic() + 5
