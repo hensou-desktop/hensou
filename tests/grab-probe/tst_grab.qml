@@ -30,7 +30,10 @@ TestCase {
                 event.accepted = true;
             }
         });
-        console.log("HENSOU_PHASE probe-foreign-blocked");
+        console.log("HENSOU_PHASE probe-foreign-focus");
+        wait(250);
+        verify(menu.opened, "Native popup closed during the foreign focus attempt");
+        console.log("HENSOU_PHASE probe-foreign-key");
         tryVerify(function() { return received === 1; });
         console.log("HENSOU_PHASE close-native-menu");
         tryCompare(menu, "opened", false);

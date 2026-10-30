@@ -100,6 +100,7 @@ for_window [title=\"Hensou.*\"] floating enable
         foreign = None
         foreign_log = None
         probe_state = {"baseline": 0}
+        input_state = {"pending": None, "focus": None}
         try:
             deadline = time.monotonic() + 15
             while time.monotonic() < deadline:
@@ -235,9 +236,11 @@ for_window [title=\"Hensou.*\"] floating enable
                 elif name == "probe-focus-owner":
                     window = wait_window("Hensou demo")
                     swaymsg(f'[con_id={window["id"]}] focus')
-                elif name == "probe-foreign-blocked":
+                elif name == "probe-foreign-focus":
                     window = wait_window("Hensou foreign probe")
                     swaymsg(f'[con_id={window["id"]}] focus')
+                elif name == "probe-foreign-key":
+                    window = wait_window("Hensou foreign probe")
                     send_key("F13")
                     time.sleep(0.15)
                     assert foreign_count() == probe_state["baseline"], "Native grab leaked F13 to foreign client"
@@ -261,8 +264,13 @@ for_window [title=\"Hensou.*\"] floating enable
                         f"REAL_PARENT_CLICK phase={name} layout={x},{y} native_rect={rect}",
                         flush=True,
                     )
+                    owner_surface = summarize((evidence / filename).read_text())["last_parent_surface"]
+                    assert owner_surface is not None, "No actual owner surface"
+                    input_state["pending"] = {"surface": owner_surface, "x": x - rect["x"], "y": y - rect["y"], "phase": name}
+                    # Force a fresh real enter/motion, including when the target
+                    # is unchanged from the positive-control click.
+                    pointer_command(f"move {rect['x'] + rect['width'] - 12} {rect['y'] + rect['height'] - 12}")
                     pointer_command(f"move {x} {y}")
-                    pointer_command("click")
                 elif name == "close-native-dialog":
                     tree = json.loads(swaymsg("-t", "get_tree"))
                     focused = [
@@ -342,7 +350,9 @@ for_window [title=\"Hensou.*\"] floating enable
                     foreign_log = (evidence / "foreign-probe.trace").open("w")
                     foreign = subprocess.Popen([sys.argv[1], str(Path("tests/foreign-probe").resolve())], env=env | {"WAYLAND_DEBUG": "client"}, stdout=foreign_log, stderr=subprocess.STDOUT, start_new_session=True, close_fds=True)
                     wait_window("Hensou foreign probe")
-                test_env = env | ({"WAYLAND_DEBUG": "client"} if traced else {})
+                test_env = env | {"WAYLAND_DEBUG": "client"}
+                input_state["pending"] = None
+                input_state["focus"] = None
                 arguments = [
                     "timeout",
                     "--kill-after=5",
@@ -367,10 +377,26 @@ for_window [title=\"Hensou.*\"] floating enable
                 phase_error = None
                 with (evidence / filename).open("w") as log:
                     for line in tests.stdout:
-                        if not traced or not line.lstrip().startswith("["):
+                        if not line.lstrip().startswith("["):
                             print(line, end="", flush=True)
                         log.write(line)
                         log.flush()
+                        position = None
+                        enter = re.search(r"wl_pointer[@#]\d+\.enter\(\d+, wl_surface[@#](\d+), ([^,]+), ([^)]+)\)", line)
+                        leave = re.search(r"wl_pointer[@#]\d+\.leave\(", line)
+                        motion = re.search(r"wl_pointer[@#]\d+\.motion\([^,]+, ([^,]+), ([^)]+)\)", line)
+                        if enter:
+                            input_state["focus"] = int(enter[1])
+                            position = (float(enter[2]), float(enter[3]))
+                        elif leave:
+                            input_state["focus"] = None
+                        elif motion:
+                            position = (float(motion[1]), float(motion[2]))
+                        pending = input_state["pending"]
+                        if pending and position and input_state["focus"] == pending["surface"] and abs(position[0] - pending["x"]) < 1 and abs(position[1] - pending["y"]) < 1:
+                            print(f"OWNER_POINTER_READY={pending}", flush=True)
+                            input_state["pending"] = None
+                            pointer_command("click")
                         match = re.search(r"HENSOU_PHASE ([\w-]+)", line)
                         if match and phase_error is None:
                             if traced and match[1].startswith("block-parent-"):
@@ -405,6 +431,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     )
                 if phase_error is not None:
                     raise phase_error
+                assert input_state["pending"] is None, "No actual owner pointer focus/motion before click"
                 if code:
                     raise SystemExit(code)
                 if traced:
