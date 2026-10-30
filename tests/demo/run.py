@@ -324,7 +324,9 @@ for_window [title=\"Hensou.*\"] floating enable
                     pixels = struct.unpack(">II", (evidence / f"{name}.png").read_bytes()[16:24])
                     assert pixels == (round(rect["width"] * 1.5), round(rect["height"] * 1.5)), pixels
 
-            for mode in ("grab-probe", "modal", "suite"):
+            modes = os.environ.get("HENSOU_TEST_MODES", "grab-probe,modal,suite").split(",")
+            assert modes and set(modes) <= {"grab-probe", "modal", "suite"}
+            for mode in modes:
                 traced = mode != "suite"
                 if mode == "grab-probe":
                     foreign_log = (evidence / "foreign-probe.trace").open("w")
@@ -352,6 +354,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     close_fds=True,
                 )
                 filename = f"wayland-{mode}.trace" if traced else "tests.log"
+                phase_error = None
                 with (evidence / filename).open("w") as log:
                     for line in tests.stdout:
                         if not traced or not line.lstrip().startswith("["):
@@ -359,7 +362,7 @@ for_window [title=\"Hensou.*\"] floating enable
                         log.write(line)
                         log.flush()
                         match = re.search(r"HENSOU_PHASE ([\w-]+)", line)
-                        if match:
+                        if match and phase_error is None:
                             if traced and match[1].startswith("block-parent-"):
                                 summary = summarize((evidence / filename).read_text())
                                 modal = [
@@ -379,13 +382,19 @@ for_window [title=\"Hensou.*\"] floating enable
                                             f"NATIVE_POPUP_UNCOVERED rect={bounds} target={px},{py}",
                                             flush=True,
                                         )
-                            phase(match[1])
+                            try:
+                                phase(match[1])
+                            except Exception as error:
+                                phase_error = error
+                                print(f"FIXTURE_PHASE_ERROR={error!r}; draining the native client trace", flush=True)
                 code = tests.wait(timeout=120)
                 if traced:
                     summary = summarize((evidence / filename).read_text())
                     (evidence / f"wayland-{mode}.json").write_text(
                         json.dumps(summary, indent=2) + "\n"
                     )
+                if phase_error is not None:
+                    raise phase_error
                 if code:
                     raise SystemExit(code)
                 if traced:
