@@ -4,7 +4,6 @@
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_seat.h>
 
 void wlr_seat_keyboard_notify_key(struct wlr_seat *seat, uint32_t time_msec,
@@ -20,12 +19,12 @@ void wlr_seat_keyboard_notify_key(struct wlr_seat *seat, uint32_t time_msec,
     }
     struct wlr_surface *surface = seat->keyboard_state.focused_surface;
     fprintf(stderr,
-        "HENSOU_SERVER_KEY time=%u key=%u state=%u nondefault=%d grab=%p default=%p surface=%u client=%p keyboard=%p\n",
+        "HENSOU_SERVER_KEY time=%u key=%u state=%u nondefault=%d grab=%p default=%p surface=%p client=%p keyboard=%p\n",
         time_msec, key, state,
         seat->keyboard_state.grab != seat->keyboard_state.default_grab,
         (void *)seat->keyboard_state.grab, (void *)seat->keyboard_state.default_grab,
-        surface ? wl_resource_get_id(surface->resource) : 0,
-        surface ? (void *)wl_resource_get_client(surface->resource) : NULL,
+        (void *)surface,
+        seat->keyboard_state.focused_client ? (void *)seat->keyboard_state.focused_client->client : NULL,
         (void *)seat->keyboard_state.keyboard);
     original(seat, time_msec, key, state);
     fprintf(stderr, "HENSOU_SERVER_KEY_DONE time=%u key=%u state=%u\n",
