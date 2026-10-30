@@ -1,7 +1,7 @@
 # Standalone Qt host
 
 Hensou's demo is one Rust/cxx-qt process with ordinary Qt Quick windows. It does
-not start Quickshell. It has no service clients, sockets, network calls or Files
+not start Quickshell. It has no service clients, custom application IPC, network calls or Files
 features. All controls consume the `Hensou` URI module; no directory imports
 create alternate singleton identities.
 
@@ -66,13 +66,47 @@ Switching drawing restores that state and semantic keyboard focus.
 The Increment action changes a local count. More supplies empty/one/many
 fixtures, disabled inputs, a native modal dialog and a second controls window.
 Enter on a list row opens its complete label, including unbroken long labels.
-The popup uses `Popup.Window`, not a clipped in-item menu. The modal surface uses standard Qt Quick Controls `Popup` with `Popup.Window`,
-`modal: true` and an `Accessible.Dialog` content Item. The real Wayland grab,
-keyboard target, positive parent click and blocked click decide acceptance.
-Neither the `Dialog` class name nor a `Qt.WindowModal` enum proves that behavior.
-On the test compositor, regular native dialog toplevels blocked pointer actions
-but left keyboard routing at the owner. A native Qt popup avoids private window
-flag changes and test-only refocusing. Closing either returns focus.
+The menu and modal surface use standard Qt Quick Controls `Popup` with
+`Popup.Window`. The dialog sets `modal: true`; its content Item has
+`Accessible.Dialog`. Native roles, real input and focus-return assertions decide
+acceptance. A class name, modality flag or client grab-request flag cannot prove
+server input routing.
+
+### Native modal input and version cost
+
+The pinned stack is Qt 6.11.2, Sway 1.12 and wlroots 0.20.2. Exact upstream paths:
+
+- Qt 6.11.2 `qtbase/src/gui/kernel/qguiapplication.cpp`,
+  `processMouseEvent` / `processKeyEvent`, and `qwindow.cpp`,
+  `QWindowPrivate::forwardToPopup`: active popups receive owner key events;
+  unaccepted pointer events can continue to the owner.
+- Qt 6.11.2 `qtdeclarative/src/quicktemplates/qquickpopupwindow.cpp`:
+  standard native popup window and event forwarding.
+- wlroots 0.20.2 `types/xdg_shell/wlr_xdg_popup.c`, lines 108–129:
+  keyboard-grab enter/clear-focus callbacks do nothing; key events go to retained
+  seat focus. Its pointer grab allows surfaces of the popup's client, including
+  the owner. Lines 272–315 install grabs after role/map/seat checks; this handler
+  does not validate the supplied serial. Missing popup-surface `wl_keyboard.enter`
+  alone does **not** prove grab rejection.
+
+`Hensou.Host.ModalInputGuard` uses a public QObject event filter on exactly the
+owner QQuickWindow. The demo binds it to `visible && modal`. It blocks input that
+reaches that owner after Qt's popup routing. It does not disable controls, change
+native flags, move focus, intercept the popup's window or prove a native grab.
+Expose, resize, focus, DPR and destruction events still reach Qt. Close disables
+protection immediately; detach removes the filter; QPointer and QObject lifetime
+rules remove protection when either object dies. DPR code is separate.
+
+**Maintenance cost:** this owner-input event list and Qt's popup routing must be
+reviewed on Qt upgrades. Keep the calibrated closed-click/open-click and real
+Escape/focus-return regressions. Remove the guard only when those regressions
+prove upstream routing blocks owner input without it.
+
+Both native entry points request an alpha buffer before the first QQuickWindow.
+On the pinned Mesa/pixman stack, RGB565 produced odd popup row strides (226 bytes
+for 113 pixels), which crashed the compositor. RGBA8/ARGB8888 gives 32-bit aligned
+surfaces. Tests inspect actual buffer formats/strides and the real OpenGL
+llvmpipe renderer; production does not force the test graphics backend.
 
 `LayoutPlan.js` owns the guessed container fit thresholds. Narrow-tall stacks
 controls. Wide-short puts the form beside the list. At very small sizes the
@@ -101,15 +135,26 @@ From a committed source snapshot on Aka, under the shared wrapper:
 - `nix build --builders '' --max-jobs 1 --cores 2 .#hensou-demo`
 
 `tests/demo/run.py` records the full Hensou SHA and baseline Mountainous SHA,
-logs, native/compositor geometry and images beneath the active run's `evidence/demo-SHA/`. It drives real
+logs, native/compositor geometry and images beneath the active run's `evidence/demo-SHA/`. Packaged runs append `-packaged`; focused modes append their mode name. It drives real
 filesystem changes, native windows and two output scales. It does not use the
 baseline's FONTCONFIG_FILE. Final rendering uses Mesa llvmpipe with OpenGL RHI,
 with pinned EGL vendor/DRI paths. The Qt software scenegraph is not paint
 evidence. Production wrappers do not force this test renderer. The test binary uses the same compiled demo module
 and native host as the executable. Real Wayland keyboard/pointer fixtures prove
 a positive parent click, blocked click, native popup grabs and Escape/focus
-return. A bounded `WAYLAND_DEBUG=client` trace records real popup roles, grabs,
-configures and `wl_keyboard.enter` surface identities. Test-only synthetic Qt input is not evidence of native modal blocking.
+return. One persistent virtual keyboard uses a full pinned US keymap with an
+explicit FK13 override. xkbcommon verifies the actual F13 keysym at keycode 191;
+`keyboard.json` records it and the full keymap hash. No per-key keyboard/device
+replacement occurs. Pointer clicks wait for fresh real owner-surface enter/motion
+at the target. Native owners must have settled size/placement wholly inside an
+output; requested and actual geometry are recorded separately. A bounded `WAYLAND_DEBUG=client` trace records real popup roles, grabs,
+configures and actual retained-owner `wl_keyboard.enter` identities. The
+separate foreign-client probe has a positive F13 control and records real popup
+F13 receipt without using the modal guard. It runs in a different process from
+the unchanged Escape/focus-return regression. `HENSOU_TEST_MODES=modal` or
+`HENSOU_TEST_MODES=grab-probe` isolates diagnostics; default acceptance runs both
+and the complete focused GUI suite. Failed phases drain both client traces before
+cleanup. Test-only synthetic Qt input is not evidence of native modal blocking.
 Both the test and real app processes run with a finite timeout and grouped
 cleanup of the private compositor/input devices. Parent runs the combined suite once.
 
