@@ -124,6 +124,8 @@
           ninja
           qt
           mesa
+          libxkbcommon
+          xkeyboard_config
           python3
           nodejs
           sway-unwrapped
@@ -141,6 +143,8 @@
           pkgs.libglvnd
           pkgs.stdenv.cc.cc.lib
         ];
+        HENSOU_XKBCOMMON_LIBRARY = "${pkgs.libxkbcommon}/lib/libxkbcommon.so.0";
+        XKB_CONFIG_ROOT = "${pkgs.xkeyboard_config}/share/X11/xkb";
         LIBGL_DRIVERS_PATH = "${pkgs.mesa}/lib/dri";
         __EGL_VENDOR_LIBRARY_DIRS = "${pkgs.mesa}/share/glvnd/egl_vendor.d";
         RUSTFLAGS = "-C link-arg=-fuse-ld=lld";
