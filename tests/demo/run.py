@@ -100,7 +100,6 @@ for_window [title=\"Hensou.*\"] floating enable
         foreign = None
         foreign_log = None
         probe_state = {"baseline": 0}
-        input_processes = []
         try:
             deadline = time.monotonic() + 15
             while time.monotonic() < deadline:
@@ -116,13 +115,6 @@ for_window [title=\"Hensou.*\"] floating enable
                 time.sleep(0.05)
             else:
                 raise TimeoutError("headless sway readiness")
-
-            keyboard = subprocess.Popen(
-                ["wtype", "-s", "120000"],
-                env=env,
-                start_new_session=True,
-                close_fds=True,
-            )
 
             pointer = subprocess.Popen(
                 [sys.executable, "tests/demo/pointer.py", "2800", "1000"],
@@ -150,10 +142,28 @@ for_window [title=\"Hensou.*\"] floating enable
                 pointer.stdin.flush()
                 assert pointer_reply() == "ok"
 
+            keyboard = subprocess.Popen([sys.executable, "tests/demo/keyboard.py"], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, start_new_session=True, close_fds=True)
+
+            def keyboard_reply():
+                ready, _, _ = select.select([keyboard.stdout], [], [], 5)
+                if not ready:
+                    raise TimeoutError("virtual keyboard reply")
+                reply = keyboard.stdout.readline().strip()
+                if not reply:
+                    raise RuntimeError("virtual keyboard exited")
+                return reply
+
+            ready = keyboard_reply()
+            assert ready.startswith("keyboard ready "), ready
+            (evidence / "keyboard.json").write_text(json.dumps({"ready": ready, "xkb_library": env["HENSOU_XKBCOMMON_LIBRARY"], "xkb_root": env["XKB_CONFIG_ROOT"]}, indent=2) + "\n")
+
+            def keyboard_command(command):
+                keyboard.stdin.write(command + "\n")
+                keyboard.stdin.flush()
+                assert keyboard_reply() == "ok"
+
             def send_key(key):
-                # Keep the device that supplied the real grab serial alive.
-                process = subprocess.Popen(["wtype", "-P", key, "-s", "100", "-p", key, "-s", "300000"], env=env, start_new_session=True, close_fds=True)
-                input_processes.append(process)
+                keyboard_command("key " + key)
 
             def swaymsg(*args):
                 return subprocess.check_output(["swaymsg", *args], env=env, text=True)
@@ -438,11 +448,8 @@ for_window [title=\"Hensou.*\"] floating enable
                 swaymsg(criterion + " move to output HEADLESS-1")
                 swaymsg(criterion + " move absolute position 0 0")
                 swaymsg(criterion + " focus")
-                subprocess.run(
-                    ["wtype", "-M", "ctrl", "-k", "a", "-m", "ctrl", "packaged draft"],
-                    env=env,
-                    check=True,
-                )
+                keyboard_command("select-all")
+                keyboard_command("text packaged draft")
                 pointer_command("move 80 35")
                 pointer_command("click")
                 write(("platinum", "dark", "on"), atomic=True)
@@ -463,7 +470,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     f"MAIN_READY executable={main_binary} clean_runtime={packaged} source={source}"
                 )
         finally:
-            for process in (main, tests, foreign, *input_processes, keyboard, pointer, sway):
+            for process in (main, tests, foreign, keyboard, pointer, sway):
                 if process is None or process.poll() is not None:
                     continue
                 os.killpg(process.pid, signal.SIGTERM)
