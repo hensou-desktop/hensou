@@ -30,7 +30,7 @@ evidence = (
 )
 evidence.mkdir(parents=True, exist_ok=True)
 observer = evidence / "server-grab-observer.so"
-flags = subprocess.check_output(["pkg-config", "--cflags", "--libs", "wlroots-0.20"], text=True)
+flags = subprocess.check_output(["pkg-config", "--cflags", "--libs", "wlroots-0.20", "wayland-server", "xkbcommon"], text=True)
 subprocess.run(["cc", "-shared", "-fPIC", "-O2", "-Wall", "-Wextra", "-Werror", "tests/demo/grab_observer.c", "-o", str(observer), *shlex.split(flags), "-ldl"], check=True)
 (evidence / "source.json").write_text(
     json.dumps(
@@ -699,7 +699,7 @@ for_window [title=\"Hensou.*\"] floating enable
                         flush=True,
                     )
                 if mode == "grab-probe":
-                    records = re.findall(r"HENSOU_SERVER_KEY time=(\d+) key=183 state=1 nondefault=(\d) grab=(\S+) default=(\S+) surface=(\d+) client=(\S+) keyboard=(\S+)", (evidence / "sway.log").read_text())
+                    records = re.findall(r"HENSOU_SERVER_KEY time=(\d+) key=183 state=1 nondefault=(\d) grab=(\S+) default=(\S+) surface=(\S+) client=(\S+) keyboard=(\S+)", (evidence / "sway.log").read_text())
                     assert [int(record[1]) for record in records] == [0, 1, 0], ("No actual default/grabbed/default native F13 dispatch", records)
                     (evidence / "server-keyboard-grab.json").write_text(json.dumps(records, indent=2) + "\n")
                     print("SERVER_ACTUAL_KEYBOARD_GRAB_DEFAULT_ACTIVE_DEFAULT=PASS", flush=True)

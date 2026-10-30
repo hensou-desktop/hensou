@@ -127,6 +127,7 @@
           libxkbcommon
           xkeyboard_config
           wlroots_0_20
+          wayland
           python3
           nodejs
           sway-unwrapped
