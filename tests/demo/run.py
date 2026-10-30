@@ -187,7 +187,9 @@ for_window [title=\"Hensou.*\"] floating enable
                 for child in node.get("nodes", []) + node.get("floating_nodes", []):
                     yield from nodes(child)
 
-            def wait_window(title, size=None):
+            def wait_window(title, size=None, position=None, settled=False):
+                stable = 0
+                previous = None
                 deadline = time.monotonic() + 5
                 while time.monotonic() < deadline:
                     tree = json.loads(swaymsg("-t", "get_tree"))
@@ -200,11 +202,15 @@ for_window [title=\"Hensou.*\"] floating enable
                     if matches:
                         window = max(matches, key=lambda node: node["id"])
                         if (
-                            size is None
-                            or (window["rect"]["width"], window["rect"]["height"])
-                            == size
+                            (size is None or (window["rect"]["width"], window["rect"]["height"]) == size)
+                            and (position is None or (window["rect"]["x"], window["rect"]["y"]) == position)
                         ):
-                            return window
+                            stable = stable + 1 if window["rect"] == previous else 1
+                            previous = window["rect"]
+                            if not settled or stable >= 3:
+                                return window
+                        else:
+                            stable = 0
                     time.sleep(0.05)
                 raise TimeoutError(
                     f"Wayland window {title!r} did not map; titles={[node.get('name') for node in nodes(tree)]}"
@@ -214,7 +220,7 @@ for_window [title=\"Hensou.*\"] floating enable
                 values = re.findall(r"FOREIGN_F13 (\d+)", (evidence / "foreign-probe.trace").read_text())
                 return max(map(int, values), default=0)
 
-            def phase(name):
+            def phase(name, trace_path):
                 if name == "prime-input":
                     window = wait_window("Hensou demo")
                     criterion = f"[con_id={window['id']}]"
@@ -249,7 +255,12 @@ for_window [title=\"Hensou.*\"] floating enable
                     window = wait_window("Hensou demo")
                     width, height = (220, 180) if name == "resize-small-parent" else (640, 480)
                     swaymsg(f'[con_id={window["id"]}] resize set width {width} px height {height} px')
-                    wait_window("Hensou demo", size=(width, height))
+                    wait_window("Hensou demo", size=(width, height), settled=True)
+                    # Sway preserves a floating window's centre while resizing.
+                    # Place it only after its new native size has settled.
+                    swaymsg(f'[con_id={window["id"]}] move absolute position 0 0')
+                    placed = wait_window("Hensou demo", size=(width, height), position=(0, 0), settled=True)
+                    (evidence / f"geometry-{name}.json").write_text(json.dumps({"before": window["rect"], "requested_size": [width, height], "requested_position": [0, 0], "settled": placed["rect"]}, indent=2) + "\n")
                 elif name in ("open-native-menu", "open-native-dialog"):
                     send_key("Return")
                 elif name == "close-native-menu":
@@ -260,11 +271,16 @@ for_window [title=\"Hensou.*\"] floating enable
                     rect = window["rect"]
                     x += rect["x"]
                     y += rect["y"]
+                    outputs = [output["rect"] for output in json.loads(swaymsg("-t", "get_outputs")) if output.get("active")]
+                    assert rect["x"] <= x < rect["x"] + rect["width"] and rect["y"] <= y < rect["y"] + rect["height"], (rect, x, y)
+                    assert any(output["x"] <= rect["x"] and output["y"] <= rect["y"] and rect["x"] + rect["width"] <= output["x"] + output["width"] and rect["y"] + rect["height"] <= output["y"] + output["height"] for output in outputs), (rect, outputs)
+                    assert any(output["x"] <= x < output["x"] + output["width"] and output["y"] <= y < output["y"] + output["height"] for output in outputs), (x, y, outputs)
+                    (evidence / f"geometry-{name}.json").write_text(json.dumps({"owner": rect, "target": [x, y], "outputs": outputs}, indent=2) + "\n")
                     print(
                         f"REAL_PARENT_CLICK phase={name} layout={x},{y} native_rect={rect}",
                         flush=True,
                     )
-                    owner_surface = summarize((evidence / filename).read_text())["last_parent_surface"]
+                    owner_surface = summarize(trace_path.read_text())["last_parent_surface"]
                     assert owner_surface is not None, "No actual owner surface"
                     input_state["pending"] = {"surface": owner_surface, "x": x - rect["x"], "y": y - rect["y"], "phase": name}
                     # Force a fresh real enter/motion, including when the target
@@ -419,7 +435,7 @@ for_window [title=\"Hensou.*\"] floating enable
                                             flush=True,
                                         )
                             try:
-                                phase(match[1])
+                                phase(match[1], evidence / filename)
                             except Exception as error:
                                 phase_error = error
                                 print(f"FIXTURE_PHASE_ERROR={error!r}; draining the native client trace", flush=True)
