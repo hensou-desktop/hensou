@@ -10,6 +10,13 @@ The shared desktop kit and the app family built with it. The name comes from 変
 **Theme**:
 An appearance and interaction style for the same capabilities. A theme can change layout, controls and window conventions, not only colors.
 
+**Platinum**:
+The Mac-inspired theme. Its persisted identifier is `platinum`. It has light, dark and extra-dark appearances.
+
+**Memphis**:
+The Windows-inspired theme. Its persisted identifier stays `win98`; user-visible text says Memphis. It has light and dark appearances.
+_Avoid_: Windows 98, Win98 (in user-visible text)
+
 **Theme parity**:
 Every supported theme exposes the same capabilities and handles the same states. A difference needs an explicit reason.
 

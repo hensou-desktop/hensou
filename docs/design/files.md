@@ -4,7 +4,7 @@ Files is the first new app after Pyxamp proves Hensou's kit. Its initial release
 
 ## Themes and windows
 
-Both themes expose the same capabilities. The classic Mac-inspired presentation uses spatial folder windows; the Windows-inspired presentation uses an Explorer-style tree. App menus stay inside the windows. Each folder remembers size, position, view and sorting. Hyprland integration is required for positions that Wayland clients cannot set themselves.
+Both themes expose the same capabilities. Platinum, the Mac-inspired theme, uses spatial folder windows. Memphis, the Windows-inspired theme, uses an Explorer-style tree. App menus stay inside the windows. Each folder remembers size, position, view and sorting. Hyprland integration is required for positions that Wayland clients cannot set themselves.
 
 ## Local and SSH files
 
