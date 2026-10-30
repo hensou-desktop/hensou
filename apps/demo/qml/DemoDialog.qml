@@ -17,6 +17,10 @@ Popup {
     focus: true
     closePolicy: Popup.CloseOnEscape
     padding: PlatinumTokens.menuRightInset
+    // Demo sizing: a fixed request, not layout policy. Centred on the
+    // 640 x 480 owner it requests (100, 120) (docs/host.md), and the modal
+    // test needs the Increment button outside it for the blocked-parent
+    // click. The long-message test shrinks it to force scrolling.
     width: 440
     height: 240
     readonly property real requestedX: Math.round((owner.width - width) / 2)

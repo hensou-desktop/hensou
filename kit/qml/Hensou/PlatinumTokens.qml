@@ -36,7 +36,9 @@ QtObject {
     readonly property real platinumTracking: 0.3
 
     // One physical rule at every scale: 2 px at 1.5, 1 px at 1 and 2.
-    // modules/hyprland sets the scale; PlatinumTopBar keeps pixelRatio current.
+    // Each window supplies its own device pixel ratio through WindowScale;
+    // read it with ratioFor and hairFor. pixelRatio and hair are only the
+    // fallback for an object outside a window.
     property real pixelRatio: 1.5
     readonly property real hair: Math.max(1, Math.round(pixelRatio)) / pixelRatio
 

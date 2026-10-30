@@ -155,16 +155,19 @@ TestCase {
         const label = Qt.createQmlObject('import QtQuick; import Hensou; Win98Text { width: 110; wrap: true; accessMarks: false; elide: Text.ElideNone }', first, "wrappedLabel");
         label.text = "UnbrokenRawPath".repeat(30);
         compare(label.wrapMode, Text.WordWrap);
-        label.wrapMode = Text.WrapAnywhere;
         waitForRendering(label);
-        let face = null;
-        for (const child of label.children[0].children) {
-            if (child.visible && child.contentWidth !== undefined) { face = child; break; }
-        }
-        verify(face !== null);
-        compare(face.wrapMode, Text.WrapAnywhere);
-        verify(face.lineCount > 1);
-        verify(face.contentWidth * label.k * label.size <= label.width,
+        // Each wrapped line is lineUnits * 2 text pixels high (FixedHeight).
+        const line = label.lineUnits * 2 * label.k * label.size;
+        const lines = function() { return Math.round(label.implicitHeight / line); };
+        compare(lines(), 1, "word wrap cannot break one unbroken word");
+        label.wrapMode = Text.WrapAnywhere;
+        compare(label.wrapMode, Text.WrapAnywhere);
+        waitForRendering(label);
+        verify(lines() > 1, "wrap anywhere breaks the unbroken word");
+        // drawnWidth is the unwrapped width. Lines no wider than the label
+        // need at least this many lines to hold it.
+        verify(label.drawnWidth > label.width, "the raw text is wider than one line");
+        verify(lines() >= Math.ceil(label.drawnWidth * label.size / label.width),
                "wrapped raw text stays inside its requested width");
         compare(label.drawnText, label.text);
         verify(!label.truncated);

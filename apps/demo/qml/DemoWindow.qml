@@ -26,6 +26,10 @@ ApplicationWindow {
     readonly property var layoutPlan: LayoutPlan.plan(width, height, { increment: increment.implicitWidth, menu: more.implicitWidth, dialog: dialogButton.implicitWidth, readout: counter.implicitWidth })
     readonly property real actualDpr: metrics.devicePixelRatio
     title: "Hensou demo"
+    // Demo sizing: tests/demo/run.py and tst_demo.qml expect the 640 x 480
+    // start size. The minimum is below LayoutPlan's inline minimum
+    // (220 x 156), so the overflow structure stays reachable;
+    // test_awkward_shapes_keep_capabilities_reachable checks 180 x 100.
     width: 640
     height: 480
     minimumWidth: 180

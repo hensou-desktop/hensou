@@ -14,7 +14,12 @@ Loader {
         if (!item) return;
         if (modelState.focusTarget === "field") takeFocus();
         item.input.cursorPosition = modelState.cursor;
-        item.input.select(modelState.selectionStart, modelState.selectionEnd);
+        // select() leaves the cursor on its second argument. A backward
+        // selection (cursor at the start) must name its end first.
+        const start = modelState.selectionStart;
+        const end = modelState.selectionEnd;
+        if (start !== end && modelState.cursor === start) item.input.select(end, start);
+        else item.input.select(start, end);
         restoring = false;
     }
     Connections {
