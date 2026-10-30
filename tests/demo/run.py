@@ -6,6 +6,7 @@ import json
 import os
 import re
 import select
+import shlex
 import shutil
 import signal
 import struct
@@ -28,6 +29,9 @@ evidence = (
     / f"demo-{source}{'-packaged' if packaged else ''}{mode_suffix}"
 )
 evidence.mkdir(parents=True, exist_ok=True)
+observer = evidence / "server-grab-observer.so"
+flags = subprocess.check_output(["pkg-config", "--cflags", "--libs", "wlroots-0.20"], text=True)
+subprocess.run(["cc", "-shared", "-fPIC", "-O2", "-Wall", "-Wextra", "-Werror", "tests/demo/grab_observer.c", "-o", str(observer), *shlex.split(flags), "-ldl"], check=True)
 (evidence / "source.json").write_text(
     json.dumps(
         {
@@ -98,7 +102,7 @@ for_window [title=\"Hensou.*\"] floating enable
     with (evidence / "sway.log").open("w") as sway_log:
         sway = subprocess.Popen(
             ["sway", "--debug", "--unsupported-gpu", "--config", str(config)],
-            env=env,
+            env=env | {"LD_PRELOAD": str(observer)},
             stdout=sway_log,
             stderr=subprocess.STDOUT,
             start_new_session=True,
@@ -257,6 +261,15 @@ for_window [title=\"Hensou.*\"] floating enable
                 )
                 return max(map(int, values), default=0)
 
+            def foreign_enters():
+                return len(re.findall(r"wl_pointer[@#]\d+\.enter\(", (evidence / "foreign-probe.trace").read_text()))
+
+            def move_to_foreign():
+                window = wait_window("Hensou foreign probe")
+                rect = window["rect"]
+                pointer_command(f"move {rect['x'] + rect['width'] // 2} {rect['y'] + rect['height'] // 2}")
+                return window
+
             def phase(name, trace_path):
                 if name == "prime-input":
                     window = wait_window("Hensou demo")
@@ -298,6 +311,13 @@ for_window [title=\"Hensou.*\"] floating enable
                         time.sleep(0.02)
                     else:
                         raise TimeoutError("Foreign native activation/receiver focus acknowledgement")
+                    before_enters = foreign_enters()
+                    move_to_foreign()
+                    deadline = time.monotonic() + 5
+                    while time.monotonic() < deadline and foreign_enters() <= before_enters:
+                        time.sleep(0.02)
+                    assert foreign_enters() > before_enters, "No closed-popup foreign pointer entry"
+                    probe_state["enters"] = foreign_enters()
                     before = foreign_count()
                     send_key("F13")
                     deadline = time.monotonic() + 5
@@ -313,10 +333,14 @@ for_window [title=\"Hensou.*\"] floating enable
                     )
                 elif name == "probe-focus-owner":
                     window = wait_window("Hensou demo")
+                    rect = window["rect"]
+                    pointer_command(f"move {rect['x'] + rect['width'] // 2} {rect['y'] + rect['height'] // 2}")
                     swaymsg(f"[con_id={window['id']}] focus")
-                elif name == "probe-foreign-focus":
-                    window = wait_window("Hensou foreign probe")
-                    swaymsg(f"[con_id={window['id']}] focus")
+                elif name == "probe-foreign-pointer":
+                    move_to_foreign()
+                    time.sleep(0.1)
+                    assert foreign_enters() == probe_state["enters"], "Native pointer grab leaked foreign entry"
+                    print(f"FOREIGN_POINTER_WITHHELD={foreign_enters()}", flush=True)
                 elif name == "probe-foreign-key":
                     window = wait_window("Hensou foreign probe")
                     send_key("F13")
@@ -328,6 +352,17 @@ for_window [title=\"Hensou.*\"] floating enable
                         f"FOREIGN_BLOCKED_F13={foreign_count()} attempted_con_id={window['id']}",
                         flush=True,
                     )
+                elif name == "probe-after-close":
+                    owner = wait_window("Hensou demo")["rect"]
+                    pointer_command(f"move {owner['x'] + owner['width'] // 2} {owner['y'] + owner['height'] // 2}")
+                    before = foreign_enters()
+                    move_to_foreign()
+                    deadline = time.monotonic() + 5
+                    while time.monotonic() < deadline and foreign_enters() <= before:
+                        time.sleep(0.02)
+                    assert foreign_enters() > before, "Closing native popup did not restore foreign pointer entry"
+                    send_key("F13")
+                    print(f"FOREIGN_POINTER_RESTORED={foreign_enters()}", flush=True)
                 elif name in ("resize-small-parent", "resize-large-parent"):
                     window = wait_window("Hensou demo")
                     width, height = (
@@ -664,6 +699,10 @@ for_window [title=\"Hensou.*\"] floating enable
                         flush=True,
                     )
                 if mode == "grab-probe":
+                    records = re.findall(r"HENSOU_SERVER_KEY time=(\d+) key=183 state=1 nondefault=(\d) grab=(\S+) default=(\S+) surface=(\d+) client=(\S+) keyboard=(\S+)", (evidence / "sway.log").read_text())
+                    assert [int(record[1]) for record in records] == [0, 1, 0], ("No actual default/grabbed/default native F13 dispatch", records)
+                    (evidence / "server-keyboard-grab.json").write_text(json.dumps(records, indent=2) + "\n")
+                    print("SERVER_ACTUAL_KEYBOARD_GRAB_DEFAULT_ACTIVE_DEFAULT=PASS", flush=True)
                     foreign.terminate()
                     foreign.wait(timeout=5)
                     foreign_log.close()

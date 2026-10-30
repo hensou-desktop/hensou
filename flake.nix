@@ -126,6 +126,7 @@
           mesa
           libxkbcommon
           xkeyboard_config
+          wlroots_0_20
           python3
           nodejs
           sway-unwrapped

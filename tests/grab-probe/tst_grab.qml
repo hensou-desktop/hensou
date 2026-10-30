@@ -30,13 +30,17 @@ TestCase {
                 event.accepted = true;
             }
         });
-        console.log("HENSOU_PHASE probe-foreign-focus");
+        verify(waitForRendering(menu.contentItem));
+        console.log("HENSOU_PHASE probe-foreign-pointer");
         wait(250);
-        verify(menu.opened, "Native popup closed during the foreign focus attempt");
+        verify(menu.opened, "Native popup closed during the foreign pointer motion");
         console.log("HENSOU_PHASE probe-foreign-key");
         tryVerify(function() { return received === 1; });
         console.log("HENSOU_PHASE close-native-menu");
         tryCompare(menu, "opened", false);
+        console.log("HENSOU_PHASE probe-after-close");
+        wait(200);
+        compare(received, 1);
         app.close();
     }
 }
