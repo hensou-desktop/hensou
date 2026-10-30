@@ -11,6 +11,7 @@ def summarize(text):
     geometry = {}
     done = []
     buffers = []
+    last_parent_surface = None
     phase = "startup"
     for line in text.splitlines():
         match = re.search(r"wl_shm_pool[@#]\d+\.create_buffer\(new id wl_buffer[@#]\d+, \d+, (\d+), (\d+), (\d+), (\d+)\)", line)
@@ -26,6 +27,7 @@ def summarize(text):
             r"xdg_surface[@#](\d+)\.get_popup\(new id xdg_popup[@#](\d+), xdg_surface[@#](\d+)", line
         )
         if match:
+            last_parent_surface = surfaces.get(int(match[3]))
             popups[int(match[2])] = {
                 "surface": surfaces.get(int(match[1])),
                 "parent_surface": surfaces.get(int(match[3])),
@@ -54,4 +56,5 @@ def summarize(text):
         "geometry": geometry,
         "popup_done": done,
         "buffers": buffers,
+        "last_parent_surface": last_parent_surface,
     }
