@@ -13,6 +13,7 @@ Item {
             anchors.fill: parent
             focus: true
             Keys.onPressed: function(event) {
+                console.log("FOREIGN_KEY", event.key, event.modifiers);
                 if (event.key === Qt.Key_F13) {
                     root.received++;
                     console.log("FOREIGN_F13", root.received);

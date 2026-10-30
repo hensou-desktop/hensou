@@ -19,8 +19,11 @@ from protocol_trace import summarize
 
 assert os.uname().nodename.split(".")[0] == "aka"
 packaged = len(sys.argv) > 3 and sys.argv[3] == "--packaged"
+modes = os.environ.get("HENSOU_TEST_MODES", "grab-probe,modal,suite").split(",")
+assert modes and set(modes) <= {"grab-probe", "modal", "suite"}
+mode_suffix = "" if modes == ["grab-probe", "modal", "suite"] else "-" + "-".join(modes)
 source = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-evidence = Path("/tmp/hensou-foundation-416d014746da/evidence") / f"demo-{source}{'-packaged' if packaged else ''}"
+evidence = Path("/tmp/hensou-foundation-416d014746da/evidence") / f"demo-{source}{'-packaged' if packaged else ''}{mode_suffix}"
 evidence.mkdir(parents=True, exist_ok=True)
 (evidence / "source.json").write_text(
     json.dumps(
@@ -28,6 +31,7 @@ evidence.mkdir(parents=True, exist_ok=True)
             "hensou": source,
             "mountainous_baseline": "a905fd62309a3027a654ce01a504d54540dc7f6a",
             "hostname": "aka",
+            "modes": modes,
             "sway_version": subprocess.check_output(["sway", "--version"], text=True).strip(),
             "declared_renderer": {
                 "compositor": "pixman", "client": "OpenGL RHI", "software": "Mesa llvmpipe",
@@ -58,7 +62,7 @@ with tempfile.TemporaryDirectory(prefix="hensou-demo-") as temporary:
         "LIBGL_ALWAYS_SOFTWARE": "1",
         "QSG_RHI_BACKEND": "opengl",
         "QSG_INFO": "1",
-        "QT_LOGGING_RULES": "qt.gui.popup.debug=true;qt.quick.controls.popup.window.debug=true",
+        "QT_LOGGING_RULES": "qt.gui.popup.debug=true;qt.quick.controls.popup.window.debug=true;qt.gui.focus.debug=true;qt.qpa.wayland.input.debug=true;qt.qpa.wayland.window.debug=true",
         "QT_WAYLAND_DISABLE_WINDOWDECORATION": "1",
         "QML_DISABLE_DISK_CACHE": "1",
     }
@@ -156,7 +160,7 @@ for_window [title=\"Hensou.*\"] floating enable
 
             ready = keyboard_reply()
             assert ready.startswith("keyboard ready "), ready
-            (evidence / "keyboard.json").write_text(json.dumps({"ready": ready, "xkb_library": env["HENSOU_XKBCOMMON_LIBRARY"], "xkb_root": env["XKB_CONFIG_ROOT"]}, indent=2) + "\n")
+            (evidence / "keyboard.json").write_text(json.dumps(json.loads(ready.removeprefix("keyboard ready ")) | {"xkb_library": env["HENSOU_XKBCOMMON_LIBRARY"], "xkb_root": env["XKB_CONFIG_ROOT"]}, indent=2) + "\n")
 
             def keyboard_command(command):
                 keyboard.stdin.write(command + "\n")
@@ -228,6 +232,11 @@ for_window [title=\"Hensou.*\"] floating enable
                     swaymsg(criterion + " move absolute position 0 0")
                     swaymsg(criterion + " focus")
                     send_key("Shift_L")
+                elif name == "fixture-state":
+                    tree = json.loads(swaymsg("-t", "get_tree"))
+                    snapshot = [{key: node.get(key) for key in ("id", "name", "pid", "app_id", "focused", "rect")} for node in nodes(tree) if node.get("shell") == "xdg_shell"]
+                    (evidence / "fixture-state.json").write_text(json.dumps(snapshot, indent=2) + "\n")
+                    print("FIXTURE_COMPOSITOR_STATE=" + repr(snapshot), flush=True)
                 elif name == "probe-foreign-positive":
                     window = wait_window("Hensou foreign probe")
                     swaymsg(f'[con_id={window["id"]}] focus')
@@ -358,8 +367,6 @@ for_window [title=\"Hensou.*\"] floating enable
                     pixels = struct.unpack(">II", (evidence / f"{name}.png").read_bytes()[16:24])
                     assert pixels == (round(rect["width"] * 1.5), round(rect["height"] * 1.5)), pixels
 
-            modes = os.environ.get("HENSOU_TEST_MODES", "grab-probe,modal,suite").split(",")
-            assert modes and set(modes) <= {"grab-probe", "modal", "suite"}
             for mode in modes:
                 traced = mode != "suite"
                 if mode == "grab-probe":
@@ -414,7 +421,7 @@ for_window [title=\"Hensou.*\"] floating enable
                             input_state["pending"] = None
                             pointer_command("click")
                         match = re.search(r"HENSOU_PHASE ([\w-]+)", line)
-                        if match and phase_error is None:
+                        if match and (phase_error is None or match[1] == "fixture-state"):
                             if traced and match[1].startswith("block-parent-"):
                                 summary = summarize((evidence / filename).read_text())
                                 modal = [
