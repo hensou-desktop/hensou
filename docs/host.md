@@ -72,6 +72,12 @@ The menu and modal surface use standard Qt Quick Controls `Popup` with
 acceptance. A class name, modality flag or client grab-request flag cannot prove
 server input routing.
 
+The dialog requests the owner centre, but native placement is platform policy.
+The verified Qt 6.11.2/Sway capture configured it at `(640, 0)` beside the owner,
+not the requested `(100, 120)`. Geometry artifacts record the actual configure;
+this host does not claim centred placement. Message wrapping prefers word
+boundaries and falls back to anywhere for raw long words.
+
 ### Native modal input and version cost
 
 The pinned stack is Qt 6.11.2, Sway 1.12 and wlroots 0.20.2. Exact upstream paths:
