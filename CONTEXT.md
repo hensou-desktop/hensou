@@ -24,7 +24,17 @@ Every supported theme exposes the same capabilities and handles the same states.
 A location Files can browse, such as a local folder, an SSH host or a library.
 
 **SSH host**:
-A machine Files connects to inside the app using the user's existing SSH identity. It does not require a prior filesystem mount.
+A machine Files connects to inside the app using the user's existing SSH identity. It does not require a prior filesystem mount. The SSH hosts are exactly the named hosts in the user's SSH configuration.
+
+**Transfer**:
+A copy or move that Files runs on behalf of the user. It belongs to Files, not to a window, and ends as done, failed or cancelled. An interrupted transfer is not resumed.
+
+**Working copy**:
+A local copy of a remote file that is opened in another app. Files sends each save back to the SSH host after checking that the host's copy has not changed.
+
+**Alias**:
+A symbolic link as Files shows it. Platinum calls it an alias and Memphis calls it a shortcut. Copying an alias copies the link, not its target.
+_Avoid_: symlink (in user-visible text)
 
 **Library**:
 A service-owned catalog presented as items and collections rather than storage paths. This differs from a server's media directory.
