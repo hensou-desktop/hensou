@@ -720,10 +720,17 @@ dependencies = [
  "cxx-qt",
  "cxx-qt-build",
  "cxx-qt-lib",
+ "hensou-desktop",
+ "hensou-desktop-protocol",
+ "hensou-file-icons",
+ "hensou-files-core",
  "hensou-files-model",
  "hensou-qt-host",
+ "hensou-trash",
+ "hensou-volumes",
  "serde",
  "serde_json",
+ "zbus",
 ]
 
 [[package]]

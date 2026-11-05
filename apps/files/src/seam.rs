@@ -16,8 +16,8 @@ use crate::scenario::{FixtureScenario, ScenarioOptions};
 use hensou_files_model::platform::{TrashStore, VolumeMonitor};
 use hensou_files_model::{DeleteKind, FilesError, FilesService, TrashItem, Volume};
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, OnceLock};
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, OnceLock};
 
 static FIXTURE: AtomicBool = AtomicBool::new(false);
 
@@ -162,13 +162,17 @@ impl TrashStore for NoTrash {
         }
     }
     fn trash(&self, _: &Path) -> Result<PathBuf, FilesError> {
-        Err(FilesError::Unsupported { what: "Trash".into() })
+        Err(FilesError::Unsupported {
+            what: "Trash".into(),
+        })
     }
     fn items(&self) -> Result<Vec<TrashItem>, FilesError> {
         Ok(Vec::new())
     }
     fn restore(&self, _: &Path) -> Result<PathBuf, FilesError> {
-        Err(FilesError::Unsupported { what: "Trash".into() })
+        Err(FilesError::Unsupported {
+            what: "Trash".into(),
+        })
     }
     fn empty(&self) -> Result<u64, FilesError> {
         Ok(0)
@@ -183,7 +187,9 @@ impl VolumeMonitor for NoVolumes {
         Vec::new()
     }
     fn eject(&self, _: &str) -> Result<(), FilesError> {
-        Err(FilesError::Unsupported { what: "Eject".into() })
+        Err(FilesError::Unsupported {
+            what: "Eject".into(),
+        })
     }
     fn watch(&self, _: Box<dyn Fn(Vec<Volume>) + Send + Sync>) {}
 }
