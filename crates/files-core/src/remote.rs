@@ -505,6 +505,14 @@ impl Engine {
             }
             Place::Host { name } => {
                 let sftp = self.connection(name)?;
+                let metadata =
+                    self.remote_result(l, self.runtime.block_on(sftp.fs().metadata(&l.path)))?;
+                if !metadata.file_type().is_some_and(|kind| kind.is_file()) {
+                    return Err(FilesError::Unsupported {
+                        what: "only regular files can be copied as bytes".into(),
+                    });
+                }
+
                 self.remote_result(
                     l,
                     self.runtime.block_on(async {

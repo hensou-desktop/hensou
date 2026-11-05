@@ -560,3 +560,31 @@ fn resumed_download_restarts_when_the_remote_source_changed() {
         "replacement after disconnect"
     );
 }
+
+#[test]
+fn copying_a_remote_fifo_fails_without_blocking_the_service() {
+    let server = Server::new();
+    assert!(
+        Process::new("mkfifo")
+            .arg(server.path("pipe"))
+            .status()
+            .unwrap()
+            .success()
+    );
+    fs::create_dir(server.path("downloads")).unwrap();
+    let (files, rx) = server.files();
+    server.trust(&files, &rx);
+    files.send(
+        92,
+        Command::Transfer {
+            mode: TransferMode::Copy,
+            sources: vec![Location::host("loopback", server.path("pipe"))],
+            destination: Location::local(server.path("downloads")),
+        },
+    );
+    until(
+        &rx,
+        |e| matches!(e,Event::Transfer { transfer } if transfer.id == 92 && matches!(transfer.state,TransferState::Failed { .. })),
+    );
+    assert_eq!(fs::read_dir(server.path("downloads")).unwrap().count(), 0);
+}

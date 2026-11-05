@@ -54,6 +54,7 @@ pub(crate) fn icon(path: &Path, kind: EntryKind) -> IconHint {
             .replace('/', "-");
     }
     if kind == EntryKind::Launcher
+        && fs::metadata(path).is_ok_and(|metadata| metadata.len() <= 1024 * 1024)
         && let Ok(text) = fs::read_to_string(path)
     {
         let fields = desktop_fields(&text);
