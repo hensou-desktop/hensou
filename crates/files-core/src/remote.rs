@@ -158,30 +158,6 @@ fn glob_match(pattern: &str, text: &str) -> bool {
     go(pattern.as_bytes(), text.as_bytes())
 }
 
-#[cfg(test)]
-mod host_name_tests {
-    use super::host_names;
-    use std::fs;
-
-    #[test]
-    fn hosts_follow_includes_and_equals_syntax() {
-        let dir = tempfile::tempdir().unwrap();
-        let ssh = dir.path();
-        fs::create_dir_all(ssh.join("config.d")).unwrap();
-        fs::write(
-            ssh.join("config"),
-            "Include config.d/*.conf\nHost=fuji kaiju # comment\nHost * !bad\n  HostName x\nhost \"quoted\"\n",
-        )
-        .unwrap();
-        fs::write(ssh.join("config.d/a.conf"), "Host aka\nInclude ../config\n").unwrap();
-        fs::write(ssh.join("config.d/b.txt"), "Host ignored\n").unwrap();
-        assert_eq!(
-            host_names(&ssh.join("config")),
-            ["aka", "fuji", "kaiju", "quoted"]
-        );
-    }
-}
-
 impl Engine {
     fn host(&self, name: &str) -> Result<Arc<Mutex<Host>>, FilesError> {
         if !host_names(&self.config.ssh_config)
@@ -1010,4 +986,28 @@ fn ssh_error(error: impl std::error::Error) -> String {
         source = error.source();
     }
     message
+}
+
+#[cfg(test)]
+mod host_name_tests {
+    use super::host_names;
+    use std::fs;
+
+    #[test]
+    fn hosts_follow_includes_and_equals_syntax() {
+        let dir = tempfile::tempdir().unwrap();
+        let ssh = dir.path();
+        fs::create_dir_all(ssh.join("config.d")).unwrap();
+        fs::write(
+            ssh.join("config"),
+            "Include config.d/*.conf\nHost=fuji kaiju # comment\nHost * !bad\n  HostName x\nhost \"quoted\"\n",
+        )
+        .unwrap();
+        fs::write(ssh.join("config.d/a.conf"), "Host aka\nInclude ../config\n").unwrap();
+        fs::write(ssh.join("config.d/b.txt"), "Host ignored\n").unwrap();
+        assert_eq!(
+            host_names(&ssh.join("config")),
+            ["aka", "fuji", "kaiju", "quoted"]
+        );
+    }
 }
