@@ -148,6 +148,19 @@
           "QML_IMPORT_PATH"
           ":"
           "${kit}/lib/qt-6/qml"
+          # Tools the backend runs (OpenSSH for hosts, xdg-utils and
+          # gtk-launch for opening files). Suffixed, so the session's own
+          # versions win where present.
+          "--suffix"
+          "PATH"
+          ":"
+          "${
+            pkgs.lib.makeBinPath [
+              pkgs.openssh
+              pkgs.xdg-utils
+              pkgs.gtk3
+            ]
+          }"
         ];
         meta = {
           description = "Hensou Files: local and SSH file manager in Platinum and Memphis";

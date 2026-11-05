@@ -22,14 +22,21 @@ fn stamp(path: &Path) -> Result<(u64, u128), FilesError> {
             .as_nanos(),
     ))
 }
+/// Each working copy has a directory holding `.hensou-record.json` and a
+/// `file/` folder with the payload under its remote name.
+const PAYLOAD: &str = "file";
+
+fn record_path(local: &Path) -> PathBuf {
+    local
+        .parent()
+        .and_then(Path::parent)
+        .expect("working copies live in <directory>/file/<name>")
+        .join(".hensou-record.json")
+}
+
 fn persist(engine: &Engine, copy: &Copy) -> Result<(), FilesError> {
     atomic_json(
-        &copy
-            .view
-            .local
-            .parent()
-            .unwrap()
-            .join(".hensou-record.json"),
+        &record_path(&copy.view.local),
         copy,
     )?;
     engine.bus.emit(Event::WorkingCopy {
@@ -59,7 +66,11 @@ pub(crate) fn open(
             Err(e) => return Err(error(e)),
         }
     };
-    let local = directory.join(
+    // The payload lives in its own folder, so no remote file name can
+    // collide with the tracking record beside it.
+    let payload = directory.join(PAYLOAD);
+    fs::create_dir(&payload).map_err(error)?;
+    let local = payload.join(
         remote
             .path
             .file_name()
@@ -243,20 +254,12 @@ pub(crate) fn stop(engine: &Engine, remote: &Location) -> Result<(), FilesError>
     if !copy.dirty && stamp(&copy.view.local)? == copy.local_stamp {
         fs::remove_file(&copy.view.local).map_err(error)?;
         fs::remove_file(
-            copy.view
-                .local
-                .parent()
-                .unwrap()
-                .join(".hensou-record.json"),
+            record_path(&copy.view.local),
         )
         .map_err(error)?;
     }
     let _ = fs::remove_file(
-        copy.view
-            .local
-            .parent()
-            .unwrap()
-            .join(".hensou-record.json"),
+        record_path(&copy.view.local),
     );
     copies.remove(remote);
     engine.bus.emit(Event::WorkingCopyRemoved {
@@ -289,11 +292,7 @@ pub(crate) fn resolve(
         RemoteChangeChoice::KeepRemote => {
             // Keep the user's unsent local bytes as an unwatched copy.
             fs::remove_file(
-                copy.view
-                    .local
-                    .parent()
-                    .unwrap()
-                    .join(".hensou-record.json"),
+                record_path(&copy.view.local),
             )
             .map_err(error)?;
             copies.remove(remote);
@@ -314,7 +313,7 @@ pub(crate) fn recover(engine: &Engine) {
         let result = (|| {
             let mut copy: Copy =
                 serde_json::from_slice(&fs::read(record).map_err(error)?).map_err(other)?;
-            if !copy.view.local.starts_with(directory.path()) {
+            if !copy.view.local.starts_with(directory.path().join(PAYLOAD)) {
                 return Err(other("working copy record escapes its directory"));
             }
             if stamp(&copy.view.local)? != copy.local_stamp {
@@ -341,6 +340,24 @@ pub(crate) fn recover(engine: &Engine) {
                 request: None,
                 error,
             });
+        }
+    }
+}
+
+#[cfg(test)]
+mod layout_tests {
+    use super::{PAYLOAD, record_path};
+    use std::path::Path;
+
+    #[test]
+    fn a_remote_file_named_like_the_record_never_collides_with_it() {
+        let directory = Path::new("/state/working/1-0");
+        for name in [".hensou-record.json", ".hensou-record.json.new"] {
+            let local = directory.join(PAYLOAD).join(name);
+            let record = record_path(&local);
+            assert_eq!(record, directory.join(".hensou-record.json"));
+            assert_ne!(record, local);
+            assert_ne!(record.with_extension("json.new"), local);
         }
     }
 }

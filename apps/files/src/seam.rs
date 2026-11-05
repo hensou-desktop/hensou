@@ -84,9 +84,10 @@ fn choose(fixture: bool, platform: &Platform) -> Arc<dyn FilesService> {
             files
         }
         Err(error) => {
-            eprintln!("hensou-files: the backend failed to start: {error:?}; using fixture data");
-            FIXTURE.store(true, Ordering::Relaxed);
-            Arc::new(FixtureScenario::with_fixtures(ScenarioOptions::from_env()))
+            // Never show fixture data in place of the user's files: fixtures
+            // are only for `--fixture`. The service manager restarts Files.
+            eprintln!("hensou-files: the backend failed to start: {error:?}");
+            std::process::exit(1);
         }
     }
 }

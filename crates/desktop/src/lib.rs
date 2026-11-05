@@ -123,7 +123,7 @@ impl DesktopProvider {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        // Never unlink an existing endpoint: another resident may own it.
+        reclaim_stale_socket(&path)?;
         let listener = UnixListener::bind(&path)?;
         listener.set_nonblocking(true)?;
         use std::os::unix::fs::PermissionsExt;
@@ -609,6 +609,30 @@ impl DesktopProvider {
 fn send(session: &Session, message: &ProviderMessage) -> io::Result<()> {
     write_line(&mut *session.out.lock().unwrap(), message)
 }
+/// A socket path left by a provider that exited (or crashed) without
+/// unlinking it is removed; a path some live provider still answers on is
+/// left alone and reported as in use.
+fn reclaim_stale_socket(path: &Path) -> io::Result<()> {
+    use std::os::unix::fs::FileTypeExt;
+    let Ok(meta) = std::fs::symlink_metadata(path) else {
+        return Ok(());
+    };
+    if !meta.file_type().is_socket() {
+        return Err(io::Error::new(
+            io::ErrorKind::AlreadyExists,
+            format!("{} exists and is not a socket", path.display()),
+        ));
+    }
+    match UnixStream::connect(path) {
+        Ok(_) => Err(io::Error::new(
+            io::ErrorKind::AddrInUse,
+            format!("another desktop provider is serving {}", path.display()),
+        )),
+        Err(e) if e.kind() == io::ErrorKind::ConnectionRefused => std::fs::remove_file(path),
+        Err(e) => Err(e),
+    }
+}
+
 fn other(message: impl Into<String>) -> FilesError {
     FilesError::Other {
         message: message.into(),

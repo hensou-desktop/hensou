@@ -57,6 +57,9 @@ impl Harness {
         }
     }
     fn start(&self) -> ProviderHandle {
+        self.try_start().unwrap()
+    }
+    fn try_start(&self) -> std::io::Result<ProviderHandle> {
         DesktopProvider::new(
             self.service.clone(),
             self.trash.clone(),
@@ -70,7 +73,6 @@ impl Harness {
         )
         .unwrap()
         .serve(self.dir.path().join("desktop.sock"))
-        .unwrap()
     }
     fn client(&self) -> Client {
         Client::new(&self.dir.path().join("desktop.sock"))
@@ -614,5 +616,21 @@ fn memphis_cascade_starts_at_its_last_grid_cell() {
             Point { x: 100, y: 100 },
             Point { x: 112, y: 112 }
         ]
+    );
+}
+
+#[test]
+fn a_stale_socket_left_by_a_crash_is_reclaimed_but_a_live_one_is_not() {
+    let h = Harness::new();
+    // A crashed provider leaves its socket path behind.
+    drop(std::os::unix::net::UnixListener::bind(h.dir.path().join("desktop.sock")).unwrap());
+    assert!(h.dir.path().join("desktop.sock").exists());
+    let _server = h.start();
+    let mut c = h.client();
+    assert!(!c.subscribe(Theme::Platinum, 1280).0.is_empty());
+    let second = h.try_start();
+    assert_eq!(
+        second.err().map(|e| e.kind()),
+        Some(std::io::ErrorKind::AddrInUse)
     );
 }
