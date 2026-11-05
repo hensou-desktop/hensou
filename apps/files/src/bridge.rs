@@ -231,10 +231,15 @@ mod tests {
                 location: Location::host("fuji", "/srv")
             }
         );
-        let json = r#"{"command":"resolve-conflict","id":3,"choice":"keep-both","apply_to_all":true}"#;
+        let json =
+            r#"{"command":"resolve-conflict","id":3,"choice":"keep-both","apply_to_all":true}"#;
         assert!(matches!(
             parse_command(json).unwrap(),
-            Command::ResolveConflict { id: 3, apply_to_all: true, .. }
+            Command::ResolveConflict {
+                id: 3,
+                apply_to_all: true,
+                ..
+            }
         ));
         let json = r#"{"command":"list","location":{"place":{"type":"computer"},"path":""}}"#;
         assert_eq!(

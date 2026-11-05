@@ -71,7 +71,11 @@ fn file(parent: &Location, name: &str, kind: EntryKind, size: Option<u64>, icon:
         hidden: name.starts_with('.'),
         link_target: None,
         owner: Some("simonwjackson".into()),
-        mode: Some(if kind == EntryKind::Folder { 0o755 } else { 0o644 }),
+        mode: Some(if kind == EntryKind::Folder {
+            0o755
+        } else {
+            0o644
+        }),
         icon: IconHint {
             name: icon.into(),
             launcher_icon: None,
@@ -96,9 +100,21 @@ impl Overlay {
         let mut overlay = Overlay::default();
         let home = Location::local("/home/fixture");
         let stress = Location::local("/home/fixture/Stress");
-        let mut readonly = file(&home, "Read-only notes.txt", EntryKind::File, Some(512), "text-plain");
+        let mut readonly = file(
+            &home,
+            "Read-only notes.txt",
+            EntryKind::File,
+            Some(512),
+            "text-plain",
+        );
         readonly.mode = Some(0o444);
-        let mut script = file(&home, "run-backup.sh", EntryKind::File, Some(1_204), "application-x-shellscript");
+        let mut script = file(
+            &home,
+            "run-backup.sh",
+            EntryKind::File,
+            Some(1_204),
+            "application-x-shellscript",
+        );
         script.mode = Some(0o755);
         let alias = Entry {
             link_target: Some("/home/fixture/Stress".into()),
@@ -143,13 +159,31 @@ impl Overlay {
             .map(|i| {
                 let (ext, icon, size) = kinds[i % kinds.len()];
                 if i % 25 == 0 {
-                    file(&stress, &format!("Folder {i:03}"), EntryKind::Folder, None, "folder")
+                    file(
+                        &stress,
+                        &format!("Folder {i:03}"),
+                        EntryKind::Folder,
+                        None,
+                        "folder",
+                    )
                 } else {
-                    file(&stress, &format!("Item {i:03}.{ext}"), EntryKind::File, size, icon)
+                    file(
+                        &stress,
+                        &format!("Item {i:03}.{ext}"),
+                        EntryKind::File,
+                        size,
+                        icon,
+                    )
                 }
             })
             .collect();
-        many.push(file(&stress, ".hidden-in-stress", EntryKind::File, Some(1), "text-plain"));
+        many.push(file(
+            &stress,
+            ".hidden-in-stress",
+            EntryKind::File,
+            Some(1),
+            "text-plain",
+        ));
         overlay.owned.insert(stress, many);
         let kaiju = Location::host("kaiju", "/");
         overlay.added.insert(
@@ -158,7 +192,13 @@ impl Overlay {
                 file(&kaiju, "home", EntryKind::Folder, None, "folder"),
                 file(&kaiju, "srv", EntryKind::Folder, None, "folder"),
                 file(&kaiju, "backups", EntryKind::Folder, None, "folder"),
-                file(&kaiju, "kaiju.log", EntryKind::File, Some(12_345), "text-plain"),
+                file(
+                    &kaiju,
+                    "kaiju.log",
+                    EntryKind::File,
+                    Some(12_345),
+                    "text-plain",
+                ),
             ],
         );
         let fuji = Location::host("fuji", "/");
@@ -171,15 +211,36 @@ impl Overlay {
         );
         let trash_root = Location::local("/home/fixture/.local/share/Trash/files");
         overlay.trash = [
-            ("/home/fixture/Documents/old report.pdf", Some(120_000), "application-pdf"),
-            ("/home/fixture/photo copy.jpg", Some(3_400_000), "image-jpeg"),
-            ("/home/fixture/Folder with a long name that was deleted last week", None, "folder"),
+            (
+                "/home/fixture/Documents/old report.pdf",
+                Some(120_000),
+                "application-pdf",
+            ),
+            (
+                "/home/fixture/photo copy.jpg",
+                Some(3_400_000),
+                "image-jpeg",
+            ),
+            (
+                "/home/fixture/Folder with a long name that was deleted last week",
+                None,
+                "folder",
+            ),
         ]
         .into_iter()
         .map(|(path, size, icon)| {
             let original = Location::local(path);
-            let name = original.path.file_name().unwrap().to_string_lossy().to_string();
-            let kind = if icon == "folder" { EntryKind::Folder } else { EntryKind::File };
+            let name = original
+                .path
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .to_string();
+            let kind = if icon == "folder" {
+                EntryKind::Folder
+            } else {
+                EntryKind::File
+            };
             let entry = file(&trash_root, &name, kind, size, icon);
             TrashItem {
                 original,
@@ -198,13 +259,28 @@ impl Overlay {
     fn seed_activity(&mut self) {
         let home = Location::local("/home/fixture");
         let usb = Location::local("/run/media/fixture/USB");
-        let source = file(&home, "photo.jpg", EntryKind::File, Some(3_400_000), "image-jpeg");
-        let mut existing = file(&usb, "photo.jpg", EntryKind::File, Some(3_100_000), "image-jpeg");
+        let source = file(
+            &home,
+            "photo.jpg",
+            EntryKind::File,
+            Some(3_400_000),
+            "image-jpeg",
+        );
+        let mut existing = file(
+            &usb,
+            "photo.jpg",
+            EntryKind::File,
+            Some(3_100_000),
+            "image-jpeg",
+        );
         existing.modified = Some(NOW - 30 * 86_400);
         let conflict = Transfer {
             id: FIXTURE_IDS + 1,
             mode: TransferMode::Copy,
-            sources: vec![source.location.clone(), Location::local("/home/fixture/notes.txt")],
+            sources: vec![
+                source.location.clone(),
+                Location::local("/home/fixture/notes.txt"),
+            ],
             destination: usb,
             current: Some(source.location.clone()),
             items_done: 0,
@@ -269,12 +345,16 @@ impl Overlay {
                 e
             })
             .collect();
-        if location.place == Place::SshHosts
-            && !out.iter().any(|e| e.name == CHANGED_HOST)
-        {
+        if location.place == Place::SshHosts && !out.iter().any(|e| e.name == CHANGED_HOST) {
             out.push(Entry {
                 location: Location::host(CHANGED_HOST, "/"),
-                ..file(location, CHANGED_HOST, EntryKind::Host, None, "network-server")
+                ..file(
+                    location,
+                    CHANGED_HOST,
+                    EntryKind::Host,
+                    None,
+                    "network-server",
+                )
             });
         }
         for e in &out {
@@ -378,7 +458,9 @@ impl FixtureScenario {
                 location: folder,
                 entries,
             }),
-            None => self.inner.send(INTERNAL_REQUEST, Command::List { location: folder }),
+            None => self
+                .inner
+                .send(INTERNAL_REQUEST, Command::List { location: folder }),
         }
     }
 
@@ -549,7 +631,8 @@ impl FilesService for FixtureScenario {
                         let entry = o.known.get(location).cloned();
                         if let Some(entry) = entry {
                             let stored = Location::local(
-                                PathBuf::from("/home/fixture/.local/share/Trash/files").join(&entry.name),
+                                PathBuf::from("/home/fixture/.local/share/Trash/files")
+                                    .join(&entry.name),
                             );
                             o.trash.push(TrashItem {
                                 original: location.clone(),
@@ -735,7 +818,9 @@ mod tests {
             Event::Listing {
                 location, entries, ..
             }
-            | Event::FolderChanged { location, entries } if location == folder => {
+            | Event::FolderChanged { location, entries }
+                if location == folder =>
+            {
                 Some(entries.clone())
             }
             _ => None,
@@ -750,15 +835,27 @@ mod tests {
         assert!(events.iter().any(|e| matches!(e, Event::Transfer { transfer } if matches!(transfer.state, TransferState::Conflict { .. }))));
         assert!(events.iter().any(|e| matches!(e, Event::Transfer { transfer } if matches!(transfer.state, TransferState::AskKeepWaiting { .. }))));
         assert!(events.iter().any(|e| matches!(e, Event::WorkingCopy { copy } if copy.state == WorkingCopyState::RemoteChanged)));
-        assert!(events.iter().any(|e| matches!(e, Event::Trash { items } if items.len() == 3)));
-        assert!(events.iter().any(|e| matches!(e, Event::Hosts { names } if names.contains(&CHANGED_HOST.to_string()))));
+        assert!(
+            events
+                .iter()
+                .any(|e| matches!(e, Event::Trash { items } if items.len() == 3))
+        );
+        assert!(events.iter().any(
+            |e| matches!(e, Event::Hosts { names } if names.contains(&CHANGED_HOST.to_string()))
+        ));
     }
 
     #[test]
     fn quiet_leaves_out_the_seeded_activity() {
         let service = FixtureScenario::with_fixtures(ScenarioOptions { quiet: true });
         let seen = watch(&service);
-        assert!(!seen.lock().unwrap().iter().any(|e| matches!(e, Event::WorkingCopy { .. })));
+        assert!(
+            !seen
+                .lock()
+                .unwrap()
+                .iter()
+                .any(|e| matches!(e, Event::WorkingCopy { .. }))
+        );
     }
 
     #[test]
@@ -766,11 +863,20 @@ mod tests {
         let service = FixtureScenario::with_fixtures(ScenarioOptions::default());
         let seen = watch(&service);
         let home = Location::local("/home/fixture");
-        service.send(1, Command::List { location: home.clone() });
+        service.send(
+            1,
+            Command::List {
+                location: home.clone(),
+            },
+        );
         let entries = listing(&seen, &home).unwrap();
         assert!(entries.iter().any(|e| e.hidden));
         assert!(entries.iter().any(|e| e.kind == EntryKind::Alias));
-        assert!(entries.iter().any(|e| e.size.is_none() && e.kind == EntryKind::File));
+        assert!(
+            entries
+                .iter()
+                .any(|e| e.size.is_none() && e.kind == EntryKind::File)
+        );
         assert!(entries.iter().any(|e| e.size == Some(0)));
     }
 
@@ -780,12 +886,37 @@ mod tests {
         let seen = watch(&service);
         let home = Location::local("/home/fixture");
         let notes = Location::local("/home/fixture/notes.txt");
-        service.send(1, Command::List { location: home.clone() });
-        service.send(2, Command::MoveToTrash { locations: vec![notes.clone()] });
-        assert!(!listing(&seen, &home).unwrap().iter().any(|e| e.location == notes));
+        service.send(
+            1,
+            Command::List {
+                location: home.clone(),
+            },
+        );
+        service.send(
+            2,
+            Command::MoveToTrash {
+                locations: vec![notes.clone()],
+            },
+        );
+        assert!(
+            !listing(&seen, &home)
+                .unwrap()
+                .iter()
+                .any(|e| e.location == notes)
+        );
         let stored = Location::local("/home/fixture/.local/share/Trash/files/notes.txt");
-        service.send(3, Command::RestoreFromTrash { items: vec![stored] });
-        assert!(listing(&seen, &home).unwrap().iter().any(|e| e.location == notes));
+        service.send(
+            3,
+            Command::RestoreFromTrash {
+                items: vec![stored],
+            },
+        );
+        assert!(
+            listing(&seen, &home)
+                .unwrap()
+                .iter()
+                .any(|e| e.location == notes)
+        );
     }
 
     #[test]
@@ -824,7 +955,17 @@ mod tests {
             },
         );
         let events = seen.lock().unwrap();
-        assert!(events.iter().any(|e| matches!(e, Event::Connection { state: ConnectionState::HostKeyChanged { .. }, .. })));
-        assert!(!events.iter().any(|e| matches!(e, Event::Listing { request: 5, .. })));
+        assert!(events.iter().any(|e| matches!(
+            e,
+            Event::Connection {
+                state: ConnectionState::HostKeyChanged { .. },
+                ..
+            }
+        )));
+        assert!(
+            !events
+                .iter()
+                .any(|e| matches!(e, Event::Listing { request: 5, .. }))
+        );
     }
 }

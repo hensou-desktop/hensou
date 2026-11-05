@@ -24,10 +24,16 @@ assert os.uname().nodename.split(".")[0] == "aka", "Aka only"
 tests_binary, app_binary = sys.argv[1], sys.argv[2]
 packaged = len(sys.argv) > 3 and sys.argv[3] == "--packaged"
 all_modes = ["suite", "capture", "process"]
-modes = [m for m in os.environ.get("HENSOU_FILES_TEST_MODES", ",".join(all_modes)).split(",") if m]
+modes = [
+    m
+    for m in os.environ.get("HENSOU_FILES_TEST_MODES", ",".join(all_modes)).split(",")
+    if m
+]
 assert modes and set(modes) <= set(all_modes), modes
 source = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-suffix = ("-packaged" if packaged else "") + ("" if modes == all_modes else "-" + "-".join(modes))
+suffix = ("-packaged" if packaged else "") + (
+    "" if modes == all_modes else "-" + "-".join(modes)
+)
 evidence = Path("/tmp/hensou-p35/evidence") / f"files-{source}{suffix}"
 if evidence.exists():
     shutil.rmtree(evidence)
@@ -69,8 +75,15 @@ with tempfile.TemporaryDirectory(prefix="hensou-files-") as temporary:
     env.pop("HYPRLAND_INSTANCE_SIGNATURE", None)
     env.pop("DBUS_SESSION_BUS_ADDRESS", None)
     if packaged:
-        for variable in ("LD_LIBRARY_PATH", "QML_IMPORT_PATH", "QML2_IMPORT_PATH", "QT_PLUGIN_PATH",
-                         "QT_QPA_PLATFORM_PLUGIN_PATH", "HENSOU_QML_IMPORT_PATH", "HENSOU_FONT_DIRECTORY"):
+        for variable in (
+            "LD_LIBRARY_PATH",
+            "QML_IMPORT_PATH",
+            "QML2_IMPORT_PATH",
+            "QT_PLUGIN_PATH",
+            "QT_QPA_PLATFORM_PLUGIN_PATH",
+            "HENSOU_QML_IMPORT_PATH",
+            "HENSOU_FONT_DIRECTORY",
+        ):
             env.pop(variable, None)
     config = base / "sway.conf"
     config.write_text("""output HEADLESS-1 mode 2400x1600 scale 1.5 position 0 0
@@ -81,13 +94,28 @@ default_floating_border none
 for_window [app_id=".*"] floating enable
 """)
     bus_log = (evidence / "dbus.log").open("w")
-    bus = subprocess.Popen(["dbus-daemon", "--session", "--nofork", "--nopidfile",
-                            f"--address=unix:path={runtime / 'bus'}"], env=env, stdout=bus_log,
-                           stderr=subprocess.STDOUT, start_new_session=True)
+    bus = subprocess.Popen(
+        [
+            "dbus-daemon",
+            "--session",
+            "--nofork",
+            "--nopidfile",
+            f"--address=unix:path={runtime / 'bus'}",
+        ],
+        env=env,
+        stdout=bus_log,
+        stderr=subprocess.STDOUT,
+        start_new_session=True,
+    )
     env["DBUS_SESSION_BUS_ADDRESS"] = f"unix:path={runtime / 'bus'}"
     sway_log = (evidence / "sway.log").open("w")
-    sway = subprocess.Popen(["sway", "--unsupported-gpu", "--config", str(config)], env=env,
-                            stdout=sway_log, stderr=subprocess.STDOUT, start_new_session=True)
+    sway = subprocess.Popen(
+        ["sway", "--unsupported-gpu", "--config", str(config)],
+        env=env,
+        stdout=sway_log,
+        stderr=subprocess.STDOUT,
+        start_new_session=True,
+    )
     children = []
 
     def stop(process):
@@ -109,6 +137,7 @@ for_window [app_id=".*"] floating enable
             yield node
             for child in node.get("nodes", []) + node.get("floating_nodes", []):
                 yield from walk(child)
+
         tree = json.loads(swaymsg("-t", "get_tree"))
         return [n for n in walk(tree) if n.get("shell") == "xdg_shell"]
 
@@ -123,8 +152,15 @@ for_window [app_id=".*"] floating enable
     def run_streaming(command, name, on_line=None, timeout=900):
         """Runs a child, logs its output, and calls on_line for each line."""
         with (evidence / f"{name}.log").open("w") as output:
-            child = subprocess.Popen(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                     text=True, start_new_session=True, bufsize=1)
+            child = subprocess.Popen(
+                command,
+                env=env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                start_new_session=True,
+                bufsize=1,
+            )
             children.append(child)
             deadline = time.monotonic() + timeout
             while True:
@@ -145,15 +181,36 @@ for_window [app_id=".*"] floating enable
             return child.wait(timeout=30)
 
     try:
-        wait_for(lambda: any(not p.name.endswith(".lock") for p in runtime.glob("wayland-*"))
-                 and list(runtime.glob("sway-ipc.*.sock")), "headless sway", 15)
-        env["WAYLAND_DISPLAY"] = next(p.name for p in runtime.glob("wayland-*") if not p.name.endswith(".lock"))
+        wait_for(
+            lambda: (
+                any(not p.name.endswith(".lock") for p in runtime.glob("wayland-*"))
+                and list(runtime.glob("sway-ipc.*.sock"))
+            ),
+            "headless sway",
+            15,
+        )
+        env["WAYLAND_DISPLAY"] = next(
+            p.name for p in runtime.glob("wayland-*") if not p.name.endswith(".lock")
+        )
         env["SWAYSOCK"] = str(next(runtime.glob("sway-ipc.*.sock")))
-        (evidence / "source.json").write_text(json.dumps({
-            "hensou": source, "hostname": "aka", "output": "HEADLESS-1 2400x1600 scale 1.5",
-            "renderer": {"compositor": "pixman", "client": "OpenGL RHI on Mesa llvmpipe"},
-            "sway": subprocess.check_output(["sway", "--version"], text=True).strip(),
-        }, indent=2) + "\n")
+        (evidence / "source.json").write_text(
+            json.dumps(
+                {
+                    "hensou": source,
+                    "hostname": "aka",
+                    "output": "HEADLESS-1 2400x1600 scale 1.5",
+                    "renderer": {
+                        "compositor": "pixman",
+                        "client": "OpenGL RHI on Mesa llvmpipe",
+                    },
+                    "sway": subprocess.check_output(
+                        ["sway", "--version"], text=True
+                    ).strip(),
+                },
+                indent=2,
+            )
+            + "\n"
+        )
 
         if "suite" in modes:
             code = run_streaming([tests_binary, "tests/files"], "suite")
@@ -172,12 +229,18 @@ for_window [app_id=".*"] floating enable
                 at = line.find(marker)
                 if at < 0:
                     return
-                name = line[at + len(marker):].strip()
-                subprocess.run(["grim", "-o", "HEADLESS-1", str(shots / f"{name}.png")], env=env, check=True)
+                name = line[at + len(marker) :].strip()
+                subprocess.run(
+                    ["grim", "-o", "HEADLESS-1", str(shots / f"{name}.png")],
+                    env=env,
+                    check=True,
+                )
                 (ack / name).write_text("ok\n")
                 log(f"captured {name}")
 
-            code = run_streaming([tests_binary, "tests/files/capture"], "capture", on_capture)
+            code = run_streaming(
+                [tests_binary, "tests/files/capture"], "capture", on_capture
+            )
             results["phases"]["capture"] = code
             results["captures"] = sorted(p.name for p in shots.glob("*.png"))
             log(f"capture exit {code}, {len(results['captures'])} images")
@@ -185,36 +248,95 @@ for_window [app_id=".*"] floating enable
         if "process" in modes:
             checks = {}
             app_log = (evidence / "process.log").open("w")
-            resident = subprocess.Popen([app_binary, "--daemon"], env=env, stdout=app_log,
-                                        stderr=subprocess.STDOUT, start_new_session=True)
+            resident = subprocess.Popen(
+                [app_binary, "--daemon"],
+                env=env,
+                stdout=app_log,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+            )
             children.append(resident)
-            wait_for(lambda: (runtime / "hensou" / "files.sock").exists(), "resident socket")
+            wait_for(
+                lambda: (runtime / "hensou" / "files.sock").exists(), "resident socket"
+            )
             time.sleep(1.5)
             checks["daemon_opens_no_window"] = not windows()
             started = time.monotonic()
-            second = subprocess.run([app_binary, "/home/fixture"], env=env, timeout=20, capture_output=True, text=True)
+            second = subprocess.run(
+                [app_binary, "/home/fixture"],
+                env=env,
+                timeout=20,
+                capture_output=True,
+                text=True,
+            )
             checks["second_launch_exit"] = second.returncode
             checks["second_launch_seconds"] = round(time.monotonic() - started, 2)
-            wait_for(lambda: any(w.get("name") == "fixture" for w in windows()), "folder window from the handoff")
+            wait_for(
+                lambda: any(w.get("name") == "fixture" for w in windows()),
+                "folder window from the handoff",
+            )
             third = subprocess.run([app_binary], env=env, timeout=20)
             checks["computer_launch_exit"] = third.returncode
-            wait_for(lambda: any(w.get("name") == "Myoko" for w in windows()), "Computer window titled Myoko")
+            wait_for(
+                lambda: any(w.get("name") == "Myoko" for w in windows()),
+                "Computer window titled Myoko",
+            )
             time.sleep(1)
-            subprocess.run(["grim", "-o", "HEADLESS-1", str(evidence / "process-windows.png")], env=env, check=True)
+            subprocess.run(
+                ["grim", "-o", "HEADLESS-1", str(evidence / "process-windows.png")],
+                env=env,
+                check=True,
+            )
             service = f"org.kde.StatusNotifierItem-{resident.pid}-1"
 
             def gdbus(*args):
-                return subprocess.run(["gdbus", "call", "--session", "--dest", service, *args], env=env,
-                                      capture_output=True, text=True, timeout=10)
-            sni_id = gdbus("--object-path", "/StatusNotifierItem", "--method", "org.freedesktop.DBus.Properties.Get",
-                           "org.kde.StatusNotifierItem", "Id")
+                return subprocess.run(
+                    ["gdbus", "call", "--session", "--dest", service, *args],
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+
+            sni_id = gdbus(
+                "--object-path",
+                "/StatusNotifierItem",
+                "--method",
+                "org.freedesktop.DBus.Properties.Get",
+                "org.kde.StatusNotifierItem",
+                "Id",
+            )
             checks["sni_id"] = sni_id.stdout.strip() or sni_id.stderr.strip()
-            layout = gdbus("--object-path", "/MenuBar", "--method", "com.canonical.dbusmenu.GetLayout", "0", "-1", "[]")
+            layout = gdbus(
+                "--object-path",
+                "/MenuBar",
+                "--method",
+                "com.canonical.dbusmenu.GetLayout",
+                "0",
+                "-1",
+                "[]",
+            )
             checks["sni_menu"] = layout.stdout.strip() or layout.stderr.strip()
-            clicked = gdbus("--object-path", "/MenuBar", "--method", "com.canonical.dbusmenu.Event", "1", "clicked", "<0>", "0")
+            clicked = gdbus(
+                "--object-path",
+                "/MenuBar",
+                "--method",
+                "com.canonical.dbusmenu.Event",
+                "1",
+                "clicked",
+                "<0>",
+                "0",
+            )
             checks["sni_show_transfers_call"] = clicked.returncode
-            wait_for(lambda: any(w.get("name") == "Transfers" for w in windows()), "Transfers window from the tray menu")
-            subprocess.run(["grim", "-o", "HEADLESS-1", str(evidence / "process-transfers.png")], env=env, check=True)
+            wait_for(
+                lambda: any(w.get("name") == "Transfers" for w in windows()),
+                "Transfers window from the tray menu",
+            )
+            subprocess.run(
+                ["grim", "-o", "HEADLESS-1", str(evidence / "process-transfers.png")],
+                env=env,
+                check=True,
+            )
             swaymsg("[app_id=.*] kill")
             wait_for(lambda: not windows(), "all windows closed")
             time.sleep(1.5)
@@ -225,10 +347,18 @@ for_window [app_id=".*"] floating enable
             checks["daemon_handoff_opens_no_window"] = not windows()
             stop(resident)
             results["phases"]["process"] = checks
-            ok = (checks["daemon_opens_no_window"] and checks["second_launch_exit"] == 0 and checks["computer_launch_exit"] == 0
-                  and "hensou-files" in checks["sni_id"] and "Show Transfers" in checks["sni_menu"] and "Cancel All" in checks["sni_menu"]
-                  and checks["sni_show_transfers_call"] == 0 and checks["resident_after_windows_close"]
-                  and checks["daemon_handoff_exit"] == 0 and checks["daemon_handoff_opens_no_window"])
+            ok = (
+                checks["daemon_opens_no_window"]
+                and checks["second_launch_exit"] == 0
+                and checks["computer_launch_exit"] == 0
+                and "hensou-files" in checks["sni_id"]
+                and "Show Transfers" in checks["sni_menu"]
+                and "Cancel All" in checks["sni_menu"]
+                and checks["sni_show_transfers_call"] == 0
+                and checks["resident_after_windows_close"]
+                and checks["daemon_handoff_exit"] == 0
+                and checks["daemon_handoff_opens_no_window"]
+            )
             checks["pass"] = ok
             log("process checks " + json.dumps(checks))
     finally:
@@ -239,8 +369,12 @@ for_window [app_id=".*"] floating enable
         (evidence / "results.json").write_text(json.dumps(results, indent=2) + "\n")
         log(f"EVIDENCE {evidence}")
 
-failed = [name for name, value in results["phases"].items()
-          if (isinstance(value, int) and value != 0) or (isinstance(value, dict) and not value.get("pass"))]
+failed = [
+    name
+    for name, value in results["phases"].items()
+    if (isinstance(value, int) and value != 0)
+    or (isinstance(value, dict) and not value.get("pass"))
+]
 if set(results["phases"]) != set(modes) or failed:
     log(f"FAILED {failed or 'incomplete'}")
     sys.exit(1)

@@ -241,14 +241,8 @@ mod tests {
 
     #[test]
     fn unknown_schemes_and_options_are_refused() {
-        assert!(matches!(
-            run(&["http://x/"]),
-            Err(CliError::Unsupported(_))
-        ));
-        assert!(matches!(
-            run(&["--bogus"]),
-            Err(CliError::UnknownOption(_))
-        ));
+        assert!(matches!(run(&["http://x/"]), Err(CliError::Unsupported(_))));
+        assert!(matches!(run(&["--bogus"]), Err(CliError::UnknownOption(_))));
         assert_eq!(
             run(&["--", "--daemon"]).unwrap().requests,
             vec![open(Location::local("/home/fixture/work/--daemon"))]

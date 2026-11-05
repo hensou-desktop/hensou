@@ -44,7 +44,9 @@ pub fn available() -> bool {
 
 fn request(command: &str) -> Option<String> {
     let mut stream = UnixStream::connect(socket()?).ok()?;
-    stream.set_read_timeout(Some(Duration::from_millis(500))).ok()?;
+    stream
+        .set_read_timeout(Some(Duration::from_millis(500)))
+        .ok()?;
     stream
         .set_write_timeout(Some(Duration::from_millis(500)))
         .ok()?;
@@ -222,25 +224,43 @@ mod tests {
 
     #[test]
     fn a_window_that_fits_stays_put() {
-        assert_eq!(fit_on_screen(&g(100, 50, 600, 400), &SCREENS), g(100, 50, 600, 400));
-        assert_eq!(fit_on_screen(&g(1400, 60, 900, 700), &SCREENS), g(1400, 60, 900, 700));
+        assert_eq!(
+            fit_on_screen(&g(100, 50, 600, 400), &SCREENS),
+            g(100, 50, 600, 400)
+        );
+        assert_eq!(
+            fit_on_screen(&g(1400, 60, 900, 700), &SCREENS),
+            g(1400, 60, 900, 700)
+        );
     }
 
     #[test]
     fn a_window_from_a_missing_screen_comes_back() {
         // Remembered on a third screen that is gone: the first screen takes it.
-        assert_eq!(fit_on_screen(&g(4000, 200, 600, 400), &SCREENS), g(680, 200, 600, 400));
-        assert_eq!(fit_on_screen(&g(-900, -50, 600, 400), &SCREENS), g(0, 0, 600, 400));
+        assert_eq!(
+            fit_on_screen(&g(4000, 200, 600, 400), &SCREENS),
+            g(680, 200, 600, 400)
+        );
+        assert_eq!(
+            fit_on_screen(&g(-900, -50, 600, 400), &SCREENS),
+            g(0, 0, 600, 400)
+        );
     }
 
     #[test]
     fn a_window_across_an_edge_slides_onto_the_screen_it_mostly_covers() {
-        assert_eq!(fit_on_screen(&g(1100, 700, 600, 400), &SCREENS), g(1280, 680, 600, 400));
+        assert_eq!(
+            fit_on_screen(&g(1100, 700, 600, 400), &SCREENS),
+            g(1280, 680, 600, 400)
+        );
     }
 
     #[test]
     fn a_window_larger_than_its_screen_shrinks_to_fit() {
-        assert_eq!(fit_on_screen(&g(10, 10, 3000, 2000), &SCREENS[..1]), g(0, 0, 1280, 800));
+        assert_eq!(
+            fit_on_screen(&g(10, 10, 3000, 2000), &SCREENS[..1]),
+            g(0, 0, 1280, 800)
+        );
     }
 
     #[test]
@@ -250,8 +270,18 @@ mod tests {
         assert_eq!(
             parse_screens(json),
             vec![
-                Screen { x: 0, y: 0, width: 1920, height: 1200 },
-                Screen { x: 1920, y: 0, width: 1920, height: 1080 }
+                Screen {
+                    x: 0,
+                    y: 0,
+                    width: 1920,
+                    height: 1200
+                },
+                Screen {
+                    x: 1920,
+                    y: 0,
+                    width: 1920,
+                    height: 1080
+                }
             ]
         );
     }

@@ -20,7 +20,9 @@ pub fn directory() -> PathBuf {
     match std::env::var_os("XDG_RUNTIME_DIR").filter(|v| !v.is_empty()) {
         Some(runtime) => PathBuf::from(runtime).join("hensou"),
         None => {
-            let uid = std::fs::metadata("/proc/self").map(|m| m.uid()).unwrap_or(0);
+            let uid = std::fs::metadata("/proc/self")
+                .map(|m| m.uid())
+                .unwrap_or(0);
             std::env::temp_dir().join(format!("hensou-{uid}"))
         }
     }

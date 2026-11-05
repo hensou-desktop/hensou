@@ -54,9 +54,7 @@ fn choose(fixture: bool) -> Arc<dyn FilesService> {
     //     // forward the session's network-change signal to
     //     // files.network_changed().
     //     return files;
-    eprintln!(
-        "hensou-files: the real backend is not linked in this build; using fixture data"
-    );
+    eprintln!("hensou-files: the real backend is not linked in this build; using fixture data");
     FIXTURE.store(true, Ordering::Relaxed);
     Arc::new(FixtureScenario::with_fixtures(ScenarioOptions::from_env()))
 }
