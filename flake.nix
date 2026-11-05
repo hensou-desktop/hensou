@@ -154,13 +154,11 @@
           "--suffix"
           "PATH"
           ":"
-          "${
-            pkgs.lib.makeBinPath [
-              pkgs.openssh
-              pkgs.xdg-utils
-              pkgs.gtk3
-            ]
-          }"
+          "${pkgs.lib.makeBinPath [
+            pkgs.openssh
+            pkgs.xdg-utils
+            pkgs.gtk3
+          ]}"
         ];
         meta = {
           description = "Hensou Files: local and SSH file manager in Platinum and Memphis";
