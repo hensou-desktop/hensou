@@ -26,7 +26,13 @@ Open remote files through a local working copy. Upload after saves only after ch
 - Get Info / Properties shows name, kind, size, dates, owner and permissions. Only the name can be changed. Locked (Platinum) and Read-only (Memphis) map to the write bits.
 - Hidden files are hidden by default. A View menu toggle is remembered per folder. Memphis calls it "Show all files".
 - No thumbnails: folders show the theme's system icons.
-- Transfers are not resumed. Copies write to a temporary name and rename at the end. After a quit or crash, Files removes the partial files and shows the transfer as failed.
+- Links are expected to be intermittent. SSH connections heal themselves: keepalives (ServerAliveInterval 15 s, CountMax 3), background reconnect with backoff (1 s up to 30 s), and an immediate retry on a network change. Only a changed host key interrupts a reconnect. While a host is down, its windows keep the last listing, greyed, marked "Reconnecting…". Idle connections close after 10 minutes; the next action reconnects silently.
+- A transfer interrupted by a dropped link waits for the host, then continues from its byte offset. Before appending, Files checks the partial file's size and the source's size and mtime; if they changed, it restarts that file. After 10 minutes offline, Files asks whether to keep waiting or cancel.
+- After a quit or crash, transfers are not resumed. Copies write to a temporary name and rename at the end. On the next start, Files removes the partial files and shows the transfer as failed.
+- A working copy saved while its host is offline queues its upload. The upload runs after the reconnect, with the normal remote-change check. The local copy is kept until an upload succeeds.
+- Dragging or copying a remote file to another app starts its download at drag start or at Copy. The path is handed over at the drop or paste, after the download. Large files show the normal progress window. Cancel delivers nothing. There is no size prompt.
+- Files is Myoko's default handler for folders (`inode/directory`), set in Mountainous. A second launch hands its folder to the running Files.
+- Launch: Super+E in Hyprland, plus an entry in the Platinum Apple menu and the Memphis Start menu.
 - Symbolic links appear as aliases (Platinum, italic name) or shortcuts (Memphis, arrow overlay). Opening follows the link. Copying copies the link itself.
 
 ## Future libraries
