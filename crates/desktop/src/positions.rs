@@ -1,11 +1,28 @@
-use hensou_desktop_protocol::{DesktopIcon, GridSpec, Point, ScreenLayout};
+use hensou_desktop_protocol::{DesktopIcon, GridSpec, Point, ScreenLayout, Theme};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, path::Path};
-// Matches the protocol reference provider's logical cell dimensions.
-pub const GRID: GridSpec = GridSpec {
-    cell_width: 80,
-    cell_height: 72,
-};
+// Period spacing is supplied by the provider, not guessed by shell clients.
+pub fn grid(theme: Theme) -> GridSpec {
+    match theme {
+        Theme::Platinum => GridSpec {
+            cell_width: 80,
+            cell_height: 72,
+        },
+        Theme::Memphis => GridSpec {
+            cell_width: 100,
+            cell_height: 100,
+        },
+    }
+}
+fn theme_name(theme: Theme) -> &'static str {
+    match theme {
+        Theme::Platinum => "platinum",
+        Theme::Memphis => "win98",
+    }
+}
+fn icon_key(theme: Theme, id: &str) -> String {
+    format!("{}:{id}", theme_name(theme))
+}
 #[derive(Default, Serialize, Deserialize)]
 pub struct Positions {
     pub snap: bool,
@@ -30,77 +47,88 @@ impl Positions {
         file.sync_all()?;
         std::fs::rename(temp, path)
     }
-    pub fn place(&mut self, screen: &ScreenLayout, icons: &mut [DesktopIcon]) {
-        let key = key(screen);
+    pub fn place(&mut self, theme: Theme, screen: &ScreenLayout, icons: &mut [DesktopIcon]) {
+        let key = key(theme, screen);
+        let grid = grid(theme);
         let positions = self.layouts.entry(key).or_default();
-        let cells = cells(screen);
+        let cells = cells(screen, grid);
         let mut used = Vec::new();
         for icon in icons {
             let old = positions
                 .get(&icon.id)
-                .or_else(|| self.latest.get(&icon.id))
+                .or_else(|| self.latest.get(&icon_key(theme, &icon.id)))
                 .copied();
             let position = match old {
                 Some(p)
-                    if inside(screen, p)
+                    if inside(screen, p, grid)
                         || (used.len() >= cells.len() && origin_inside(screen, p)) =>
                 {
                     p
                 }
-                Some(p) => nearest(&cells, &used, p, screen),
-                None => first(&cells, &used, screen),
+                Some(p) => nearest(&cells, &used, p, screen, grid),
+                None => first(&cells, &used, screen, grid),
             };
             used.push(position);
             icon.position = position;
             positions.insert(icon.id.clone(), position);
-            self.latest.insert(icon.id.clone(), position);
+            self.latest.insert(icon_key(theme, &icon.id), position);
         }
     }
-    pub fn update(&mut self, screen: &ScreenLayout, icons: &[DesktopIcon]) {
-        let positions = self.layouts.entry(key(screen)).or_default();
+    pub fn update(&mut self, theme: Theme, screen: &ScreenLayout, icons: &[DesktopIcon]) {
+        let positions = self.layouts.entry(key(theme, screen)).or_default();
         for icon in icons {
             positions.insert(icon.id.clone(), icon.position);
-            self.latest.insert(icon.id.clone(), icon.position);
+            self.latest.insert(icon_key(theme, &icon.id), icon.position);
         }
     }
 }
-fn key(screen: &ScreenLayout) -> String {
+fn key(theme: Theme, screen: &ScreenLayout) -> String {
     format!(
-        "{}:{}x{}@{}",
-        screen.output, screen.width, screen.height, screen.scale
+        "{}:{}:{}x{}@{}",
+        theme_name(theme),
+        screen.output,
+        screen.width,
+        screen.height,
+        screen.scale
     )
 }
-pub fn inside(s: &ScreenLayout, p: Point) -> bool {
+pub fn inside(s: &ScreenLayout, p: Point, grid: GridSpec) -> bool {
     i64::from(p.x) >= i64::from(s.usable.x)
         && i64::from(p.y) >= i64::from(s.usable.y)
-        && i64::from(p.x) + i64::from(GRID.cell_width.min(s.usable.width))
+        && i64::from(p.x) + i64::from(grid.cell_width.min(s.usable.width))
             <= i64::from(s.usable.x) + i64::from(s.usable.width)
-        && i64::from(p.y) + i64::from(GRID.cell_height.min(s.usable.height))
+        && i64::from(p.y) + i64::from(grid.cell_height.min(s.usable.height))
             <= i64::from(s.usable.y) + i64::from(s.usable.height)
 }
-pub fn cells(s: &ScreenLayout) -> Vec<Point> {
+pub fn cells(s: &ScreenLayout, grid: GridSpec) -> Vec<Point> {
     let mut points = Vec::new();
-    for col in 0..(s.usable.width / GRID.cell_width).max(1) {
-        for row in 0..(s.usable.height / GRID.cell_height).max(1) {
+    for col in 0..(s.usable.width / grid.cell_width).max(1) {
+        for row in 0..(s.usable.height / grid.cell_height).max(1) {
             points.push(Point {
-                x: s.usable.x + (col * GRID.cell_width) as i32,
-                y: s.usable.y + (row * GRID.cell_height) as i32,
+                x: s.usable.x + (col * grid.cell_width) as i32,
+                y: s.usable.y + (row * grid.cell_height) as i32,
             });
         }
     }
     points
 }
-pub fn first(cells: &[Point], used: &[Point], screen: &ScreenLayout) -> Point {
+pub fn first(cells: &[Point], used: &[Point], screen: &ScreenLayout, grid: GridSpec) -> Point {
     cells
         .iter()
-        .find(|p| !occupied(**p, used))
+        .find(|p| !occupied(**p, used, grid))
         .copied()
         .unwrap_or_else(|| overflow(cells, used, screen))
 }
-pub fn nearest(cells: &[Point], used: &[Point], point: Point, screen: &ScreenLayout) -> Point {
+pub fn nearest(
+    cells: &[Point],
+    used: &[Point],
+    point: Point,
+    screen: &ScreenLayout,
+    grid: GridSpec,
+) -> Point {
     cells
         .iter()
-        .filter(|p| !occupied(**p, used))
+        .filter(|p| !occupied(**p, used, grid))
         .min_by_key(|p| {
             let x = i64::from(p.x) - i64::from(point.x);
             let y = i64::from(p.y) - i64::from(point.y);
@@ -140,9 +168,9 @@ fn overflow(cells: &[Point], used: &[Point], screen: &ScreenLayout) -> Point {
     }
 }
 
-fn occupied(cell: Point, used: &[Point]) -> bool {
+fn occupied(cell: Point, used: &[Point], grid: GridSpec) -> bool {
     used.iter().any(|p| {
-        (i64::from(p.x) - i64::from(cell.x)).abs() < i64::from(GRID.cell_width)
-            && (i64::from(p.y) - i64::from(cell.y)).abs() < i64::from(GRID.cell_height)
+        (i64::from(p.x) - i64::from(cell.x)).abs() < i64::from(grid.cell_width)
+            && (i64::from(p.y) - i64::from(cell.y)).abs() < i64::from(grid.cell_height)
     })
 }

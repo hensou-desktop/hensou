@@ -118,7 +118,20 @@ impl Client {
             },
         });
         loop {
-            if let ProviderMessage::Snapshot { icons, snap, .. } = self.read() {
+            if let ProviderMessage::Snapshot { icons, snap, grid } = self.read() {
+                assert_eq!(
+                    grid,
+                    match theme {
+                        Theme::Platinum => GridSpec {
+                            cell_width: 80,
+                            cell_height: 72
+                        },
+                        Theme::Memphis => GridSpec {
+                            cell_width: 100,
+                            cell_height: 100
+                        },
+                    }
+                );
                 return (icons, snap);
             }
         }
@@ -498,5 +511,108 @@ fn aliases_launchers_and_arrange_sort_metadata() {
                 .unwrap()
                 .position
                 .y
+    );
+}
+
+#[test]
+fn theme_switch_preserves_separate_positions_and_starts_fresh() {
+    let h = Harness::new();
+    let server = h.start();
+    let mut c = h.client();
+    c.subscribe(Theme::Platinum, 1280);
+    let platinum = Point { x: 401, y: 301 };
+    c.send(ShellMessage::Move {
+        moves: vec![("computer".into(), platinum)],
+    });
+    assert_eq!(c.subscribe(Theme::Platinum, 1280).0[0].position, platinum);
+    let fresh = c.subscribe(Theme::Memphis, 1280).0;
+    assert_eq!(
+        fresh.iter().map(|i| i.position).collect::<Vec<_>>(),
+        [
+            Point { x: 0, y: 24 },
+            Point { x: 0, y: 124 },
+            Point { x: 0, y: 224 }
+        ]
+    );
+    let memphis = Point { x: 1001, y: 501 };
+    c.send(ShellMessage::Move {
+        moves: vec![("computer".into(), memphis)],
+    });
+    assert_eq!(c.subscribe(Theme::Memphis, 1280).0[0].position, memphis);
+    assert_eq!(c.subscribe(Theme::Platinum, 1280).0[0].position, platinum);
+    drop(c);
+    drop(server);
+    let _server = h.start();
+    let mut c = h.client();
+    assert_eq!(c.subscribe(Theme::Platinum, 1280).0[0].position, platinum);
+    assert_eq!(c.subscribe(Theme::Memphis, 1280).0[0].position, memphis);
+    assert_eq!(
+        c.subscribe(Theme::Memphis, 400).0[0].position,
+        Point { x: 300, y: 524 }
+    );
+    c.send(ShellMessage::SetSnap { snap: true });
+    c.send(ShellMessage::Move {
+        moves: vec![("computer".into(), Point { x: 211, y: 333 })],
+    });
+    assert_eq!(
+        c.subscribe(Theme::Memphis, 400).0[0].position,
+        Point { x: 200, y: 324 }
+    );
+    c.send(ShellMessage::Arrange {
+        by: ArrangeBy::Name,
+    });
+    let arranged = c.subscribe(Theme::Memphis, 400).0;
+    assert_eq!(
+        arranged.iter().map(|i| i.position).collect::<Vec<_>>(),
+        [
+            Point { x: 0, y: 24 },
+            Point { x: 0, y: 124 },
+            Point { x: 0, y: 224 }
+        ]
+    );
+    assert_eq!(c.subscribe(Theme::Platinum, 1280).0[0].position, platinum);
+}
+#[test]
+fn memphis_cascade_starts_at_its_last_grid_cell() {
+    let h = Harness::new();
+    let _server = h.start();
+    for name in ["a", "b"] {
+        std::fs::write(h.dir.path().join("Desktop").join(name), "data").unwrap();
+    }
+    let mut c = h.client();
+    c.send(ShellMessage::Subscribe {
+        theme: Theme::Memphis,
+        screen: ScreenLayout {
+            output: "small".into(),
+            width: 200,
+            height: 200,
+            scale: 1.5,
+            usable: Rect {
+                x: 0,
+                y: 0,
+                width: 200,
+                height: 200,
+            },
+        },
+    });
+    let ProviderMessage::Snapshot { icons, grid, .. } = c.read() else {
+        panic!("expected snapshot");
+    };
+    assert_eq!(
+        grid,
+        GridSpec {
+            cell_width: 100,
+            cell_height: 100
+        }
+    );
+    assert_eq!(
+        icons.iter().map(|i| i.position).collect::<Vec<_>>(),
+        [
+            Point { x: 0, y: 0 },
+            Point { x: 0, y: 100 },
+            Point { x: 100, y: 0 },
+            Point { x: 100, y: 100 },
+            Point { x: 112, y: 112 }
+        ]
     );
 }

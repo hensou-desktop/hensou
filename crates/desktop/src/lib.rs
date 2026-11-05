@@ -7,7 +7,7 @@ use hensou_files_model::{
     platform::{IconResolver, ResolvedIcon, ThemeId, TrashStore, VolumeMonitor},
 };
 use notify::Watcher;
-use positions::{GRID, Positions};
+use positions::Positions;
 use std::{
     collections::HashMap,
     io::{self, BufReader},
@@ -262,7 +262,7 @@ impl DesktopProvider {
             .map(|i| i.icon)
             .collect::<Vec<_>>();
         let mut positions = self.positions.lock().unwrap();
-        positions.place(screen, &mut icons);
+        positions.place(theme, screen, &mut icons);
         positions
             .save(&self.config.positions_file)
             .map_err(io_error)?;
@@ -362,7 +362,7 @@ impl DesktopProvider {
                 &ProviderMessage::Snapshot {
                     icons,
                     snap,
-                    grid: GRID,
+                    grid: positions::grid(theme),
                 },
             )
             .map_err(io_error);
@@ -522,7 +522,7 @@ impl DesktopProvider {
             }
             ShellMessage::Move { moves } => {
                 let snap = self.positions.lock().unwrap().snap;
-                let cells = positions::cells(&screen);
+                let cells = positions::cells(&screen, positions::grid(theme));
                 for (id, requested) in moves {
                     let used = icons
                         .iter()
@@ -533,13 +533,20 @@ impl DesktopProvider {
                         .iter_mut()
                         .find(|i| i.id == id)
                         .ok_or(FilesError::NotFound)?;
-                    icon.position = if snap || !positions::inside(&screen, requested) {
-                        positions::nearest(&cells, &used, requested, &screen)
-                    } else {
-                        requested
-                    };
+                    icon.position =
+                        if snap || !positions::inside(&screen, requested, positions::grid(theme)) {
+                            positions::nearest(
+                                &cells,
+                                &used,
+                                requested,
+                                &screen,
+                                positions::grid(theme),
+                            )
+                        } else {
+                            requested
+                        };
                 }
-                self.save_icons(&screen, &icons)?;
+                self.save_icons(theme, &screen, &icons)?;
                 self.refresh();
             }
             ShellMessage::Arrange { by } => {
@@ -562,17 +569,23 @@ impl DesktopProvider {
                     }),
                     ArrangeBy::CleanUp => {}
                 }
-                let cells = positions::cells(&screen);
+                let cells = positions::cells(&screen, positions::grid(theme));
                 let mut used = Vec::new();
                 for icon in &mut icons {
                     icon.position = if by == ArrangeBy::CleanUp {
-                        positions::nearest(&cells, &used, icon.position, &screen)
+                        positions::nearest(
+                            &cells,
+                            &used,
+                            icon.position,
+                            &screen,
+                            positions::grid(theme),
+                        )
                     } else {
-                        positions::first(&cells, &used, &screen)
+                        positions::first(&cells, &used, &screen, positions::grid(theme))
                     };
                     used.push(icon.position);
                 }
-                self.save_icons(&screen, &icons)?;
+                self.save_icons(theme, &screen, &icons)?;
                 self.refresh();
             }
             ShellMessage::Hello { .. } => return Err(other("Hello was already received")),
@@ -580,9 +593,14 @@ impl DesktopProvider {
         }
         Ok(())
     }
-    fn save_icons(&self, screen: &ScreenLayout, icons: &[DesktopIcon]) -> Result<(), FilesError> {
+    fn save_icons(
+        &self,
+        theme: Theme,
+        screen: &ScreenLayout,
+        icons: &[DesktopIcon],
+    ) -> Result<(), FilesError> {
         let mut positions = self.positions.lock().unwrap();
-        positions.update(screen, icons);
+        positions.update(theme, screen, icons);
         positions
             .save(&self.config.positions_file)
             .map_err(io_error)

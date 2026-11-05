@@ -16,8 +16,12 @@ its previous process has stopped.
 
 Request IDs start at `1 << 48`; the app uses the lower range. Service failures
 return stable protocol codes to the requesting client. A transfer's request ID is
-its transfer ID. Positions and Snap to Grid have one persistent owner, keyed by
-output, logical size and scale. Grid dimensions match the protocol reference.
+its transfer ID. Positions have one persistent owner, keyed by theme, output,
+logical size and scale. Platinum uses an 80×72 logical-pixel grid; Memphis uses
+100×100. Each theme starts fresh until it has saved positions, and display-change
+recovery uses only that theme's latest positions. Old, unscoped position records
+remain in the file but are not used by either theme. Snap to Grid remains one
+shared setting.
 
 When the grid fills, the coordinator's overflow rule cascades by 12 logical pixels,
 then wraps with a 6-pixel inset. All icons remain in the stable snapshot order for
