@@ -1,6 +1,6 @@
 # Desktop icons design
 
-Phase 5 puts icons on the desktop in both themes. The shell draws them; Files supplies them and acts on them over a versioned local socket ([ADR 0005](../decisions/0005-desktop-icons.md)). Decisions below came from the owner interview on 2026-11-05.
+Phase 5 puts icons on the desktop in both themes. The shell draws them; Files supplies them and acts on them over a versioned local socket ([ADR 0006](../decisions/0006-desktop-icons.md)). Decisions below came from the owner interview on 2026-11-05.
 
 ## Which icons
 

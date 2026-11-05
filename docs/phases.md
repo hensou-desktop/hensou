@@ -38,7 +38,7 @@ The Comics original-download endpoint is work in its own repository. Complete th
 
 Quickshell draws icons using the kit. Files supplies data and handles actions over a versioned local interface. Include Desktop folder contents, computer/drives, one SSH Hosts entry, libraries and Trash. Remember positions and move icons back into view after display changes.
 
-The detailed design is in [design/desktop-icons.md](design/desktop-icons.md) and [ADR 0005](decisions/0005-desktop-icons.md). Phase 5 starts before Files exists: a temporary host runs the provider crate until Files embeds it.
+The detailed design is in [design/desktop-icons.md](design/desktop-icons.md) and [ADR 0006](decisions/0006-desktop-icons.md). Phase 5 starts before Files exists: a temporary host runs the provider crate until Files embeds it.
 
 ## Review and release rules
 
