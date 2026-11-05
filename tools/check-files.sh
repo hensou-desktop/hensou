@@ -13,4 +13,6 @@ cargo fmt --package hensou-files -- --check
 cargo test --package hensou-files --locked
 cargo clippy --package hensou-files --all-targets --locked -- -D warnings
 ruff check --config tests/demo/ruff.toml tests/files/run.py
-shellcheck tools/check-files.sh tools/test-files.sh tools/test-files-package.sh
+ruff format --config tests/demo/ruff.toml --check tests/files/run.py
+nixfmt --check flake.nix
+shellcheck --shell=bash tools/check-files.sh tools/test-files.sh tools/test-files-package.sh
