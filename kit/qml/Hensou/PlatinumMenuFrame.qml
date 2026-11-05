@@ -37,23 +37,8 @@ Item {
     // Clicks inside the menu stay inside it.
     MouseArea { anchors.fill: parent; acceptedButtons: Qt.AllButtons; onWheel: function (w) { w.accepted = false; } }
 
-    Rectangle {
-        visible: !PlatinumTokens.drafting
-        x: root.hair
-        y: root.hair
-        width: parent.width
-        height: parent.height
-        color: PlatinumTokens.menuShadow
-    }
-    // Drawing Board: a hatched shadow, further down and right.
-    PlatinumHatch {
-        visible: PlatinumTokens.drafting
-        x: 4 * root.hair
-        y: 4 * root.hair
-        width: visible ? parent.width : 0
-        height: visible ? parent.height : 0
-    }
-
+    // The hard shadow; Drawing Board's is hatched.
+    PlatinumShadow { hairs: 1 }
     PlatinumBevel {
         anchors.fill: parent
         color: PlatinumTokens.menuSurface

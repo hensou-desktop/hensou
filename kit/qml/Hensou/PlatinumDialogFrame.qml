@@ -23,22 +23,8 @@ Item {
     implicitWidth: body.childrenRect.width + 2 * padding + 2 * hair
     implicitHeight: titleHeight + body.childrenRect.height + 2 * padding + 2 * hair
 
-    Rectangle {
-        visible: !PlatinumTokens.drafting
-        x: 2 * root.hair
-        y: 2 * root.hair
-        width: parent.width
-        height: parent.height
-        color: PlatinumTokens.menuShadow
-    }
-    // Drawing Board: a hatched shadow, further down and right.
-    PlatinumHatch {
-        visible: PlatinumTokens.drafting
-        x: 4 * root.hair
-        y: 4 * root.hair
-        width: visible ? parent.width : 0
-        height: visible ? parent.height : 0
-    }
+    // The hard shadow; Drawing Board's is hatched.
+    PlatinumShadow { hairs: 2 }
     PlatinumBevel {
         anchors.fill: parent
         color: PlatinumTokens.menuSurface

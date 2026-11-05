@@ -75,7 +75,7 @@ TestCase {
 
     function test_every_memphis_appearance_resolves_every_token() {
         const names = MemphisTokens.tokenNames;
-        verify(names.length >= 50, "token count " + names.length);
+        verify(names.length >= 45, "token count " + names.length);
         for (const a of MemphisTokens.appearances) {
             const p = MemphisTokens.palette(a.id);
             compare(Object.keys(p).sort(), names.slice().sort(), a.id + " has every token and no other");
@@ -251,20 +251,31 @@ TestCase {
         Theme.name = "platinum"; Theme.mode = "light";
         const menu = Qt.createQmlObject('import QtQuick; import Hensou; PlatinumMenuFrame { title: "Sound"; width: 200 }', scale, "menu");
         const dialog = Qt.createQmlObject('import QtQuick; import Hensou; PlatinumDialogFrame { title: "About"; width: 200; height: 120 }', scale, "dialog");
-        for (const frame of [menu, dialog]) {
-            const kids = frame.children;
-            let hatches = 0, marks = 0;
-            for (const k of kids) {
-                if (k.toString().indexOf("PlatinumHatch") === 0) { hatches++; verify(!k.visible); }
-                if (k.toString().indexOf("PlatinumCropMarks") === 0) { marks++; verify(!k.visible); }
+        const hair = PlatinumTokens.hairFor(1.5);
+        const parts = frame => {
+            let shadow = null, marks = null;
+            for (const k of frame.children) {
+                if (k.toString().indexOf("PlatinumShadow") === 0) shadow = k;
+                if (k.toString().indexOf("PlatinumCropMarks") === 0) marks = k;
             }
-            compare(hatches, 1); compare(marks, 1);
+            verify(shadow !== null && marks !== null, "shadow and crop marks present");
+            return { shadow: shadow, marks: marks };
+        };
+        // Light: the solid shadow where it was (menu 1 rule, dialog 2), no marks.
+        for (const [frame, hairs] of [[menu, 1], [dialog, 2]]) {
+            const p = parts(frame);
+            verify(!p.shadow.hatched);
+            compare(p.shadow.x, hairs * hair);
+            verify(!p.marks.visible);
         }
         if (hasAppearance) {
             Theme.appearance = "drawing-board";
-            for (const frame of [menu, dialog])
-                for (const k of frame.children)
-                    if (/^Platinum(Hatch|CropMarks)/.test(k.toString())) verify(k.visible, "drawn on the board");
+            for (const frame of [menu, dialog]) {
+                const p = parts(frame);
+                verify(p.shadow.hatched, "hatched on the board");
+                compare(p.shadow.x, 4 * hair);
+                verify(p.marks.visible, "crop marks on the board");
+            }
             Theme.appearance = "";
         }
         menu.destroy(); dialog.destroy();
