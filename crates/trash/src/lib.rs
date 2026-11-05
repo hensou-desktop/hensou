@@ -130,7 +130,9 @@ impl FreedesktopTrash {
         }
         Ok((root, Some(top)))
     }
-    fn roots(&self) -> Vec<(PathBuf, Option<PathBuf>)> { trash_roots(&self.home, &self.mounts) }
+    fn roots(&self) -> Vec<(PathBuf, Option<PathBuf>)> {
+        trash_roots(&self.home, &self.mounts)
+    }
     fn original(&self, stored: &Path) -> Result<(PathBuf, PathBuf, Option<i64>), FilesError> {
         let (root, top) = self
             .roots()
@@ -325,26 +327,49 @@ impl TrashStore for FreedesktopTrash {
     fn watch(&self, on_change: Box<dyn Fn() + Send + Sync>) {
         let callback: Arc<dyn Fn() + Send + Sync> = Arc::from(on_change);
         let events = callback.clone();
-        if let Ok(mut watcher) = notify::recommended_watcher(move |event: notify::Result<notify::Event>| {
-            if event.is_ok_and(|event| !matches!(event.kind, notify::EventKind::Access(_))) { events(); }
-        }) {
+        if let Ok(mut watcher) =
+            notify::recommended_watcher(move |event: notify::Result<notify::Event>| {
+                if event.is_ok_and(|event| !matches!(event.kind, notify::EventKind::Access(_))) {
+                    events();
+                }
+            })
+        {
             let mut watched = std::collections::HashSet::new();
             for (root, _) in self.roots() {
-                if watcher.watch(&root, notify::RecursiveMode::Recursive).is_ok() { watched.insert(root); }
+                if watcher
+                    .watch(&root, notify::RecursiveMode::Recursive)
+                    .is_ok()
+                {
+                    watched.insert(root);
+                }
             }
             let lifetime = Arc::downgrade(&self.lifetime);
-            let home = self.home.clone(); let mounts = self.mounts.clone();
+            let home = self.home.clone();
+            let mounts = self.mounts.clone();
             std::thread::spawn(move || {
                 while lifetime.strong_count() > 0 {
                     std::thread::sleep(std::time::Duration::from_secs(1));
-                    let roots = trash_roots(&home, &mounts).into_iter().map(|(p, _)| p).collect::<std::collections::HashSet<_>>();
+                    let roots = trash_roots(&home, &mounts)
+                        .into_iter()
+                        .map(|(p, _)| p)
+                        .collect::<std::collections::HashSet<_>>();
                     let mut changed = false;
                     for root in roots.difference(&watched) {
-                        if watcher.watch(root, notify::RecursiveMode::Recursive).is_ok() { changed = true; }
+                        if watcher
+                            .watch(root, notify::RecursiveMode::Recursive)
+                            .is_ok()
+                        {
+                            changed = true;
+                        }
                     }
-                    for root in watched.difference(&roots) { let _ = watcher.unwatch(root); changed = true; }
+                    for root in watched.difference(&roots) {
+                        let _ = watcher.unwatch(root);
+                        changed = true;
+                    }
                     watched = roots;
-                    if changed { callback(); }
+                    if changed {
+                        callback();
+                    }
                 }
             });
         }
@@ -352,39 +377,44 @@ impl TrashStore for FreedesktopTrash {
 }
 
 fn mounted_paths(configured: &[PathBuf]) -> Vec<PathBuf> {
-        let mut mounts = configured.to_vec();
-        if let Ok(text) = fs::read_to_string("/proc/self/mountinfo") {
-            mounts.extend(
-                text.lines()
-                    .filter_map(|l| l.split_whitespace().nth(4))
-                    .map(|p| {
-                        PathBuf::from(
-                            p.replace("\\040", " ")
-                                .replace("\\011", "\t")
-                                .replace("\\134", "\\"),
-                        )
-                    }),
-            );
-        }
-        mounts.sort();
-        mounts.dedup();
-        mounts
+    let mut mounts = configured.to_vec();
+    if let Ok(text) = fs::read_to_string("/proc/self/mountinfo") {
+        mounts.extend(
+            text.lines()
+                .filter_map(|l| l.split_whitespace().nth(4))
+                .map(|p| {
+                    PathBuf::from(
+                        p.replace("\\040", " ")
+                            .replace("\\011", "\t")
+                            .replace("\\134", "\\"),
+                    )
+                }),
+        );
     }
+    mounts.sort();
+    mounts.dedup();
+    mounts
+}
 
 fn trash_roots(home: &Path, mounts: &[PathBuf]) -> Vec<(PathBuf, Option<PathBuf>)> {
-        let mut result = vec![(home.to_path_buf(), None)];
-        for top in mounted_paths(mounts) {
-            for root in [
-                top.join(".Trash").join(Uid::current().to_string()),
-                top.join(format!(".Trash-{}", Uid::current())),
-            ] {
-                if root.parent().is_some_and(|p| p.ends_with(".Trash")) && !fs::symlink_metadata(top.join(".Trash")).is_ok_and(|m| m.is_dir() && m.mode() & 0o1000 != 0) { continue; }
-                if fs::symlink_metadata(&root).is_ok_and(|m| {
-                    m.is_dir() && m.uid() == Uid::current().as_raw() && m.mode() & 0o077 == 0
-                }) {
-                    result.push((root, Some(top.clone())));
-                }
+    let mut result = vec![(home.to_path_buf(), None)];
+    for top in mounted_paths(mounts) {
+        for root in [
+            top.join(".Trash").join(Uid::current().to_string()),
+            top.join(format!(".Trash-{}", Uid::current())),
+        ] {
+            if root.parent().is_some_and(|p| p.ends_with(".Trash"))
+                && !fs::symlink_metadata(top.join(".Trash"))
+                    .is_ok_and(|m| m.is_dir() && m.mode() & 0o1000 != 0)
+            {
+                continue;
+            }
+            if fs::symlink_metadata(&root).is_ok_and(|m| {
+                m.is_dir() && m.uid() == Uid::current().as_raw() && m.mode() & 0o077 == 0
+            }) {
+                result.push((root, Some(top.clone())));
             }
         }
-        result
     }
+    result
+}

@@ -695,6 +695,7 @@ name = "hensou-volumes"
 version = "0.1.0"
 dependencies = [
  "hensou-files-model",
+ "nix",
  "tempfile",
  "zbus",
 ]

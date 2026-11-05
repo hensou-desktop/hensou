@@ -88,7 +88,8 @@ impl ThemeIcons {
                         if let Ok(real) = path.canonicalize()
                             && !real.components().any(|c| {
                                 matches!(c.as_os_str().to_str(), Some("hicolor" | "Adwaita"))
-                            }) {
+                            })
+                        {
                             return Some(path);
                         }
                     }
