@@ -176,18 +176,18 @@ pub fn place(title: String, wanted: Geometry) {
     }
     std::thread::spawn(move || {
         for _ in 0..20 {
-            if let Some(clients) = request("j/clients") {
-                if let Some(client) = parse_clients(&clients, std::process::id(), &title)
+            let client = request("j/clients").and_then(|clients| {
+                parse_clients(&clients, std::process::id(), &title)
                     .into_iter()
                     .next()
-                {
-                    let screens = request("j/monitors")
-                        .map(|m| parse_screens(&m))
-                        .unwrap_or_default();
-                    let fitted = fit_on_screen(&wanted, &screens);
-                    let _ = request(&placement_batch(&client.address, &fitted));
-                    return;
-                }
+            });
+            if let Some(client) = client {
+                let screens = request("j/monitors")
+                    .map(|m| parse_screens(&m))
+                    .unwrap_or_default();
+                let fitted = fit_on_screen(&wanted, &screens);
+                let _ = request(&placement_batch(&client.address, &fitted));
+                return;
             }
             std::thread::sleep(Duration::from_millis(50));
         }
