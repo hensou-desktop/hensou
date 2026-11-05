@@ -19,12 +19,27 @@ Item {
     property int otherWindows: 0
     property Component tiles
     readonly property var p: DP.plan(width, height, primary)
+    // Notifications live in the frame, by urgency (freedesktop: low, normal, critical):
+    //   low      a readout segment in the bottom bar, gone after 4 s
+    //   notify   (normal) the arm's comms block grows out across the work area
+    //   unread   after 7 s it folds back into the arm as a counted block
+    //   critical the whole frame goes to alert red and the block stays out
+    readonly property bool critical: state_ === "critical"
+    readonly property bool tabOut: state_ === "notify" || critical
+    readonly property bool comms: tabOut || state_ === "unread"
+    readonly property color c1: critical ? T.alert : T.sunset
+    readonly property color c2: critical ? "#993333" : T.lilac
+    readonly property var msg: critical
+        ? { from: "aka, 21:46", summary: "Storage almost full", body: "/storage on aka is 97% full. Builds will stop at 100%.", a1: "Open storage", a2: "Acknowledge" }
+        : { from: "aka, 21:46", summary: "Build finished", body: "hensou-demo built in 41 s with 2 warnings.", a1: "Open log", a2: "Dismiss" }
+    readonly property real armUsed: (Math.min(windows.length, p.blocksFit) + (otherWindows > 0 ? 1 : 0)) * (p.blockH + 4)
+    readonly property real commsY: p.elbowH + 4 + armUsed
 
     // ── Top elbow and bar ───────────────────────────────────────────
     Elbow {
         corner: "tl"; armW: d.p.armW; barH: d.p.topH
         width: d.p.elbowW; height: d.p.elbowH
-        color: T.sunset
+        color: d.c1
         outerR: Math.min(d.p.armW, d.p.elbowH) * 0.8
     }
     Text {
@@ -50,14 +65,14 @@ Item {
             // Alert segment: dark until a notification arrives.
             width: Math.max(0, d.width - d.p.elbowW - 4 - d.pages.length * 134 - (d.p.clock ? 200 : 40))
             height: d.p.topH
-            color: d.state_ === "notify" ? T.periwinkle : T.peach
+            color: d.critical ? T.alert : T.peach
             // Without title bars, the focused window's full title lives here.
             // A notification takes the segment over until it is read.
             readonly property var focusedWin: d.windows.filter(function (w) { return w.focused; })[0]
             Text {
                 anchors.right: parent.right; anchors.rightMargin: 12; anchors.bottom: parent.bottom; anchors.bottomMargin: 2
                 width: parent.width - 24; horizontalAlignment: Text.AlignRight; elide: Text.ElideLeft
-                text: d.state_ === "notify" ? "1 NEW: BUILD FINISHED ON AKA"
+                text: d.critical ? "ALERT: STORAGE ALMOST FULL ON AKA"
                     : parent.focusedWin ? (parent.focusedWin.app + ": " + parent.focusedWin.title).toUpperCase() : ""
                 color: T.space; font.family: d.fam; font.pixelSize: d.p.topH * 0.55
             }
@@ -65,11 +80,11 @@ Item {
         Pill {
             visible: d.p.clock
             width: 196; height: d.p.topH; leftCap: false
-            text: "21:47"; sub: "Thu 5 Nov"; color: T.sunset; fam: d.fam; px: 28
+            text: "21:47"; sub: "Thu 5 Nov"; color: d.c1; fam: d.fam; px: 28
         }
         Rectangle {
             visible: !d.p.clock
-            width: 36; height: d.p.topH; color: T.sunset
+            width: 36; height: d.p.topH; color: d.c1
             topRightRadius: d.p.topH / 2; bottomRightRadius: d.p.topH / 2
         }
     }
@@ -95,8 +110,8 @@ Item {
         }
     }
     Rectangle {
-        x: 0; width: d.p.armW; color: T.lilac
-        y: d.p.elbowH + 4 + (Math.min(d.windows.length, d.p.blocksFit) + (d.otherWindows > 0 ? 1 : 0)) * (d.p.blockH + 4)
+        x: 0; width: d.p.armW; color: d.c2
+        y: d.commsY + (d.comms ? d.p.blockH + 4 : 0)
         height: Math.max(0, d.height - y - d.p.bottomElbowH - 4)
         Text {
             // Launcher lives at the foot of the filler: Super+P opens the same.
@@ -109,7 +124,7 @@ Item {
     Elbow {
         corner: "bl"; armW: d.p.armW; barH: d.p.bottomH
         y: d.height - d.p.bottomElbowH; width: d.p.elbowW; height: d.p.bottomElbowH
-        color: T.sunset
+        color: d.c1
     }
     Row {
         x: d.p.elbowW + 4; y: d.height - d.p.bottomH; height: d.p.bottomH; spacing: 4
@@ -120,7 +135,8 @@ Item {
                 { t: "Battery 71%", c: T.peach, w: 150 },
                 { t: "Builds: aka idle", c: T.lilac, w: 200 },
                 { t: "62% copying 3 items", c: T.gold, w: 230 }
-            ] : [ { t: "Moonlight 1280×800", c: T.lilac, w: 240 } ]
+            ].concat(d.state_ === "low" ? [ { t: "Backup done on rakku", c: T.periwinkle, w: 260 } ] : [])
+              : [ { t: "Moonlight 1280×800", c: T.lilac, w: 240 } ]
             delegate: Rectangle {
                 required property var modelData
                 width: modelData.w; height: d.p.bottomH; color: modelData.c
@@ -128,8 +144,8 @@ Item {
             }
         }
         Rectangle {
-            width: Math.max(0, d.width - d.p.elbowW - 4 - (d.p.readouts ? 880 + 20 : 244))
-            height: d.p.bottomH; color: T.sunset
+            width: Math.max(0, d.width - d.p.elbowW - 4 - (d.p.readouts ? 880 + 20 + (d.state_ === "low" ? 264 : 0) : 244))
+            height: d.p.bottomH; color: d.c1
             topRightRadius: d.p.bottomH / 2; bottomRightRadius: d.p.bottomH / 2
         }
     }
@@ -141,21 +157,38 @@ Item {
     }
 
     // ── Notification: a card under the lit alert segment ────────────
+    // Folded: one counted block in the arm, under the windows. Click opens the history.
+    Pill {
+        visible: d.state_ === "unread"
+        x: 0; y: d.commsY; width: d.p.armW; height: d.p.blockH
+        leftCap: false; rightCap: false
+        text: "1 unread"; sub: "Comms"; color: T.periwinkle; fam: d.fam; px: 18
+    }
+    // Out: the same block grows across the work area. It is frame, not a window:
+    // same colour family, black type on colour, a pill end where it stops.
     Item {
-        visible: d.state_ === "notify"
-        width: 420; height: 176
-        x: d.width - width - 14; y: d.p.topH + 6
-        Rectangle { anchors.fill: parent; anchors.margins: -6; color: T.space; border.color: T.periwinkle; border.width: 2 }
-        Rectangle { width: parent.width; height: 26; color: T.periwinkle; topLeftRadius: 13; bottomLeftRadius: 13
-            Text { anchors.right: parent.right; anchors.rightMargin: 10; anchors.bottom: parent.bottom; anchors.bottomMargin: 1; text: "FROM AKA, 21:46"; color: T.space; font.family: d.fam; font.pixelSize: 17 }
+        id: slab
+        visible: d.tabOut
+        readonly property real h: 196
+        readonly property real extW: Math.min(660, d.p.work.w * 0.5)
+        readonly property color c: d.critical ? T.alert : T.periwinkle
+        x: 0; y: d.commsY; width: d.p.armW + extW; height: h
+        Rectangle { anchors.fill: parent; color: slab.c; topRightRadius: 44; bottomRightRadius: 44 }
+        Rectangle { y: slab.h; width: d.p.armW; height: 4; color: T.space }
+        // Arm part: what kind of block this is.
+        Text { x: d.p.armW - width - 12; y: 6; text: d.critical ? "ALERT" : "COMMS"; color: T.space; font.family: d.fam; font.pixelSize: 15 }
+        Text { x: d.p.armW - width - 12; y: 24; text: "1 OF 1"; color: T.space; font.family: d.fam; font.pixelSize: 26 }
+        Rectangle { x: d.p.armW + 8; y: 14; width: 4; height: slab.h - 28; color: T.space }
+        Column {
+            x: d.p.armW + 28; y: 12; width: slab.extW - 80; spacing: 4
+            Text { text: ("From " + d.msg.from).toUpperCase(); color: T.space; font.family: d.fam; font.pixelSize: 16 }
+            Text { text: d.msg.summary; color: T.space; font.family: d.fam; font.pixelSize: 40; font.weight: Font.Medium }
+            Text { width: parent.width; wrapMode: Text.Wrap; text: d.msg.body; color: T.space; font.family: d.fam; font.pixelSize: 21 }
         }
-        Rectangle { y: 30; width: 8; height: parent.height - 30; color: T.periwinkle }
-        Text { x: 22; y: 38; text: "Build finished"; color: T.peach; font.family: d.fam; font.pixelSize: 30 }
-        Text { x: 22; y: 80; width: parent.width - 34; wrapMode: Text.Wrap; text: "hensou-demo built in 41 s. 2 warnings."; color: T.peach; font.pixelSize: 16 }
         Row {
-            x: 22; y: parent.height - 44; spacing: 4
-            Pill { width: 150; height: 38; text: "Open log"; color: T.periwinkle; rightCap: false; fam: d.fam; px: 18 }
-            Pill { width: 120; height: 38; text: "Dismiss"; color: T.dim; ink: T.peach; leftCap: false; fam: d.fam; px: 18 }
+            x: d.p.armW + 28; y: slab.h - 52; spacing: 4
+            Pill { width: 170; height: 40; text: d.msg.a1; color: T.space; ink: slab.c; rightCap: false; fam: d.fam; px: 18 }
+            Pill { width: 150; height: 40; text: d.msg.a2; color: T.space; ink: slab.c; leftCap: false; fam: d.fam; px: 18 }
         }
     }
 

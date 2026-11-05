@@ -51,3 +51,19 @@ Findings:
   holds it, and a notification takes that segment over until it is read.
 - Web pages keep their own colours and body face. Only scroll bars and form
   controls take LCARS. Making page text Antonio would hurt reading.
+
+## Pass 3: notifications in the frame, and a browser extension
+
+Notifications follow the freedesktop urgency the notification model already
+keeps (`notification-model.js`: low 4 s, normal 7 s, critical never):
+
+- low: one more readout segment in the bottom bar;
+- normal: the arm's comms block grows out across the work area, then folds
+  back into a counted block under the window list;
+- critical: the whole frame turns alert red until acknowledged.
+
+Periwinkle is reserved for comms, so no app block uses it.
+
+`desktop/ReaderPage.qml` mocks what an extension content script could do to
+an article: contents from its headings, LCARS headings and code boxes, body
+in a readable face. The origin stays in the shell's top bar.

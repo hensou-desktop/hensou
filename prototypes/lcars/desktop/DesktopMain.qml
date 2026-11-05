@@ -23,9 +23,16 @@ Window {
 
     FontLoader { id: antonio; source: "../fonts/Antonio.ttf" }
 
-    readonly property var mainWindows: [
+    // Periwinkle is kept for comms, so no app block uses it.
+    readonly property bool reader: st === "reader"
+    readonly property var mainWindows: reader ? [
+        // The shell, not the page, shows the origin: Chromium --app has no address bar.
+        { app: "Chromium", title: "wiki.hyprland.org: Window rules", focused: true, color: T.sunset },
+        { app: "Files", title: "hensou", focused: false, color: T.lilac },
+        { app: "Ghostty", title: "nix build", focused: false, color: T.peach }
+    ] : [
         { app: "Files", title: "hensou", focused: true, color: T.lilac },
-        { app: "Chromium", title: "Window rules – Hyprland Wiki", focused: false, color: T.periwinkle },
+        { app: "Chromium", title: "Window rules – Hyprland Wiki", focused: false, color: T.sunset },
         { app: "Ghostty", title: "nix build", focused: false, color: T.peach }
     ]
     readonly property var mainPages: [
@@ -41,7 +48,8 @@ Window {
             id: wa
             readonly property real g: 10
             readonly property real leftW: Math.round(width * 0.56)
-            WebPage { width: wa.leftW; height: wa.height; fam: antonio.name }
+            WebPage { visible: !win.reader; width: wa.leftW; height: wa.height; fam: antonio.name }
+            ReaderPage { visible: win.reader; width: wa.leftW; height: wa.height; fam: antonio.name }
             FilesPane {
                 id: files
                 x: wa.leftW + wa.g; width: wa.width - wa.leftW - wa.g; height: Math.round(wa.height * 0.58)
@@ -50,7 +58,7 @@ Window {
             Terminal { id: term; x: files.x; y: files.height + wa.g; width: files.width; height: wa.height - files.height - wa.g }
             Repeater {
                 // Inactive border: black apps on a black frame need an edge.
-                model: [ { x: 0, y: 0, w: wa.leftW, h: wa.height }, { x: term.x, y: term.y, w: term.width, h: term.height } ]
+                model: [ win.reader ? { x: files.x, y: 0, w: files.width, h: files.height } : { x: 0, y: 0, w: wa.leftW, h: wa.height }, { x: term.x, y: term.y, w: term.width, h: term.height } ]
                 delegate: Rectangle {
                     required property var modelData
                     x: modelData.x - 2; y: modelData.y - 2; width: modelData.w + 4; height: modelData.h + 4
@@ -59,7 +67,9 @@ Window {
             }
             Rectangle {
                 // Focus: Hyprland's active border, in gold. Nothing else marks a tile.
-                x: files.x - 3; y: -3; width: files.width + 6; height: files.height + 6
+                x: win.reader ? -3 : files.x - 3; y: -3
+                width: win.reader ? wa.leftW + 6 : files.width + 6
+                height: win.reader ? wa.height + 6 : files.height + 6
                 color: "transparent"; border.color: T.gold; border.width: 3
             }
         }

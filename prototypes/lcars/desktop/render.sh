@@ -1,7 +1,7 @@
 #!/usr/bin/env nix-shell
 #! nix-shell -i bash -p qt6.qtdeclarative qt6.qtbase
 # PROTOTYPE — render the LCARS desktop states into ../shots/desktop-*.png.
-# Usage: ./render.sh [state ...]    states: normal notify switch dual
+# Usage: ./render.sh [state ...]    states: normal low notify unread critical switch dual reader
 #        ./render.sh run [state]    interactive window
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
@@ -13,7 +13,7 @@ export QT_PLUGIN_PATH="$decl/lib/qt-6/plugins"
 if [ "${1:-}" = "run" ]; then exec qml "$here/DesktopMain.qml" -- --state "${2:-normal}"; fi
 
 export QT_QPA_PLATFORM=offscreen
-states=("$@"); [ ${#states[@]} -gt 0 ] || states=(normal notify switch dual)
+states=("$@"); [ ${#states[@]} -gt 0 ] || states=(normal low notify unread critical switch dual)
 for s in "${states[@]}"; do
   qml "$here/DesktopMain.qml" -- --state "$s" --out "$here/../shots/desktop-$s.png" 2>&1 | grep -v '^$' || true
   echo "shots/desktop-$s.png"

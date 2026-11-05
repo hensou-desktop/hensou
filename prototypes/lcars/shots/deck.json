@@ -31,11 +31,39 @@
       "src": "desktop-normal.png"
     },
     {
-      "id": "desk-notify",
-      "group": "Desktop pass 2",
-      "title": "Desktop: a notification arrives",
-      "caption": "The long top segment lights periwinkle and says what came in; the card hangs under it with actions. Is the lit segment enough without the card?",
+      "id": "notif-low",
+      "group": "Notifications in the frame",
+      "title": "Low urgency: a readout",
+      "caption": "A low-urgency message becomes one more readout segment in the bottom bar and leaves after 4 s. No card, no sound.",
+      "src": "desktop-low.png"
+    },
+    {
+      "id": "notif-normal",
+      "group": "Notifications in the frame",
+      "title": "Normal: the comms block grows out",
+      "caption": "The arm's comms block grows across the work area. Black type on the block's colour, actions as black pills, a pill end where it stops. It is part of the frame, not a window.",
       "src": "desktop-notify.png"
+    },
+    {
+      "id": "notif-unread",
+      "group": "Notifications in the frame",
+      "title": "After 7 s: folded into the arm",
+      "caption": "Unread messages fold back into one counted block under the window list. Clicking it would grow the history out the same way.",
+      "src": "desktop-unread.png"
+    },
+    {
+      "id": "notif-critical",
+      "group": "Notifications in the frame",
+      "title": "Critical: the frame goes red",
+      "caption": "Critical turns the whole frame to alert red and the block stays out until acknowledged. The top bar says what is wrong.",
+      "src": "desktop-critical.png"
+    },
+    {
+      "id": "ext-reader",
+      "group": "Browser extension",
+      "title": "Extension: LCARS reading view",
+      "caption": "What a content script could do to an article: contents from the page's headings, LCARS headings and code boxes, body kept in a readable face. The origin shows in the shell's top bar, which a page cannot fake.",
+      "src": "desktop-reader.png"
     },
     {
       "id": "desk-switch",
