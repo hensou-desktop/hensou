@@ -286,9 +286,17 @@ impl UdisksBackend for SystemBus {
 /// the boot partition. It belongs to the computer, never to a volume icon.
 pub fn is_system_mount(points: &[PathBuf]) -> bool {
     points.iter().any(|p| {
-        ["/", "/nix", "/nix/store", "/boot", "/efi", "/home", "/persist"]
-            .iter()
-            .any(|system| p == std::path::Path::new(system))
+        [
+            "/",
+            "/nix",
+            "/nix/store",
+            "/boot",
+            "/efi",
+            "/home",
+            "/persist",
+        ]
+        .iter()
+        .any(|system| p == std::path::Path::new(system))
     })
 }
 
