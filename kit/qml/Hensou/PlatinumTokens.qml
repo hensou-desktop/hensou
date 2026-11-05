@@ -126,7 +126,7 @@ QtObject {
             bevelDark: dark ? "#1e1e1e" : board ? "#bdb5a6" : "#999999",
             // Light and Dark grey: a solid shadow. Drawing Board: the colour
             // of the hatch lines (frameHatch draws them).
-            menuShadow: dark ? "#9e000000" : board ? "#8c8578" : "#222222",
+            menuShadow: dark ? "#9e000000" : board ? "#6f695e" : "#222222",
             well: dark ? "#242424" : board ? "#ddd6c8" : "#bdbdbd",
             raised: dark ? "#444444" : board ? "#f8f4ec" : "#e6e6e6",
             // Edit fields and list boxes (the Find menu, Go to Address): a
@@ -148,8 +148,9 @@ QtObject {
             titleSurface: dark ? "#3a3a3a" : board ? "#e8e2d5" : "#dddddd",
 
             // Drawing Board's frame: graphite lines over every edge that
-            // run frameOverrun px past each corner, and a hatched shadow
-            // frameShadow px down and right. Off elsewhere.
+            // run frameOverrun px past each corner (PlatinumCropMarks), and
+            // a hatched shadow five rules down and right (PlatinumShadow).
+            // Off elsewhere.
             frameLine: board ? "#3b3833" : "transparent",
 
             // The Control Strip. On black it is black and flat, with a dim
@@ -172,7 +173,6 @@ QtObject {
 
     readonly property bool drafting: appearance === "drawing-board"
     readonly property real frameOverrun: drafting ? 7 : 0
-    readonly property real frameShadow: drafting ? 5 : 2
     readonly property color frameLine: current.frameLine
 
     // The bar has three appearances: light, dark grey, and black (extra

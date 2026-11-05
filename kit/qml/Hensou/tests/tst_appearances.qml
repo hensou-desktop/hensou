@@ -220,7 +220,7 @@ TestCase {
             id: sheet
             x: 40; y: 40; width: 120; height: 80
             PlatinumCropMarks { id: marks; overrun: 7; color: "#3b3833" }
-            PlatinumHatch { id: hatch; x: 140; width: 60; height: 40; color: "#8c8578" }
+            PlatinumHatch { id: hatch; x: 140; width: 60; height: 40; color: "#6f695e" }
         }
     }
     function test_crop_marks_run_past_every_corner() {
@@ -273,7 +273,7 @@ TestCase {
             for (const frame of [menu, dialog]) {
                 const p = parts(frame);
                 verify(p.shadow.hatched, "hatched on the board");
-                compare(p.shadow.x, 4 * hair);
+                compare(p.shadow.x, 5 * hair);
                 verify(p.marks.visible, "crop marks on the board");
             }
             Theme.appearance = "";

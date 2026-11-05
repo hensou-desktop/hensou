@@ -12,8 +12,8 @@ Item {
     readonly property real hair: PlatinumTokens.hairFor(WindowMetrics.ratio(root))
     readonly property bool hatched: PlatinumTokens.drafting
 
-    x: (hatched ? 4 : hairs) * hair
-    y: (hatched ? 4 : hairs) * hair
+    x: (hatched ? 5 : hairs) * hair
+    y: (hatched ? 5 : hairs) * hair
     width: parent ? parent.width : 0
     height: parent ? parent.height : 0
 
