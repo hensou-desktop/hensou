@@ -32,6 +32,26 @@ fonts and glyph artwork come from those controls. No new aesthetic references.
   gallery, thumbnails or service-specific screens. `resources.js` embeds their
   SVG text. No file reader, XHR permission or shell-root path is required.
 
+## Appearances
+
+`Theme.appearance` names an appearance by a stable ID; an empty or unknown
+value falls back from `mode` (light: Standard or Light; dark: Dark grey). The
+token singletons read it defensively, so a host without the property still
+works.
+
+- `MemphisTokens.palette(id)` covers Memphis's 22 appearances: `standard`,
+  `dark-grey` and 20 schemes (`brick` … `high-contrast-2`). The schemes'
+  system colours sit verbatim in `systemColours` (the zaxbux gist's
+  classic set; Brick checked against ReactOS). `palette(true|false)` still
+  means Dark grey and Standard. `appearances` lists ID, label and mode.
+- `PlatinumTokens.palette(id, extra)` covers `light`, `dark-grey` and
+  `drawing-board`. Drawing Board sets `drafting`: frames draw
+  `PlatinumCropMarks` (graphite lines past each corner) and a hatched
+  `PlatinumShadow`; title bars lose their stripes and boxes their bevel.
+- `tests/tst_appearances.qml` proves every appearance resolves every token,
+  the schemes equal `tests/data/system-colour-schemes.json`, and the five older
+  appearances equal `tests/data/baseline-1e4c5e6.json`.
+
 ## Controls
 
 The module exports the existing Platinum and Memphis button, field, checkbox,
