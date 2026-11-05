@@ -95,12 +95,12 @@ Window {
         Rectangle {
             visible: !!root.spec.fingerprint
             Layout.preferredWidth: body.textWidth
-            Layout.preferredHeight: print.implicitHeight + (root.win98 ? 6 * root.u : 8)
+            Layout.preferredHeight: fingerprintText.implicitHeight + (root.win98 ? 6 * root.u : 8)
             color: root.win98 ? Win98Tokens.win : PlatinumTokens.field
             border.width: root.win98 ? root.u : PlatinumTokens.hairFor(metrics.devicePixelRatio)
             border.color: root.win98 ? Win98Tokens.sh : PlatinumTokens.bevelDark
             TextEdit {
-                id: print
+                id: fingerprintText
                 objectName: "alertFingerprint"
                 x: root.win98 ? 3 * root.u : 4
                 y: root.win98 ? 3 * root.u : 4

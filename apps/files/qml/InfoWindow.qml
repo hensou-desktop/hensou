@@ -124,11 +124,11 @@ Window {
     Component {
         id: platinum
         Item {
-            implicitHeight: column.implicitHeight + title.height + 32
+            implicitHeight: column.implicitHeight + infoTitle.height + 32
             function focusName() { nameRow.focusName(); }
             PlatinumBevel { anchors.fill: parent; color: PlatinumTokens.menuSurface }
             PlatinumTitleBar {
-                id: title
+                id: infoTitle
                 x: PlatinumTokens.hairFor(metrics.devicePixelRatio)
                 y: x
                 width: parent.width - 2 * x
@@ -140,7 +140,7 @@ Window {
             ColumnLayout {
                 id: column
                 x: 16
-                y: title.y + title.height + 14
+                y: infoTitle.y + infoTitle.height + 14
                 width: parent.width - 32
                 spacing: 12
                 NameRow { id: nameRow; Layout.fillWidth: true }
