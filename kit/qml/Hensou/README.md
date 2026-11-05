@@ -5,7 +5,7 @@ singletons into a host. `qmldir` is the explicit public entry point.
 
 This is an extraction of Mountainous a905fd62309a3027a654ce01a504d54540dc7f6a,
 not a visual revision. Platinum keeps ChicagoFLF, #dddddd/#3a3a3a menu faces,
-#333399/#5858d0 selection and its existing bevels. Win98 keeps W95FA Grid,
+#333399/#5858d0 selection and its existing bevels. Memphis keeps W95FA Grid,
 #c0c0c0/#3c3c3c faces and #000080/#41608a selection. Dimensions, paint order,
 fonts and glyph artwork come from those controls. No new aesthetic references.
 
@@ -34,7 +34,7 @@ fonts and glyph artwork come from those controls. No new aesthetic references.
 
 ## Controls
 
-The module exports the existing Platinum and Win98 button, field, checkbox,
+The module exports the existing Platinum and Memphis button, field, checkbox,
 list/row, bevel, scrollbar, icon and menu/dialog frame types. Their original
 properties remain. `qmldir` lists the selected support types too.
 
@@ -42,10 +42,10 @@ properties remain. `qmldir` lists the selected support types too.
   Platinum's `keyboardEnabled` defaults true; the shell disables it to preserve
   its menu host's keyboard ownership. Existing `focused` remains available.
 - Both fields: `text`, `input` (the real TextInput), `edited(string text)`,
-  `keyPressed(event)`. Win98 also keeps `placeholder`, `accepted()` and its
+  `keyPressed(event)`. Memphis also keeps `placeholder`, `accepted()` and its
   original input aliases. Set `Accessible.name` on the field.
 - Checkboxes: `text`, `checked`, `toggled(bool checked)` emits the next value,
-  without changing owner-bound state. Existing Win98 handlers that ignore the
+  without changing owner-bound state. Existing Memphis handlers that ignore the
   argument and invert their owner still work. Platinum's `interactive:false`
   keeps its original drawing-only behavior; apps set true. Shell adapters
   explicitly keep the primitive noninteractive. Both expose checked/name/role.
@@ -54,9 +54,9 @@ properties remain. `qmldir` lists the selected support types too.
   supply selection data and activation; list scrolling preserves focus reveal.
   Platinum's Home/End/Page keys are enabled by `extendedNavigationEnabled:true`;
   the shell adapter sets false to preserve its menu host's key ownership.
-- `Win98Text.wrapMode` defaults to Text.WordWrap. With `wrap:true`, app
+- `MemphisText.wrapMode` defaults to Text.WordWrap. With `wrap:true`, app
   dialogs can request Text.WrapAnywhere for raw paths without modifying data.
-- `Win98MenuPanel` exposes PopupMenu and its existing action delegates expose
+- `MemphisMenuPanel` exposes PopupMenu and its existing action delegates expose
   MenuItem semantics with access marks removed from names. Their disabled
   accessibility target is separate from the original hover surface, so disabled
   rows can still be highlighted by the shell without activation. Separators are

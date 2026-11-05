@@ -11,11 +11,11 @@ FocusScope {
     required property var window
     readonly property real u: 2 / WindowMetrics.ratio(root)
     readonly property var app: window.app
-    readonly property var rows: Model.treeRows([Model.placeEntry(Model.computer(), "win98", app.hostname)], window.treeExpanded,
+    readonly property var rows: Model.treeRows([Model.placeEntry(Model.computer(), "memphis", app.hostname)], window.treeExpanded,
         function(location) {
             const l = root.app.store.state.listings[Model.key(location)];
             return l && l.status !== "loading" ? l.entries : null;
-        }, "win98", app.hostname)
+        }, "memphis", app.hostname)
     readonly property real rowHeight: 18 * u
     activeFocusOnTab: true
     Accessible.role: Accessible.Tree
@@ -35,7 +35,7 @@ FocusScope {
         event.accepted = true;
     }
 
-    Win98Bevel { anchors.fill: parent; variant: "field"; color: Win98Tokens.win }
+    MemphisBevel { anchors.fill: parent; variant: "field"; color: MemphisTokens.win }
     ListView {
         id: list
         x: 2 * root.u; y: 2 * root.u
@@ -57,14 +57,14 @@ FocusScope {
             Image {
                 visible: row.modelData.expandable
                 x: (row.modelData.depth * 19 + 3) * root.u
-                y: Win98Tokens.snap((row.height - height) / 2, root.u)
+                y: MemphisTokens.snap((row.height - height) / 2, root.u)
                 width: 9 * root.u; height: 9 * root.u
                 smooth: false
                 sourceSize.width: Math.round(width * WindowMetrics.ratio(row))
                 sourceSize.height: Math.round(height * WindowMetrics.ratio(row))
                 source: "data:image/svg+xml;utf8," + encodeURIComponent(row.modelData.expanded
-                    ? '<svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 9 9" shape-rendering="crispEdges"><rect x="0.5" y="0.5" width="8" height="8" fill="' + Win98Tokens.win + '" stroke="' + Win98Tokens.gray + '"/><path d="M2 4.5 H7" stroke="' + Win98Tokens.winText + '"/></svg>'
-                    : '<svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 9 9" shape-rendering="crispEdges"><rect x="0.5" y="0.5" width="8" height="8" fill="' + Win98Tokens.win + '" stroke="' + Win98Tokens.gray + '"/><path d="M2 4.5 H7 M4.5 2 V7" stroke="' + Win98Tokens.winText + '"/></svg>')
+                    ? '<svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 9 9" shape-rendering="crispEdges"><rect x="0.5" y="0.5" width="8" height="8" fill="' + MemphisTokens.win + '" stroke="' + MemphisTokens.gray + '"/><path d="M2 4.5 H7" stroke="' + MemphisTokens.winText + '"/></svg>'
+                    : '<svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 9 9" shape-rendering="crispEdges"><rect x="0.5" y="0.5" width="8" height="8" fill="' + MemphisTokens.win + '" stroke="' + MemphisTokens.gray + '"/><path d="M2 4.5 H7 M4.5 2 V7" stroke="' + MemphisTokens.winText + '"/></svg>')
                 MouseArea { anchors.fill: parent; anchors.margins: -3 * root.u; onClicked: root.window.toggleTree(row.modelData.location) }
             }
             EntryIcon {
@@ -80,19 +80,19 @@ FocusScope {
                 y: root.u
                 width: Math.min(label.implicitWidth + 4 * root.u, row.width - x)
                 height: 16 * root.u
-                color: row.current ? Win98Tokens.selection : "transparent"
-                Win98Text {
+                color: row.current ? MemphisTokens.selection : "transparent"
+                MemphisText {
                     id: label
                     x: 2 * root.u; y: 2 * root.u
                     width: Math.min(implicitWidth, parent.width - 4 * root.u)
                     text: row.modelData.name
                     accessMarks: false
-                    color: row.current ? Win98Tokens.selectionText : Win98Tokens.winText
+                    color: row.current ? MemphisTokens.selectionText : MemphisTokens.winText
                 }
-                Win98FocusRect {
+                MemphisFocusRect {
                     visible: row.current && root.activeFocus
                     anchors.fill: parent
-                    color: Win98Tokens.selectionText
+                    color: MemphisTokens.selectionText
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -114,7 +114,7 @@ FocusScope {
             }
         }
     }
-    Win98ScrollBar {
+    MemphisScrollBar {
         id: bar
         visible: list.contentHeight > list.height + 1
         x: parent.width - width - 2 * root.u

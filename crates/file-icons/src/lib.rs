@@ -157,7 +157,7 @@ impl IconResolver for ThemeIcons {
     fn resolve(&self, theme: ThemeId, hint: &IconHint, size: u32) -> ResolvedIcon {
         let theme = match theme {
             ThemeId::Platinum => "Mountainous-platinum",
-            ThemeId::Memphis => "Mountainous-win98",
+            ThemeId::Memphis => "Mountainous-memphis",
         };
         let exact = hint
             .launcher_icon

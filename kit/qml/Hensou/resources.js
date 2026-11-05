@@ -61,7 +61,7 @@ var platinum = {
   "wifi-3": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\"><rect fill=\"currentColor\" x=\"1.0\" y=\"10.5\" width=\"2.5\" height=\"3.5\"/><rect fill=\"currentColor\" x=\"4.75\" y=\"7.5\" width=\"2.5\" height=\"6.5\"/><rect fill=\"currentColor\" x=\"8.5\" y=\"4.5\" width=\"2.5\" height=\"9.5\"/><rect fill=\"currentColor\" opacity=\"0.3\" x=\"12.25\" y=\"1.5\" width=\"2.5\" height=\"12.5\"/></svg>\n",
   "wifi-4": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\"><rect fill=\"currentColor\" x=\"1.0\" y=\"10.5\" width=\"2.5\" height=\"3.5\"/><rect fill=\"currentColor\" x=\"4.75\" y=\"7.5\" width=\"2.5\" height=\"6.5\"/><rect fill=\"currentColor\" x=\"8.5\" y=\"4.5\" width=\"2.5\" height=\"9.5\"/><rect fill=\"currentColor\" x=\"12.25\" y=\"1.5\" width=\"2.5\" height=\"12.5\"/></svg>\n"
 };
-var win98 = {
+var memphis = {
   "arrow-down": "<svg xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"crispEdges\" width=\"7\" height=\"4\" viewBox=\"0 0 7 4\"><path d=\"M0 0h7v1h-1v1h-1v1h-1v1h-1v-1h-1v-1h-1v-1h-1z\" fill=\"currentColor\"/></svg>\n",
   "arrow-left": "<svg xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"crispEdges\" width=\"4\" height=\"7\" viewBox=\"0 0 4 7\"><path d=\"M4 0h-1v1h-1v1h-1v1h-1v1h1v1h1v1h1v1h1z\" fill=\"currentColor\"/></svg>\n",
   "arrow-right": "<svg xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"crispEdges\" width=\"4\" height=\"7\" viewBox=\"0 0 4 7\"><path d=\"M0 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1z\" fill=\"currentColor\"/></svg>\n",

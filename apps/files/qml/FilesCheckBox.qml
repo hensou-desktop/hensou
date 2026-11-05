@@ -8,7 +8,7 @@ Loader {
     property string text: ""
     property bool checked: false
     signal toggled(bool checked)
-    sourceComponent: Theme.name === "win98" ? memphis : platinum
+    sourceComponent: Theme.name === "memphis" ? memphis : platinum
     function takeFocus() { if (item) item.forceActiveFocus(); }
     Component {
         id: platinum
@@ -23,7 +23,7 @@ Loader {
     }
     Component {
         id: memphis
-        Win98CheckBox {
+        MemphisCheckBox {
             text: root.text
             checked: root.checked
             enabled: root.enabled

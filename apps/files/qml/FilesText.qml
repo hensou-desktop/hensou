@@ -19,8 +19,8 @@ Loader {
     property int horizontalAlignment: Text.AlignLeft
     property int maximumLineCount: 1000
     readonly property bool truncated: item ? item.truncated : false
-    readonly property bool win98: Theme.name === "win98"
-    sourceComponent: win98 ? memphis : platinum
+    readonly property bool memphis: Theme.name === "memphis"
+    sourceComponent: memphis ? memphis : platinum
     Accessible.role: Accessible.StaticText
     Accessible.name: text
 
@@ -43,7 +43,7 @@ Loader {
     }
     Component {
         id: memphis
-        Win98Text {
+        MemphisText {
             text: root.text
             accessMarks: false
             wrap: root.wrap
@@ -52,7 +52,7 @@ Loader {
             horizontalAlignment: root.horizontalAlignment
             bold: root.bold
             disabledLook: root.disabledLook
-            color: root.color.a > 0 ? root.color : root.onWell ? Win98Tokens.winText : Win98Tokens.text
+            color: root.color.a > 0 ? root.color : root.onWell ? MemphisTokens.winText : MemphisTokens.text
         }
     }
 }

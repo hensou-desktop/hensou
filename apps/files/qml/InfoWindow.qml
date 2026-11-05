@@ -11,8 +11,8 @@ Window {
     id: root
     required property var app
     required property var entry
-    readonly property bool win98: Theme.name === "win98"
-    readonly property string theme: win98 ? "win98" : "platinum"
+    readonly property bool memphis: Theme.name === "memphis"
+    readonly property string theme: memphis ? "memphis" : "platinum"
     readonly property real u: 2 / Math.max(0.5, metrics.devicePixelRatio)
     readonly property string entryKey: Model.key(entry.location)
     readonly property var live: app.store.state.info[entryKey] || entry
@@ -22,11 +22,11 @@ Window {
     property string draft: shownName
     property string problem: ""
 
-    title: win98 ? shownName + " Properties" : shownName + " Info"
+    title: memphis ? shownName + " Properties" : shownName + " Info"
     flags: Qt.Window | Qt.FramelessWindowHint
-    color: win98 ? Win98Tokens.face : PlatinumTokens.menuSurface
+    color: memphis ? MemphisTokens.face : PlatinumTokens.menuSurface
     // Logical sizes: the unit is only known after the window maps.
-    width: win98 ? 400 : 340
+    width: memphis ? 400 : 340
     readonly property real wantedHeight: Math.max(200, frame.item ? Math.ceil(frame.item.implicitHeight) : 380)
     height: wantedHeight
     // As in AlertWindow: fit the content again once the scale settles.
@@ -39,7 +39,7 @@ Window {
         // A compositor that keeps another size wins after a few tries.
         onTriggered: if (root.refits++ < 8) { root.height = root.wantedHeight; root.height = Qt.binding(function() { return root.wantedHeight; }); }
     }
-    minimumWidth: win98 ? 280 : 240
+    minimumWidth: memphis ? 280 : 240
     minimumHeight: 160
 
     function focusName() { Qt.callLater(function() { if (frame.item) frame.item.focusName(); }); }
@@ -56,20 +56,20 @@ Window {
     readonly property var rows: {
         const where = Model.parent(live.location);
         const out = [
-            [win98 ? "Type:" : "Kind:", Model.kindText(live, theme)],
-            [win98 ? "Location:" : "Where:", where ? Model.addressText(where, theme, app.hostname) : Model.locationName(live.location, theme, app.hostname)],
+            [memphis ? "Type:" : "Kind:", Model.kindText(live, theme)],
+            [memphis ? "Location:" : "Where:", where ? Model.addressText(where, theme, app.hostname) : Model.locationName(live.location, theme, app.hostname)],
             ["Size:", Model.sizeInfo(live.size, theme)]
         ];
-        if (live.kind === "alias") out.push([win98 ? "Target:" : "Original:", live.link_target || "Unknown"]);
-        out.push([win98 ? "Modified:" : "Modified:", Model.dateText(live.modified, theme, "info")]);
+        if (live.kind === "alias") out.push([memphis ? "Target:" : "Original:", live.link_target || "Unknown"]);
+        out.push([memphis ? "Modified:" : "Modified:", Model.dateText(live.modified, theme, "info")]);
         out.push(["Owner:", live.owner || "Unknown"]);
         out.push(["Permissions:", Model.permissionsText(live.mode)]);
         return out;
     }
 
     Shortcut { sequence: "Escape"; onActivated: root.close() }
-    Shortcut { sequence: "Ctrl+W"; enabled: !root.win98; onActivated: root.close() }
-    onClosing: if (!win98) rename()
+    Shortcut { sequence: "Ctrl+W"; enabled: !root.memphis; onActivated: root.close() }
+    onClosing: if (!memphis) rename()
 
     WindowScale {
         anchors.fill: parent
@@ -78,16 +78,16 @@ Window {
         Loader {
             id: frame
             width: parent.width
-            sourceComponent: root.win98 ? memphis : platinum
+            sourceComponent: root.memphis ? memphis : platinum
         }
     }
 
     // Label and value rows; values wrap in the room the window gives them.
     component Facts: Column {
         id: facts
-        spacing: root.win98 ? 6 * root.u : 6
-        readonly property real labelWidth: root.win98 ? 64 * root.u : 92
-        readonly property real gap: root.win98 ? 8 * root.u : 10
+        spacing: root.memphis ? 6 * root.u : 6
+        readonly property real labelWidth: root.memphis ? 64 * root.u : 92
+        readonly property real gap: root.memphis ? 8 * root.u : 10
         Repeater {
             model: root.rows
             Item {
@@ -97,9 +97,9 @@ Window {
                 FilesText {
                     id: label
                     width: facts.labelWidth
-                    horizontalAlignment: root.win98 ? Text.AlignLeft : Text.AlignRight
+                    horizontalAlignment: root.memphis ? Text.AlignLeft : Text.AlignRight
                     text: parent.modelData[0]
-                    small: !root.win98
+                    small: !root.memphis
                 }
                 FilesText {
                     id: value
@@ -107,7 +107,7 @@ Window {
                     width: facts.width - x
                     text: parent.modelData[1]
                     wrap: true
-                    small: !root.win98
+                    small: !root.memphis
                 }
             }
         }
@@ -125,15 +125,15 @@ Window {
         FilesField {
             id: field
             objectName: "infoName"
-            x: icon.width + (root.win98 ? 10 * root.u : 10)
+            x: icon.width + (root.memphis ? 10 * root.u : 10)
             anchors.verticalCenter: icon.verticalCenter
             width: nameRow.width - x
-            height: root.win98 ? Win98Tokens.fieldHeight * root.u : 24
+            height: root.memphis ? MemphisTokens.fieldHeight * root.u : 24
             visible: root.renamable
             accessibleName: "Name"
             text: root.shownName
             onEdited: function(value) { root.draft = value; }
-            onAccepted: { if (root.rename() && !root.win98) root.close(); }
+            onAccepted: { if (root.rename() && !root.memphis) root.close(); }
             onEscaped: root.close()
         }
         FilesText {
@@ -144,7 +144,7 @@ Window {
             width: nameRow.width - x
             text: root.shownName
             wrap: true
-            italic: root.live.kind === "alias" && !root.win98
+            italic: root.live.kind === "alias" && !root.memphis
         }
     }
 
@@ -197,7 +197,7 @@ Window {
         Item {
             implicitHeight: box.implicitHeight
             function focusName() { nameRow.focusName(); }
-            Win98Window {
+            MemphisWindow {
                 id: box
                 width: root.width
                 title: root.title
@@ -211,16 +211,16 @@ Window {
                     Item {
                         width: memphisColumn.width
                         height: 18 * root.u
-                        Win98Bevel { width: tabText.width + 12 * root.u; height: 20 * root.u; variant: "window" }
-                        Win98Text { id: tabText; x: 6 * root.u; y: 4 * root.u; text: "General"; accessMarks: false }
+                        MemphisBevel { width: tabText.width + 12 * root.u; height: 20 * root.u; variant: "window" }
+                        MemphisText { id: tabText; x: 6 * root.u; y: 4 * root.u; text: "General"; accessMarks: false }
                     }
                     NameRow { id: nameRow; width: memphisColumn.width }
-                    Win98Separator { width: memphisColumn.width }
+                    MemphisSeparator { width: memphisColumn.width }
                     Facts { width: memphisColumn.width }
-                    Win98Separator { width: memphisColumn.width }
+                    MemphisSeparator { width: memphisColumn.width }
                     Row {
                         spacing: 12 * root.u
-                        Win98Text { text: "Attributes:"; accessMarks: false }
+                        MemphisText { text: "Attributes:"; accessMarks: false }
                         FilesCheckBox {
                             objectName: "readOnlyBox"
                             text: "Read-only"
@@ -233,13 +233,13 @@ Window {
                             enabled: false
                         }
                     }
-                    Win98Text {
+                    MemphisText {
                         visible: root.problem !== ""
                         width: memphisColumn.width
                         wrap: true
                         text: root.problem
                         accessMarks: false
-                        color: Win98Tokens.danger
+                        color: MemphisTokens.danger
                     }
                     Row {
                         x: memphisColumn.width - width
@@ -253,7 +253,7 @@ Window {
             MouseArea {
                 x: 3 * root.u; y: 3 * root.u
                 width: parent.width - 30 * root.u
-                height: Win98Tokens.captionHeight * root.u
+                height: MemphisTokens.captionHeight * root.u
                 onPressed: root.startSystemMove()
             }
         }

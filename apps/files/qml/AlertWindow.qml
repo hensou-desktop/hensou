@@ -4,7 +4,7 @@ import Hensou.Host
 import "Art.js" as Art
 
 // A modal alert in its own native window: Mac OS 8's alert box (Platinum)
-// or a Windows 98 message box (Memphis). Return runs the default button,
+// or a Memphis message box (Memphis). Return runs the default button,
 // Escape the cancel action. spec comes from Alerts.js.
 Window {
     id: root
@@ -14,16 +14,16 @@ Window {
     property bool answered: false
     signal finished(string action)
 
-    readonly property bool win98: Theme.name === "win98"
+    readonly property bool memphis: Theme.name === "memphis"
     readonly property real u: 2 / Math.max(0.5, metrics.devicePixelRatio)
     // Logical, not units: the unit is only known after the window maps.
     readonly property real frameWidth: 440
 
-    title: spec.title || (win98 ? "Files" : "Alert")
+    title: spec.title || (memphis ? "Files" : "Alert")
     flags: Qt.Dialog | Qt.FramelessWindowHint
     modality: owner ? Qt.WindowModal : Qt.ApplicationModal
     transientParent: owner
-    color: win98 ? Win98Tokens.face : PlatinumTokens.menuSurface
+    color: memphis ? MemphisTokens.face : PlatinumTokens.menuSurface
     width: frameWidth
     readonly property real wantedHeight: Math.max(80, frame.item ? Math.ceil(frame.item.implicitHeight) : 160)
     height: wantedHeight
@@ -48,7 +48,7 @@ Window {
         sequences: ["Return", "Enter"]
         onActivated: {
             const focused = frame.item ? frame.item.focusedAction() : "";
-            root.choose(root.win98 && focused !== "" ? focused : root.spec.defaultAction);
+            root.choose(root.memphis && focused !== "" ? focused : root.spec.defaultAction);
         }
     }
     function present() {
@@ -79,14 +79,14 @@ Window {
         Loader {
             id: frame
             width: parent.width
-            sourceComponent: root.win98 ? memphis : platinum
+            sourceComponent: root.memphis ? memphis : platinum
         }
     }
 
     // Fixed widths, so wrapped text has its height before the window maps.
     component Body: Column {
         id: body
-        spacing: root.win98 ? 8 * root.u : 10
+        spacing: root.memphis ? 8 * root.u : 10
         property real textWidth: 200
         width: textWidth
         FilesText {
@@ -107,15 +107,15 @@ Window {
         Rectangle {
             visible: !!root.spec.fingerprint
             width: body.textWidth
-            height: fingerprintText.implicitHeight + (root.win98 ? 6 * root.u : 8)
-            color: root.win98 ? Win98Tokens.win : PlatinumTokens.field
-            border.width: root.win98 ? root.u : PlatinumTokens.hairFor(metrics.devicePixelRatio)
-            border.color: root.win98 ? Win98Tokens.sh : PlatinumTokens.bevelDark
+            height: fingerprintText.implicitHeight + (root.memphis ? 6 * root.u : 8)
+            color: root.memphis ? MemphisTokens.win : PlatinumTokens.field
+            border.width: root.memphis ? root.u : PlatinumTokens.hairFor(metrics.devicePixelRatio)
+            border.color: root.memphis ? MemphisTokens.sh : PlatinumTokens.bevelDark
             TextEdit {
                 id: fingerprintText
                 objectName: "alertFingerprint"
-                x: root.win98 ? 3 * root.u : 4
-                y: root.win98 ? 3 * root.u : 4
+                x: root.memphis ? 3 * root.u : 4
+                y: root.memphis ? 3 * root.u : 4
                 width: parent.width - 2 * x
                 readOnly: true
                 selectByMouse: true
@@ -123,10 +123,10 @@ Window {
                 wrapMode: TextEdit.WrapAnywhere
                 textFormat: TextEdit.PlainText
                 text: root.spec.fingerprint || ""
-                color: root.win98 ? Win98Tokens.winText : PlatinumTokens.menuText
-                selectionColor: root.win98 ? Win98Tokens.selection : PlatinumTokens.highlight
-                font.family: root.win98 ? Win98Tokens.fontFamily : PlatinumTokens.platinumFont
-                font.pixelSize: root.win98 ? Math.round(12.5 * root.u) : PlatinumTokens.platinumSmall
+                color: root.memphis ? MemphisTokens.winText : PlatinumTokens.menuText
+                selectionColor: root.memphis ? MemphisTokens.selection : PlatinumTokens.highlight
+                font.family: root.memphis ? MemphisTokens.fontFamily : PlatinumTokens.platinumFont
+                font.pixelSize: root.memphis ? Math.round(12.5 * root.u) : PlatinumTokens.platinumSmall
                 Accessible.role: Accessible.StaticText
                 Accessible.name: "Fingerprint " + text
             }
@@ -136,7 +136,7 @@ Window {
     component Buttons: Row {
         id: row
         property var labels: root.spec.buttons.map(function(b) { return b.text; })
-        spacing: root.win98 ? 6 * root.u : 12
+        spacing: root.memphis ? 6 * root.u : 12
         function buttonFor(action) {
             for (let i = 0; i < repeater.count; i++) if (repeater.itemAt(i).action === action) return repeater.itemAt(i);
             return null;
@@ -197,7 +197,7 @@ Window {
             implicitHeight: box.implicitHeight
             function buttonFor(a) { return buttons.buttonFor(a); }
             function focusedAction() { return buttons.focusedAction(); }
-            Win98Window {
+            MemphisWindow {
                 id: box
                 width: root.width
                 title: root.spec.title || "Files"
@@ -213,7 +213,7 @@ Window {
                             smooth: false
                             sourceSize.width: 64
                             sourceSize.height: 64
-                            source: Art.url("win98", root.spec.art, Win98Tokens.ink, "")
+                            source: Art.url("memphis", root.spec.art, MemphisTokens.ink, "")
                         }
                         Body { textWidth: root.width - 80 * root.u }
                     }
@@ -224,7 +224,7 @@ Window {
             MouseArea {
                 x: 3 * root.u; y: 3 * root.u
                 width: parent.width - 30 * root.u
-                height: Win98Tokens.captionHeight * root.u
+                height: MemphisTokens.captionHeight * root.u
                 onPressed: root.startSystemMove()
             }
         }

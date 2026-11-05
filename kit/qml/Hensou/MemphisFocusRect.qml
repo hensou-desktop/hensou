@@ -2,10 +2,10 @@ import QtQuick
 
 // The keyboard focus mark: a dotted 1-u rectangle, one unit on, one off.
 // Fill the area it should outline; it draws on the area's edge.
-Win98Svg {
+MemphisSvg {
     id: root
 
-    property color color: Win98Tokens.focus
+    property color color: MemphisTokens.focus
 
     readonly property int cols: Math.max(1, Math.round(width / root.u))
     readonly property int rows: Math.max(1, Math.round(height / root.u))

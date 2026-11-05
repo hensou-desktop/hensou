@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 
-// Text on the Win98 grid, in W95FA Grid.
+// Text on the Memphis grid, in W95FA Grid.
 //
 // Qt rounds a font's size to whole logical pixels, and 12.5 u is 16.67 px
 // at scale 1.5, so the font would land between physical pixels. Instead
@@ -11,7 +11,7 @@ import QtQuick
 // and every edge is a whole pixel (no blended colours). Place the item on
 // whole or half units.
 //
-// Bold is drawn, as Win98's bold bitmaps were: a second strike 1 u to the
+// Bold is drawn, as Memphis's bold bitmaps were: a second strike 1 u to the
 // right and 1 u more advance per letter. size 2 doubles everything (the
 // Start menu's side band).
 //
@@ -23,9 +23,9 @@ Item {
     id: root
 
     property string text: ""
-    // Another appearance's colours (Win98Tokens.palette), for previews.
+    // Another appearance's colours (MemphisTokens.palette), for previews.
     property var scheme: null
-    readonly property var tokens: scheme || Win98Tokens
+    readonly property var tokens: scheme || MemphisTokens
     property color color: tokens.text
     property bool bold: false
     property int size: 1
@@ -40,12 +40,12 @@ Item {
     property int elide: Text.ElideRight
     property int horizontalAlignment: Text.AlignLeft
     // Line pitch of wrapped text, in units (13 = the font's own line).
-    property int lineUnits: Win98Tokens.lineUnits
+    property int lineUnits: MemphisTokens.lineUnits
 
     readonly property real u: 2 / WindowMetrics.ratio(root)
     readonly property real k: (root.u / 2)
-    readonly property string plain: accessMarks ? Win98Tokens.plainText(text) : text
-    readonly property int accessIndex: accessMarks ? Win98Tokens.accessIndex(text) : -1
+    readonly property string plain: accessMarks ? MemphisTokens.plainText(text) : text
+    readonly property int accessIndex: accessMarks ? MemphisTokens.accessIndex(text) : -1
     readonly property color shownColor: disabledLook ? tokens.gray : color
     readonly property bool truncated: main.truncated
     // What the face draws, and where the access key's underline starts and
@@ -54,11 +54,11 @@ Item {
     // one space's advance after "Lock" (dev/check.sh tests it).
     readonly property string drawnText: main.text
     readonly property real drawnWidth: main.implicitWidth * k
-    readonly property real accessX: accessIndex >= 0 ? Win98Tokens.textWidth(plain.slice(0, accessIndex), bold, root.u) : -1
-    readonly property real accessWidth: accessIndex >= 0 ? Win98Tokens.textWidth(plain.charAt(accessIndex), false, root.u) - root.u : 0
+    readonly property real accessX: accessIndex >= 0 ? MemphisTokens.textWidth(plain.slice(0, accessIndex), bold, root.u) : -1
+    readonly property real accessWidth: accessIndex >= 0 ? MemphisTokens.textWidth(plain.charAt(accessIndex), false, root.u) - root.u : 0
 
     implicitWidth: main.implicitWidth * k * size
-    implicitHeight: (wrap ? main.implicitHeight : Win98Tokens.lineUnits * 2) * k * size
+    implicitHeight: (wrap ? main.implicitHeight : MemphisTokens.lineUnits * 2) * k * size
 
     // size 2 draws the size-1 text into a layer and doubles it without
     // filtering: Qt's glyph cache blends a 50 px W95FA at this scale, a
@@ -90,8 +90,8 @@ Item {
             horizontalAlignment: root.horizontalAlignment
             lineHeightMode: Text.FixedHeight
             lineHeight: root.lineUnits * 2
-            font.family: Win98Tokens.fontFamily
-            font.pixelSize: Win98Tokens.fontRaster
+            font.family: MemphisTokens.fontFamily
+            font.pixelSize: MemphisTokens.fontRaster
             font.hintingPreference: Font.PreferNoHinting
             font.kerning: false
             font.letterSpacing: root.bold ? 2 : 0
@@ -122,7 +122,7 @@ Item {
                 required property int index
                 z: index === 1 ? -1 : 0
                 x: root.accessX + (index === 1 ? root.u : 0)
-                y: (Win98Tokens.ascentUnits + 1) * root.u + (index === 1 ? root.u : 0)
+                y: (MemphisTokens.ascentUnits + 1) * root.u + (index === 1 ? root.u : 0)
                 width: root.accessWidth
                 height: root.u
                 color: index === 1 ? root.tokens.emboss : root.shownColor

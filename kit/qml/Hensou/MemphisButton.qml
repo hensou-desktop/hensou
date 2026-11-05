@@ -1,6 +1,6 @@
 import QtQuick
 
-// A Win98 push button: 23 u tall (21 u small), at least 75 u wide, its
+// A Memphis push button: 23 u tall (21 u small), at least 75 u wide, its
 // label centred. Buttons that share a role share a width: pass the role's
 // longest label in roleLabels (or a fixed width in units), so a column of
 // Connect / Disconnect / Pair starts and ends on one edge.
@@ -11,7 +11,7 @@ import QtQuick
 FocusScope {
     id: root
     Accessible.role: Accessible.Button
-    Accessible.name: Win98Tokens.plainText(text) || iconName
+    Accessible.name: MemphisTokens.plainText(text) || iconName
 
 
     property string text: ""          // "&" marks the access key
@@ -24,7 +24,7 @@ FocusScope {
     // that drives the button by its own keys).
     property bool showPressed: false
     property bool showFocus: false
-    // Another appearance's colours (Win98Tokens.palette), for previews.
+    // Another appearance's colours (MemphisTokens.palette), for previews.
     property var scheme: null
 
     Accessible.onPressAction: if (enabled) clicked()
@@ -39,13 +39,13 @@ FocusScope {
     property bool keyDown: false
 
     readonly property real labelWidth: Math.max(
-        Win98Tokens.textWidth(Win98Tokens.plainText(text), false, root.u),
-        Win98Tokens.widest(roleLabels.map(Win98Tokens.plainText), false, root.u))
+        MemphisTokens.textWidth(MemphisTokens.plainText(text), false, root.u),
+        MemphisTokens.widest(roleLabels.map(MemphisTokens.plainText), false, root.u))
         + (iconName !== "" ? 16 * u + (text !== "" ? 4 * u : 0) : 0)
 
     implicitWidth: widthUnits > 0 ? widthUnits * u
-        : Math.max(small ? 0 : Win98Tokens.buttonMinWidth * u, Win98Tokens.ceilU(labelWidth, root.u) + 2 * padUnits * u)
-    implicitHeight: (small ? Win98Tokens.buttonSmallHeight : Win98Tokens.buttonHeight) * u
+        : Math.max(small ? 0 : MemphisTokens.buttonMinWidth * u, MemphisTokens.ceilU(labelWidth, root.u) + 2 * padUnits * u)
+    implicitHeight: (small ? MemphisTokens.buttonSmallHeight : MemphisTokens.buttonHeight) * u
     activeFocusOnTab: enabled
 
     Keys.onPressed: event => {
@@ -63,7 +63,7 @@ FocusScope {
         }
     }
 
-    Win98Bevel {
+    MemphisBevel {
         anchors.fill: parent
         variant: root.down ? "defaultPressed" : root.isDefault && root.enabled ? "default" : "button"
         scheme: root.scheme
@@ -72,17 +72,17 @@ FocusScope {
     Row {
         id: content
         spacing: 4 * root.u
-        x: Win98Tokens.snap((root.width - width) / 2, root.u) + (root.down ? root.u : 0)
-        y: Win98Tokens.snap((root.height - height) / 2, root.u) + (root.down ? root.u : 0)
+        x: MemphisTokens.snap((root.width - width) / 2, root.u) + (root.down ? root.u : 0)
+        y: MemphisTokens.snap((root.height - height) / 2, root.u) + (root.down ? root.u : 0)
 
-        Win98Icon {
+        MemphisIcon {
             visible: root.iconName !== ""
             name: root.iconName
             opacity: root.enabled ? 1 : 0.5
         }
-        Win98Text {
+        MemphisText {
             visible: root.text !== ""
-            y: Win98Tokens.snap((content.height - height) / 2, root.u)
+            y: MemphisTokens.snap((content.height - height) / 2, root.u)
             text: root.text
             disabledLook: !root.enabled
             scheme: root.scheme
@@ -90,7 +90,7 @@ FocusScope {
         }
     }
 
-    Win98FocusRect {
+    MemphisFocusRect {
         visible: root.focusShown
         x: 4 * root.u; y: 4 * root.u
         width: root.width - 8 * root.u

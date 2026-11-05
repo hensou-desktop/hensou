@@ -1,6 +1,6 @@
 import QtQuick
 
-// One row of a Win98 list view.
+// One row of a Memphis list view.
 //
 // One line (16 u): mark or icon, title, value at the right edge. Two lines
 // (34 u): a detail line in grey under the title, or a level bar (the
@@ -32,15 +32,15 @@ Item {
     property bool bold: false
     property real level: -1            // 0..1 shows a level bar as line two
     property bool muted: false
-    property color detailColor: Win98Tokens.gray
-    property color titleColor: Win98Tokens.winText
+    property color detailColor: MemphisTokens.gray
+    property color titleColor: MemphisTokens.winText
     property real valueUnits: 34
     // An icon in a 10-u column at the right edge (the Wi-Fi lock, the
     // brightness dot), "" for none.
     property string trailing: ""
     property bool selected: ListView.view ? ListView.isCurrentItem : false
-    // The Win98ListView around the view, when the row is its delegate.
-    readonly property Win98ListView list: ListView.view ? ListView.view.parent as Win98ListView : null
+    // The MemphisListView around the view, when the row is its delegate.
+    readonly property MemphisListView list: ListView.view ? ListView.view.parent as MemphisListView : null
     property bool focused: selected && list !== null && list.focusShown
 
     signal clicked
@@ -49,15 +49,15 @@ Item {
     readonly property real u: 2 / WindowMetrics.ratio(root)
     readonly property bool twoLine: detail !== "" || level >= 0
     readonly property real markWidth: iconName !== "" ? 16 * u : mark !== "" ? 10 * u : 0
-    readonly property color ink: selected ? Win98Tokens.selectionText : titleColor
+    readonly property color ink: selected ? MemphisTokens.selectionText : titleColor
 
     width: ListView.view ? ListView.view.width : implicitWidth
     implicitWidth: 200 * u
-    implicitHeight: (twoLine ? Win98Tokens.listRowTwo : Win98Tokens.listRow) * u
+    implicitHeight: (twoLine ? MemphisTokens.listRowTwo : MemphisTokens.listRow) * u
 
     Rectangle {
         anchors.fill: parent
-        color: root.selected ? Win98Tokens.selection : "transparent"
+        color: root.selected ? MemphisTokens.selection : "transparent"
     }
 
     Item {
@@ -66,11 +66,11 @@ Item {
         x: 3 * root.u
         width: root.markWidth
         height: root.height
-        Win98Icon {
+        MemphisIcon {
             name: root.iconName !== "" ? root.iconName : root.mark
             color: root.ink
-            x: Win98Tokens.snap((markCell.width - width) / 2, root.u)
-            y: Win98Tokens.snap((markCell.height - height) / 2, root.u)
+            x: MemphisTokens.snap((markCell.width - width) / 2, root.u)
+            y: MemphisTokens.snap((markCell.height - height) / 2, root.u)
         }
     }
 
@@ -79,24 +79,24 @@ Item {
         x: 3 * root.u + (root.markWidth > 0 ? root.markWidth + 4 * root.u : 0)
         width: (root.value !== "" ? valueText.x - 4 * root.u
             : root.trailing !== "" ? root.width - 17 * root.u : root.width - 3 * root.u) - x
-        y: Win98Tokens.snap((root.height - height) / 2, root.u)
+        y: MemphisTokens.snap((root.height - height) / 2, root.u)
         spacing: root.level >= 0 ? 3 * root.u : 0
 
-        Win98Text {
+        MemphisText {
             width: Math.min(implicitWidth, textColumn.width)
             text: root.title
             accessMarks: false
             bold: root.bold
             color: root.ink
         }
-        Win98Text {
+        MemphisText {
             visible: root.detail !== "" && root.level < 0
             width: Math.min(implicitWidth, textColumn.width)
             text: root.detail
             accessMarks: false
-            color: root.selected ? Win98Tokens.selectionText : root.detailColor
+            color: root.selected ? MemphisTokens.selectionText : root.detailColor
         }
-        Win98LevelBar {
+        MemphisLevelBar {
             visible: root.level >= 0
             width: textColumn.width
             value: root.level
@@ -105,11 +105,11 @@ Item {
         }
     }
 
-    Win98Text {
+    MemphisText {
         id: valueText
         visible: root.value !== ""
         x: root.width - 3 * root.u - width
-        y: Win98Tokens.snap((root.height - height) / 2, root.u)
+        y: MemphisTokens.snap((root.height - height) / 2, root.u)
         width: Math.max(implicitWidth, root.valueUnits * root.u)
         horizontalAlignment: Text.AlignRight
         text: root.value
@@ -123,18 +123,18 @@ Item {
         x: root.width - 13 * root.u
         width: 10 * root.u
         height: root.height
-        Win98Icon {
+        MemphisIcon {
             name: root.trailing
             color: root.ink
-            x: Win98Tokens.snap((trailCell.width - width) / 2, root.u)
-            y: Win98Tokens.snap((trailCell.height - height) / 2, root.u)
+            x: MemphisTokens.snap((trailCell.width - width) / 2, root.u)
+            y: MemphisTokens.snap((trailCell.height - height) / 2, root.u)
         }
     }
 
-    Win98FocusRect {
+    MemphisFocusRect {
         visible: root.focused
         anchors.fill: parent
-        color: Win98Tokens.selectionText
+        color: MemphisTokens.selectionText
     }
 
     // The row's index, from the view (the delegate may not declare one).

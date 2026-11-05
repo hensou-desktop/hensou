@@ -7,16 +7,16 @@ import Hensou
 Item {
     id: root
     property real value: 0
-    readonly property bool win98: Theme.name === "win98"
+    readonly property bool memphis: Theme.name === "memphis"
     readonly property real u: 2 / WindowMetrics.ratio(root)
-    implicitHeight: win98 ? 16 * u : 12
+    implicitHeight: memphis ? 16 * u : 12
     implicitWidth: 120
     Accessible.role: Accessible.ProgressBar
     Accessible.name: value < 0 ? "Unknown progress" : Math.round(value * 100) + "%"
 
     Loader {
         anchors.fill: parent
-        sourceComponent: root.win98 ? memphis : platinum
+        sourceComponent: root.memphis ? memphis : platinum
     }
     Component {
         id: platinum
@@ -48,7 +48,7 @@ Item {
     }
     Component {
         id: memphis
-        Win98LevelBar {
+        MemphisLevelBar {
             value: Math.max(0, root.value)
             blocks: true
         }

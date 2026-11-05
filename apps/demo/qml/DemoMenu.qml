@@ -60,11 +60,11 @@ Popup {
         Loader {
             id: panel
             anchors.fill: parent
-            sourceComponent: Theme.name === "win98" ? win98 : platinum
+            sourceComponent: Theme.name === "memphis" ? memphis : platinum
         }
         Component {
-            id: win98
-            Win98MenuPanel {
+            id: memphis
+            MemphisMenuPanel {
                 items: root.entries
                 highlighted: root.highlighted
                 onHovered: function(index) { root.highlighted = index; }

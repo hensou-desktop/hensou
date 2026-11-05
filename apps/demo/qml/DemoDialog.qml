@@ -31,9 +31,9 @@ Popup {
         devicePixelRatio: metrics.devicePixelRatio
         Loader {
             anchors.fill: parent
-            sourceComponent: Theme.name === "win98" ? win98Frame : platinumFrame
+            sourceComponent: Theme.name === "memphis" ? memphisFrame : platinumFrame
         }
-        Component { id: win98Frame; Win98Bevel { variant: "window" } }
+        Component { id: memphisFrame; MemphisBevel { variant: "window" } }
         Component { id: platinumFrame; PlatinumBevel { color: PlatinumTokens.menuSurface } }
     }
     function openFrom(target, text) {
@@ -98,10 +98,10 @@ Popup {
                     width: item ? item.implicitWidth : 0
                     // Keep the gutter stable: wrapping must not decide its own width.
                     visible: document.contentHeight > document.height
-                    sourceComponent: Theme.name === "win98" ? win98Bar : platinumBar
+                    sourceComponent: Theme.name === "memphis" ? memphisBar : platinumBar
                 }
                 Component { id: platinumBar; PlatinumScrollBar { flickable: document } }
-                Component { id: win98Bar; Win98ScrollBar { flickable: document } }
+                Component { id: memphisBar; MemphisScrollBar { flickable: document } }
             }
             DemoButton {
                 id: closeButton

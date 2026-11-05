@@ -19,13 +19,13 @@ Item {
         y: root.vertical ? root.u : 3 * root.u
         width: root.vertical ? root.u : root.width - 4 * root.u
         height: root.vertical ? root.height - 2 * root.u : root.u
-        color: Win98Tokens.sh
+        color: MemphisTokens.sh
     }
     Rectangle {
         x: root.vertical ? 3 * root.u : 2 * root.u
         y: root.vertical ? root.u : 4 * root.u
         width: root.vertical ? root.u : root.width - 4 * root.u
         height: root.vertical ? root.height - 2 * root.u : root.u
-        color: Win98Tokens.hi
+        color: MemphisTokens.hi
     }
 }

@@ -15,7 +15,7 @@ TestCase {
     property var app: null
     // QtQuickTest runs functions in alphabetical order; names below keep
     // the fixture-changing tests after the ones that read the same state.
-    readonly property var themes: [{ tag: "platinum", theme: "platinum" }, { tag: "memphis", theme: "win98" }]
+    readonly property var themes: [{ tag: "platinum", theme: "platinum" }, { tag: "memphis", theme: "memphis" }]
     Component { id: appComponent; FilesApp { autoStart: false } }
 
     function init() {
@@ -67,9 +67,9 @@ TestCase {
     function test_computer_window(data) {
         useTheme(data.theme);
         const w = open(Model.computer());
-        compare(w.title, data.theme === "win98" ? "My Computer" : "Myoko");
+        compare(w.title, data.theme === "memphis" ? "My Computer" : "Myoko");
         const names = w.entries.map(function(e) { return Model.entryName(e, data.theme); });
-        compare(names, data.theme === "win98" ? ["Home", "USB", "Network Neighborhood", "Recycle Bin"] : ["Home", "USB", "SSH Hosts", "Trash"]);
+        compare(names, data.theme === "memphis" ? ["Home", "USB", "Network Neighborhood", "Recycle Bin"] : ["Home", "USB", "SSH Hosts", "Trash"]);
         verify(findChild(w, "menuRow"));
         // A second open of the same place brings that window forward.
         compare(app.openLocation(Model.computer(), {}), w);
@@ -105,7 +105,7 @@ TestCase {
 
     // ---- unknown sizes are unknown ----
     function test_unknown_sizes_never_read_zero() {
-        for (const theme of ["platinum", "win98"]) {
+        for (const theme of ["platinum", "memphis"]) {
             const iso = { kind: "file", size: null, name: "disk-image.iso", icon: { name: "x" } };
             verify(Model.sizeText(null, theme, iso) !== "0" && Model.sizeText(null, theme, iso).indexOf("0") !== 0);
             compare(Model.sizeInfo(null, theme), "Unknown");
@@ -191,7 +191,7 @@ TestCase {
     }
 
     function test_transfers_z_choices_reach_the_service() {
-        useTheme("win98");
+        useTheme("memphis");
         const t = app.showTransfers();
         tryVerify(function() { return t.visible; });
         const id = Math.pow(2, 47) + 1;
@@ -220,9 +220,9 @@ TestCase {
         verify(locked);
         const info = app.openInfo(locked);
         tryVerify(function() { return info.visible; });
-        compare(info.title, data.theme === "win98" ? "Read-only notes.txt Properties" : "Read-only notes.txt Info");
+        compare(info.title, data.theme === "memphis" ? "Read-only notes.txt Properties" : "Read-only notes.txt Info");
         verify(info.renamable);
-        const box = findChild(info.contentItem, data.theme === "win98" ? "readOnlyBox" : "lockedBox");
+        const box = findChild(info.contentItem, data.theme === "memphis" ? "readOnlyBox" : "lockedBox");
         verify(box);
         compare(box.checked, true);
         compare(box.enabled, false, "only the name can change");
@@ -233,7 +233,7 @@ TestCase {
         verify(iso.rows.some(function(r) { return r[0] === "Size:" && r[1] === "Unknown"; }));
         iso.close();
         // Renaming through the name field.
-        const notes = app.openInfo(entryNamed(w, data.theme === "win98" ? "run-backup.sh" : "empty.txt"));
+        const notes = app.openInfo(entryNamed(w, data.theme === "memphis" ? "run-backup.sh" : "empty.txt"));
         tryVerify(function() { return notes.visible; });
         notes.draft = "renamed " + data.tag + ".txt";
         verify(notes.rename());
@@ -247,10 +247,10 @@ TestCase {
     function test_move_to_trash_follows_each_os(data) {
         useTheme(data.theme);
         const w = open(Model.local("/home/fixture"));
-        const name = data.theme === "win98" ? "photo.jpg" : "notes.txt";
+        const name = data.theme === "memphis" ? "photo.jpg" : "notes.txt";
         w.select(entryNamed(w, name), 0);
         w.act("trash");
-        if (data.theme === "win98") {
+        if (data.theme === "memphis") {
             const a = waitAlert("move-to-trash");
             compare(a.spec.defaultAction, "trash");
             a.choose("trash");
@@ -313,7 +313,7 @@ TestCase {
         verify(app.windowFor(Model.local("/home/fixture/Documents")));
     }
     function test_memphis_explorer_navigates_in_place() {
-        useTheme("win98");
+        useTheme("memphis");
         const w = open(Model.computer());
         const home = w.entries.filter(function(e) { return e.name === "Home"; })[0];
         w.activate(home, 0);
@@ -335,9 +335,9 @@ TestCase {
         const w = open(Model.local("/home/fixture"));
         w.select(entryNamed(w, "Documents"), 0);
         w.act("view-list");
-        for (const theme of ["win98", "platinum", "win98"]) {
+        for (const theme of ["memphis", "platinum", "memphis"]) {
             Theme.name = theme;
-            Theme.mode = theme === "win98" ? "dark" : "light";
+            Theme.mode = theme === "memphis" ? "dark" : "light";
             wait(60);
             compare(w.selectedEntries.length, 1);
             compare(w.selectedEntries[0].name, "Documents");
@@ -365,7 +365,7 @@ TestCase {
             if (inline < menus.length) verify(findChild(w, "menuTitle-overflow").visible, "overflow title at " + size);
             const content = findChild(w, "folderContent");
             verify(content.height > 0, "content has room at " + size);
-            if (data.theme === "win98") {
+            if (data.theme === "memphis") {
                 const toolbar = findChild(w, "toolbar");
                 if (toolbar.visible && toolbar.inlineCount < toolbar.tools.length) verify(findChild(w, "toolOverflow").visible);
                 // The tree's places stay in the Go menu when the tree yields.
@@ -377,7 +377,7 @@ TestCase {
 
     // ---- clipboard offers files with text/uri-list ----
     function test_copy_offers_locations() {
-        useTheme("win98");
+        useTheme("memphis");
         const w = open(Model.local("/home/fixture"));
         w.select(entryNamed(w, "Documents"), 0);
         w.act("cut");

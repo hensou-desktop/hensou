@@ -2,10 +2,10 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 
-// A Win98 surface: a fill and up to three 1-u rings of edge lines. Each
+// A Memphis surface: a fill and up to three 1-u rings of edge lines. Each
 // ring has a top-left colour and a bottom-right colour. Where two lines of
 // a ring meet at the top-right and bottom-left corners, the bottom-right
-// line wins, as Win98 drew it; the etched variants ("group", "channel")
+// line wins, as Memphis drew it; the etched variants ("group", "channel")
 // let the top-left line win instead, as the mock's CSS does.
 //
 // Variants, outer ring first (hi/li light, sh/dk dark):
@@ -26,14 +26,14 @@ Item {
     id: root
 
     property string variant: "button"
-    // Another appearance's colours (Win98Tokens.palette), for previews.
+    // Another appearance's colours (MemphisTokens.palette), for previews.
     property var scheme: null
-    property color color: scheme ? scheme.face : Win98Tokens.face
+    property color color: scheme ? scheme.face : MemphisTokens.face
     property bool filled: true
 
     readonly property real u: 2 / WindowMetrics.ratio(root)
     readonly property var rings: {
-        const T = root.scheme || Win98Tokens;
+        const T = root.scheme || MemphisTokens;
         switch (root.variant) {
         case "window": return [[T.li, T.dk], [T.hi, T.sh]];
         case "pressed": return [[T.dk, T.hi], [T.sh, T.li]];

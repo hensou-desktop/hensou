@@ -24,16 +24,16 @@ var SIDE_BY_SIDE = 760;        // transfers beside working copies
 
 function folderPlan(theme, width, height, options) {
     var o = options || {};
-    var win98 = theme === "win98";
-    var treeWanted = win98 && o.treeWanted !== false;
+    var memphis = theme === "memphis";
+    var treeWanted = memphis && o.treeWanted !== false;
     var treeShown = treeWanted && width >= TREE_MIN_WINDOW;
     var treeWidth = treeShown ? Math.max(TREE_MIN, Math.min(TREE_MAX, Math.round(width * 0.32))) : 0;
     var contentWidth = width - treeWidth;
     return {
         treeShown: treeShown,
         treeWidth: treeWidth,
-        toolbar: win98 && height >= TOOLBAR_MIN_HEIGHT,
-        address: win98 && (height >= ADDRESS_MIN_HEIGHT || o.addressForced === true),
+        toolbar: memphis && height >= TOOLBAR_MIN_HEIGHT,
+        address: memphis && (height >= ADDRESS_MIN_HEIGHT || o.addressForced === true),
         status: height >= STATUS_MIN_HEIGHT,
         columns: listColumns(contentWidth - (o.scrollBar || 0)),
         gap: Math.max(4, Math.min(12, Math.floor(Math.min(width, height) / 40)))

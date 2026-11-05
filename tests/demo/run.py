@@ -521,7 +521,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     print("MODAL_COMPOSITOR_FOCUS=" + repr(focused), flush=True)
                     send_key("Escape")
                 elif name == "create":
-                    write(("win98", "light", "on"))
+                    write(("memphis", "light", "on"))
                 elif name == "invalid":
                     write(("unknown", "lig", "bad"))
                 elif name == "missing":
@@ -531,7 +531,7 @@ for_window [title=\"Hensou.*\"] floating enable
                     write(("platinum", "dark", "on"), atomic=True)
                 elif name == "recreate":
                     shutil.rmtree(state)
-                    write(("win98", "light", "off"), atomic=True)
+                    write(("memphis", "light", "off"), atomic=True)
                 elif name == "scales":
                     swaymsg('[title="Hensou scale one"] move to output HEADLESS-1')
                     swaymsg(

@@ -19,16 +19,16 @@ TestCase {
             PlatinumButton { id: pbutton; text: "Change value"; onClicked: test.clicks++ }
             PlatinumTextField { id: pinput; Accessible.name: "Platinum draft" }
             PlatinumCheckBox { id: pcheck; text: "Keep draft"; interactive: true; onToggled: value => { test.nextChecked = value; test.toggleCount++; } }
-            Win98Button { id: wbutton; text: "&Change value"; onClicked: test.clicks++ }
-            Win98TextField { id: winput; Accessible.name: "Win98 draft" }
-            Win98CheckBox { id: wcheck; text: "&Keep draft"; onToggled: value => { test.nextChecked = value; test.toggleCount++; } }
+            MemphisButton { id: wbutton; text: "&Change value"; onClicked: test.clicks++ }
+            MemphisTextField { id: winput; Accessible.name: "Memphis draft" }
+            MemphisCheckBox { id: wcheck; text: "&Keep draft"; onToggled: value => { test.nextChecked = value; test.toggleCount++; } }
         }
     }
     WindowScale {
         id: second
         x: 400; width: 380; height: 600
         devicePixelRatio: 1
-        Win98Bevel { id: otherBevel; width: 100; height: 100 }
+        MemphisBevel { id: otherBevel; width: 100; height: 100 }
     }
     property int clicks: 0
     property bool nextChecked: false
@@ -89,13 +89,13 @@ TestCase {
             input.input.forceActiveFocus();
             keyClick(Qt.Key_A); keyClick(Qt.Key_B);
             compare(input.text, "ab");
-            Theme.name = "win98"; Theme.mode = "light"; Theme.extraState = "on";
+            Theme.name = "memphis"; Theme.mode = "light"; Theme.extraState = "on";
             compare(input.text, "ab");
-            compare(Win98Tokens.face.toString(), "#c0c0c0");
+            compare(MemphisTokens.face.toString(), "#c0c0c0");
         }
     }
     function test_menu_accessible_actions_and_disabled_state() {
-        const menu = Qt.createQmlObject('import QtQuick; import Hensou; Win98MenuPanel {}', first, "menu");
+        const menu = Qt.createQmlObject('import QtQuick; import Hensou; MemphisMenuPanel {}', first, "menu");
         menu.items = [{text: "&Open", shortcut: "Enter"}, {separator: true},
                       {text: "Unavailable", enabled: false}, {text: "Section", header: true}];
         menu.highlighted = 0;
@@ -138,10 +138,10 @@ TestCase {
         const labels = ["", "A", "Built-in Speakers", "Galaxy Buds2 Pro", "U2723QE (HDMI 1)",
                         "UnbrokenLabel".repeat(30), "0", "-1", "999999999999999999999", "—"];
         for (const label of labels) {
-            for (const type of ["PlatinumMenuListRow", "Win98ListRow"]) {
+            for (const type of ["PlatinumMenuListRow", "MemphisListRow"]) {
                 const row = Qt.createQmlObject('import QtQuick; import Hensou; ' + type +
                     ' { width: 200; height: 40 }', first, type);
-                if (type === "Win98ListRow") row.title = label;
+                if (type === "MemphisListRow") row.title = label;
                 else row.name = label;
                 waitForRendering(row);
                 verify(isFinite(row.implicitWidth));
@@ -152,7 +152,7 @@ TestCase {
         }
     }
     function test_unbroken_wrap_mode_preserves_default() {
-        const label = Qt.createQmlObject('import QtQuick; import Hensou; Win98Text { width: 110; wrap: true; accessMarks: false; elide: Text.ElideNone }', first, "wrappedLabel");
+        const label = Qt.createQmlObject('import QtQuick; import Hensou; MemphisText { width: 110; wrap: true; accessMarks: false; elide: Text.ElideNone }', first, "wrappedLabel");
         label.text = "UnbrokenRawPath".repeat(30);
         compare(label.wrapMode, Text.WordWrap);
         waitForRendering(label);
@@ -209,13 +209,13 @@ TestCase {
             requests.push({name: name, checkOnly: checkOnly});
             return checkOnly ? "" : fallback;
         };
-        const menu = Qt.createQmlObject('import QtQuick; import Hensou; Win98MenuPanel {}', first, "missingIconMenu");
+        const menu = Qt.createQmlObject('import QtQuick; import Hensou; MemphisMenuPanel {}', first, "missingIconMenu");
         menu.items = [{text: "Unknown app", themeIcon: "missing-application"}];
         waitForRendering(menu);
         const glyph = findChild(menu, "menuGlyph0");
         verify(glyph !== null);
         compare(glyph.name, "doc", "missing menu art keeps the built-in document glyph");
-        const icon = Qt.createQmlObject('import QtQuick; import Hensou; Win98Icon { name: "theme:missing-application" }', first, "missingAppIcon");
+        const icon = Qt.createQmlObject('import QtQuick; import Hensou; MemphisIcon { name: "theme:missing-application" }', first, "missingAppIcon");
         waitForRendering(icon);
         verify(requests.some(request => request.name === "missing-application" && request.checkOnly === true));
         verify(requests.some(request => request.name === "missing-application" && request.checkOnly === false));
@@ -224,19 +224,19 @@ TestCase {
     }
     function test_resources_relocated() {
         verify(PlatinumIconStore.url("check", "#ffffff", "transparent").startsWith("data:image/svg+xml;utf8,"));
-        verify(Win98IconStore.url("check", "#ffffff").startsWith("data:image/svg+xml;utf8,"));
-        compare(Win98IconStore.size("check").length, 2);
+        verify(MemphisIconStore.url("check", "#ffffff").startsWith("data:image/svg+xml;utf8,"));
+        compare(MemphisIconStore.size("check").length, 2);
     }
     function test_drawing_types_and_count_fixtures() {
         // Instantiate every exported drawing with plain Qt, never a shell.
-        for (const type of ["PlatinumMenuFrame", "PlatinumDialogFrame", "Win98Window", "Win98MenuPanel",
-                            "PlatinumMenuListRow", "Win98ListRow", "PlatinumIcon", "Win98Icon"]) {
+        for (const type of ["PlatinumMenuFrame", "PlatinumDialogFrame", "MemphisWindow", "MemphisMenuPanel",
+                            "PlatinumMenuListRow", "MemphisListRow", "PlatinumIcon", "MemphisIcon"]) {
             const object = Qt.createQmlObject('import QtQuick; import Hensou; ' + type + ' {}', first, type);
             verify(object !== null, type);
             object.destroy();
         }
         for (const count of [0, 1, 100]) {
-            for (const type of ["PlatinumMenuList", "Win98ListView"]) {
+            for (const type of ["PlatinumMenuList", "MemphisListView"]) {
                 const object = Qt.createQmlObject('import QtQuick; import Hensou; ' + type +
                     ' { width: 200; height: 100; delegate: Item { width: 200; height: 30 } }', first, type);
                 object.model = count;

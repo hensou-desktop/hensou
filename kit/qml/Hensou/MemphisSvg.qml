@@ -5,7 +5,7 @@ import QtQuick
 // be a whole number of physical pixels (whole or half units) and sit on
 // them; then patterns, dots and 1-u edges stay exact.
 //
-// svg: markup with a viewBox in units. Win98Dither, Win98FocusRect, the
+// svg: markup with a viewBox in units. MemphisDither, MemphisFocusRect, the
 // check box, the radio button and the trackbar thumb draw through this.
 Image {
     id: root

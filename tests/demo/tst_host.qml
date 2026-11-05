@@ -23,10 +23,10 @@ TestCase {
         compare(HostTheme.mode, "dark");
         compare(HostTheme.extraState, "off");
         phase("create");
-        tryCompare(HostTheme, "name", "win98");
+        tryCompare(HostTheme, "name", "memphis");
         tryCompare(HostTheme, "mode", "light");
         tryCompare(HostTheme, "extraState", "on");
-        compare(Theme.name, "win98");
+        compare(Theme.name, "memphis");
         compare(findChild(live, "editableInput").text, "preserved draft");
         compare(live.state.checked, true);
         compare(live.state.selectedIndex, 7);
@@ -43,12 +43,12 @@ TestCase {
         tryCompare(HostTheme, "mode", "dark");
         tryCompare(HostTheme, "extraState", "on");
         phase("recreate");
-        tryCompare(HostTheme, "name", "win98");
+        tryCompare(HostTheme, "name", "memphis");
         tryCompare(HostTheme, "mode", "light");
         live.close();
         live.destroy();
         wait(30);
-        Theme.name = "win98";
+        Theme.name = "memphis";
         const one = createTemporaryObject(windowComponent, null, { title: "Hensou scale one" });
         const fractional = createTemporaryObject(windowComponent, null, { title: "Hensou scale fractional" });
         verify(one); verify(fractional);
@@ -73,7 +73,7 @@ TestCase {
     function test_five_appearance_captures_and_shapes() {
         const app = createTemporaryObject(windowComponent, null, { title: "Hensou capture" });
         verify(app);
-        for (const appearance of [["platinum", "light", "off"], ["platinum", "dark", "off"], ["platinum", "dark", "on"], ["win98", "light", "off"], ["win98", "dark", "off"]]) {
+        for (const appearance of [["platinum", "light", "off"], ["platinum", "dark", "off"], ["platinum", "dark", "on"], ["memphis", "light", "off"], ["memphis", "dark", "off"]]) {
             Theme.name = appearance[0]; Theme.mode = appearance[1]; Theme.extraState = appearance[2];
             const tag = appearance[0] + "-" + appearance[1] + (appearance[2] === "on" ? "-extra" : "");
             for (const shape of [[220, 640, "narrow"], [1000, 180, "wide"]]) {

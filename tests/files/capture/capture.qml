@@ -53,14 +53,14 @@ TestCase {
     }
 
     function test_capture_states() {
-        for (const theme of ["platinum", "win98"]) {
+        for (const theme of ["platinum", "memphis"]) {
             for (const mode of ["light", "dark"]) {
                 Theme.name = theme;
                 Theme.mode = mode;
                 Theme.extraState = "off";
                 if (app) { app.destroy(); wait(50); }
                 app = appComponent.createObject(test);
-                const tag = (theme === "win98" ? "memphis" : "platinum") + "-" + mode;
+                const tag = (theme === "memphis" ? "memphis" : "platinum") + "-" + mode;
 
                 open(Model.computer(), 560, 380);
                 capture(tag + "-computer");
@@ -117,7 +117,7 @@ TestCase {
 
                 // Trash: Memphis asks before the Recycle Bin; both warn
                 // before a permanent delete; Empty Trash defaults to Cancel.
-                if (theme === "win98") {
+                if (theme === "memphis") {
                     w.select(entryNamed(w, "photo.jpg"), 0);
                     w.act("trash");
                     waitAlert("move-to-trash");

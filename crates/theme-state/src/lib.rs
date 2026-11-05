@@ -20,11 +20,11 @@ impl Default for Appearance {
 
 impl Appearance {
     /// Invalid/missing mode preserves the last usable value. Name falls back to
-    /// Platinum; missing/invalid extra is off. Win98 retains but ignores extra.
+    /// Platinum; missing/invalid extra is off. Memphis retains but ignores extra.
     pub fn update(&self, name: Option<&str>, mode: Option<&str>, extra: Option<&str>) -> Self {
         Self {
-            name: if name.map(str::trim) == Some("win98") {
-                "win98"
+            name: if name.map(str::trim) == Some("memphis") {
+                "memphis"
             } else {
                 "platinum"
             },
@@ -69,8 +69,8 @@ mod tests {
             ("platinum", "light", "off"),
             ("platinum", "dark", "off"),
             ("platinum", "dark", "on"),
-            ("win98", "light", "off"),
-            ("win98", "dark", "on"),
+            ("memphis", "light", "off"),
+            ("memphis", "dark", "on"),
         ] {
             let state = Appearance::default().update(Some(name), Some(mode), Some(extra));
             assert_eq!(
@@ -82,7 +82,7 @@ mod tests {
 
     #[test]
     fn invalid_transient_and_missing_mode_keep_current_mode() {
-        let light = Appearance::default().update(Some("win98"), Some("light"), Some("on"));
+        let light = Appearance::default().update(Some("memphis"), Some("light"), Some("on"));
         for invalid in [None, Some(""), Some("lig"), Some("broken")] {
             assert_eq!(
                 light.update(Some("unknown"), invalid, Some("invalid")),
@@ -98,9 +98,9 @@ mod tests {
     #[test]
     fn whitespace_is_not_part_of_persisted_identifiers() {
         assert_eq!(
-            Appearance::default().update(Some("win98\n"), Some(" light \n"), Some("on\n")),
+            Appearance::default().update(Some("memphis\n"), Some(" light \n"), Some("on\n")),
             Appearance {
-                name: "win98",
+                name: "memphis",
                 mode: "light",
                 extra_state: "on"
             }

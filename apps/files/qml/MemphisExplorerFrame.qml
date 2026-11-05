@@ -4,7 +4,7 @@ import "Model.js" as Model
 import "LayoutPlan.js" as LayoutPlan
 import "Art.js" as Art
 
-// A Windows 98 Explorer window: caption, menu bar, toolbar, address bar, the
+// A Memphis Explorer window: caption, menu bar, toolbar, address bar, the
 // All Folders tree beside the listing, and the status bar. Rows yield by
 // height (toolbar, then address, then status bar); their actions all live
 // in the menus too. The tree yields by width; View > Folders and the Go
@@ -14,11 +14,11 @@ FocusScope {
     required property var window
     readonly property real u: 2 / WindowMetrics.ratio(root)
     readonly property var plan: window.plan
-    readonly property string theme: "win98"
+    readonly property string theme: "memphis"
 
     function focusAddress() { if (address.item) { addressField.takeFocus(); addressField.selectAll(); } }
 
-    Win98Bevel { anchors.fill: parent; variant: "window" }
+    MemphisBevel { anchors.fill: parent; variant: "window" }
 
     // ---- caption ----
     Rectangle {
@@ -26,11 +26,11 @@ FocusScope {
         objectName: "caption"
         x: 3 * root.u; y: 3 * root.u
         width: parent.width - 6 * root.u
-        height: Win98Tokens.captionHeight * root.u
+        height: MemphisTokens.captionHeight * root.u
         gradient: Gradient {
             orientation: Gradient.Horizontal
-            GradientStop { position: 0; color: root.window.active ? Win98Tokens.caption1 : Win98Tokens.inactiveCaption1 }
-            GradientStop { position: 1; color: root.window.active ? Win98Tokens.caption2 : Win98Tokens.inactiveCaption2 }
+            GradientStop { position: 0; color: root.window.active ? MemphisTokens.caption1 : MemphisTokens.inactiveCaption1 }
+            GradientStop { position: 1; color: root.window.active ? MemphisTokens.caption2 : MemphisTokens.inactiveCaption2 }
         }
         MouseArea {
             anchors.fill: parent
@@ -39,31 +39,31 @@ FocusScope {
         }
         EntryIcon {
             x: 2 * root.u; y: root.u
-            art: Model.artName(Model.placeEntry(root.window.location, "win98", ""))
+            art: Model.artName(Model.placeEntry(root.window.location, "memphis", ""))
             large: false
         }
-        Win98Text {
+        MemphisText {
             x: 21 * root.u
             y: 3 * root.u
             width: Math.max(0, Math.min(implicitWidth, buttons.x - 3 * root.u - x))
             text: root.window.title
             accessMarks: false
             bold: true
-            color: root.window.active ? Win98Tokens.captionText : Win98Tokens.inactiveCaptionText
+            color: root.window.active ? MemphisTokens.captionText : MemphisTokens.inactiveCaptionText
         }
         Row {
             id: buttons
             x: caption.width - 2 * root.u - width
             y: 2 * root.u
             spacing: 0
-            Win98CaptionButton { glyph: "minimize"; onClicked: root.window.showMinimized(); Accessible.name: "Minimize" }
-            Win98CaptionButton {
+            MemphisCaptionButton { glyph: "minimize"; onClicked: root.window.showMinimized(); Accessible.name: "Minimize" }
+            MemphisCaptionButton {
                 glyph: root.window.visibility === Window.Maximized ? "restore" : "maximize"
                 Accessible.name: "Maximize"
                 onClicked: root.window.visibility === Window.Maximized ? root.window.showNormal() : root.window.showMaximized()
             }
             Item { width: 2 * root.u; height: 1 }
-            Win98CaptionButton { objectName: "captionClose"; glyph: "close"; onClicked: root.window.close(); Accessible.name: "Close" }
+            MemphisCaptionButton { objectName: "captionClose"; glyph: "close"; onClicked: root.window.close(); Accessible.name: "Close" }
         }
     }
 
@@ -79,7 +79,7 @@ FocusScope {
             window: root.window
             menus: root.window.menus()
         }
-        Win98Separator { width: parent.width; visible: toolbar.visible }
+        MemphisSeparator { width: parent.width; visible: toolbar.visible }
         // ---- toolbar ----
         Item {
             id: toolbar
@@ -115,24 +115,24 @@ FocusScope {
                         enabled: modelData.enabled
                         Accessible.role: Accessible.Button
                         Accessible.name: modelData.text
-                        Win98Bevel {
+                        MemphisBevel {
                             anchors.fill: parent
                             filled: false
                             visible: tool.enabled && toolArea.containsMouse
                             variant: toolArea.pressed ? "thinSunken" : "thinRaised"
                         }
                         Image {
-                            x: Win98Tokens.snap((parent.width - width) / 2, root.u)
+                            x: MemphisTokens.snap((parent.width - width) / 2, root.u)
                             y: 3 * root.u
                             width: 20 * root.u; height: 20 * root.u
                             smooth: false
                             opacity: tool.enabled ? 1 : 0.4
                             sourceSize.width: Math.round(width * WindowMetrics.ratio(tool))
                             sourceSize.height: Math.round(height * WindowMetrics.ratio(tool))
-                            source: Art.url("win98", tool.modelData.art, Win98Tokens.ink, "")
+                            source: Art.url("memphis", tool.modelData.art, MemphisTokens.ink, "")
                         }
-                        Win98Text {
-                            x: Win98Tokens.snap((parent.width - width) / 2, root.u)
+                        MemphisText {
+                            x: MemphisTokens.snap((parent.width - width) / 2, root.u)
                             y: 25 * root.u
                             width: Math.min(implicitWidth, parent.width - 2 * root.u)
                             text: tool.modelData.text
@@ -155,13 +155,13 @@ FocusScope {
                     height: toolbar.height
                     Accessible.role: Accessible.Button
                     Accessible.name: "More tools"
-                    Win98Bevel { anchors.fill: parent; anchors.margins: root.u; filled: false; variant: chevronArea.containsMouse ? "thinRaised" : "flat" }
+                    MemphisBevel { anchors.fill: parent; anchors.margins: root.u; filled: false; variant: chevronArea.containsMouse ? "thinRaised" : "flat" }
                     Image {
                         anchors.centerIn: parent
                         width: 20 * root.u; height: 20 * root.u
                         sourceSize.width: Math.round(width * WindowMetrics.ratio(chevron))
                         sourceSize.height: Math.round(height * WindowMetrics.ratio(chevron))
-                        source: Art.url("win98", "tb-more", Win98Tokens.ink, "")
+                        source: Art.url("memphis", "tb-more", MemphisTokens.ink, "")
                     }
                     MouseArea {
                         id: chevronArea
@@ -176,7 +176,7 @@ FocusScope {
                 }
             }
         }
-        Win98Separator { width: parent.width; visible: address.visible }
+        MemphisSeparator { width: parent.width; visible: address.visible }
         // ---- address bar ----
         Item {
             id: address
@@ -184,7 +184,7 @@ FocusScope {
             visible: root.plan.address
             width: parent.width
             height: visible ? 25 * root.u : 0
-            Win98Text {
+            MemphisText {
                 id: addressLabel
                 x: 4 * root.u
                 y: 6 * root.u
@@ -196,11 +196,11 @@ FocusScope {
                 x: addressLabel.x + addressLabel.width + 5 * root.u
                 y: 2 * root.u
                 width: parent.width - x - 2 * root.u
-                height: Win98Tokens.fieldHeight * root.u
+                height: MemphisTokens.fieldHeight * root.u
                 accessibleName: "Address"
-                text: Model.addressText(root.window.location, "win98", root.window.app.hostname)
+                text: Model.addressText(root.window.location, "memphis", root.window.app.hostname)
                 onAccepted: {
-                    const next = Model.parseAddress(currentText, "win98", root.window.app.hostname);
+                    const next = Model.parseAddress(currentText, "memphis", root.window.app.hostname);
                     if (next) { root.window.navigate(next); root.window.addressForced = false; }
                     else root.window.app.alert({ kind: "failure", art: "error", title: "Address", message: "Files cannot find " + currentText + ".",
                         detail: "Type a folder path (/home), a host and path (fuji:/srv) or a place (My Computer).",
@@ -208,7 +208,7 @@ FocusScope {
                 }
                 onEscaped: {
                     root.window.addressForced = false;
-                    if (item) item.text = Model.addressText(root.window.location, "win98", root.window.app.hostname);
+                    if (item) item.text = Model.addressText(root.window.location, "memphis", root.window.app.hostname);
                 }
             }
         }
@@ -228,13 +228,13 @@ FocusScope {
             visible: root.plan.treeShown
             width: root.plan.treeWidth
             height: parent.height
-            Win98Bevel {
+            MemphisBevel {
                 id: treeHeader
                 width: parent.width
                 height: 18 * root.u
                 variant: "thinRaised"
-                Win98Text { x: 4 * root.u; y: 3 * root.u; text: "All Folders"; accessMarks: false }
-                Win98CaptionButton {
+                MemphisText { x: 4 * root.u; y: 3 * root.u; text: "All Folders"; accessMarks: false }
+                MemphisCaptionButton {
                     x: parent.width - width - 2 * root.u
                     y: 2 * root.u
                     glyph: "close"
@@ -267,24 +267,24 @@ FocusScope {
             y: content.y + content.height - height - 2 * root.u
             width: Math.min(content.width - 4 * root.u, bannerText.implicitWidth + 30 * root.u)
             height: 20 * root.u
-            color: Win98Tokens.tip
+            color: MemphisTokens.tip
             border.width: root.u
-            border.color: Win98Tokens.tipEdge
+            border.color: MemphisTokens.tipEdge
             Image {
                 x: 3 * root.u; y: 2 * root.u
                 width: 16 * root.u; height: 16 * root.u
                 sourceSize.width: Math.round(width * WindowMetrics.ratio(parent))
                 sourceSize.height: Math.round(height * WindowMetrics.ratio(parent))
-                source: Art.url("win98", root.window.banner.kind === "failed" ? "error" : "network", Win98Tokens.ink, "")
+                source: Art.url("memphis", root.window.banner.kind === "failed" ? "error" : "network", MemphisTokens.ink, "")
             }
-            Win98Text {
+            MemphisText {
                 id: bannerText
                 x: 22 * root.u
                 y: 4 * root.u
                 width: Math.min(implicitWidth, parent.width - x - 4 * root.u)
                 text: root.window.banner.text
                 accessMarks: false
-                color: Win98Tokens.tipText
+                color: MemphisTokens.tipText
             }
         }
     }
@@ -311,7 +311,7 @@ FocusScope {
                 any = true;
                 if (e.size === null || e.size === undefined) unknown = true; else bytes += e.size;
             }
-            const size = !any ? "" : unknown ? "Unknown size" : Model.sizeInfo(bytes, "win98").replace(/ \(.*\)$/, "");
+            const size = !any ? "" : unknown ? "Unknown size" : Model.sizeInfo(bytes, "memphis").replace(/ \(.*\)$/, "");
             const zone = Model.isRemote(root.window.location) ? root.window.location.place.name : "My Computer";
             return [what, size, zone];
         }
@@ -326,8 +326,8 @@ FocusScope {
                     required property int index
                     width: index === 0 ? status.firstWidth : status.restWidth
                     height: status.height
-                    Win98Bevel { anchors.fill: parent; filled: false; variant: "thinSunken" }
-                    Win98Text {
+                    MemphisBevel { anchors.fill: parent; filled: false; variant: "thinSunken" }
+                    MemphisText {
                         x: 3 * root.u; y: 3 * root.u
                         width: parent.width - 6 * root.u
                         text: modelData
@@ -347,7 +347,7 @@ FocusScope {
                     required property int index
                     x: (index * 4 + 1) * root.u; y: (11 - index * 4 - 1) * root.u - 0
                     width: root.u; height: root.u
-                    color: Win98Tokens.sh
+                    color: MemphisTokens.sh
                 }
             }
             MouseArea {

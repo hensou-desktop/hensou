@@ -36,9 +36,9 @@ pub enum ThemeId {
 }
 
 impl ThemeId {
-    /// The persisted theme name (`platinum` or `win98`).
+    /// The persisted theme name (`platinum` or `memphis`).
     pub fn from_state(name: &str) -> Self {
-        if name.trim() == "win98" {
+        if name.trim() == "memphis" {
             Self::Memphis
         } else {
             Self::Platinum

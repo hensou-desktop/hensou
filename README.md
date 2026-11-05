@@ -6,7 +6,7 @@ not require a Quickshell process. Files remains unimplemented; independent
 products such as Pyxamp and Forgerie stay outside this repository.
 
 Supported target: x86_64 Linux. Persisted appearance identifiers remain
-`platinum` and `win98`, with five existing light/dark/extra-dark appearances.
+`platinum` and `memphis`, with five existing light/dark/extra-dark appearances.
 
 | Directory | Responsibility |
 | --- | --- |

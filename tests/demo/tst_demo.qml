@@ -33,7 +33,7 @@ TestCase {
     }
     function control(name) { return findChild(app, name); }
     function test_button_checkbox_disabled_and_keyboard_data() {
-        return [{ tag: "platinum", name: "platinum" }, { tag: "win98", name: "win98" }];
+        return [{ tag: "platinum", name: "platinum" }, { tag: "memphis", name: "memphis" }];
     }
     function test_button_checkbox_disabled_and_keyboard(data) {
         Theme.name = data.name;
@@ -66,7 +66,7 @@ TestCase {
         input.select(0, 1);
         app.state.checked = true;
         app.state.selectedIndex = 7;
-        for (const appearance of [["platinum", "light", "off"], ["platinum", "dark", "off"], ["platinum", "dark", "on"], ["win98", "light", "off"], ["win98", "dark", "on"]]) {
+        for (const appearance of [["platinum", "light", "off"], ["platinum", "dark", "off"], ["platinum", "dark", "on"], ["memphis", "light", "off"], ["memphis", "dark", "on"]]) {
             Theme.name = appearance[0]; Theme.mode = appearance[1]; Theme.extraState = appearance[2];
             wait(80);
             compare(app.state.text, "hi");
@@ -89,7 +89,7 @@ TestCase {
         compare(input.selectionStart, 1);
         compare(input.selectionEnd, 2);
         compare(input.cursorPosition, 1, "Shift+Left leaves the cursor at the start");
-        for (const appearance of [["win98", "light", "off"], ["platinum", "dark", "off"], ["win98", "dark", "on"]]) {
+        for (const appearance of [["memphis", "light", "off"], ["platinum", "dark", "off"], ["memphis", "dark", "on"]]) {
             Theme.name = appearance[0]; Theme.mode = appearance[1]; Theme.extraState = appearance[2];
             wait(80);
             const restored = control("editableInput");
@@ -103,7 +103,7 @@ TestCase {
         compare(control("editableInput").selectionEnd, 2);
     }
     function test_empty_one_many_and_keyboard_reveals_selection() {
-        for (const name of ["platinum", "win98"]) {
+        for (const name of ["platinum", "memphis"]) {
             Theme.name = name;
             wait(30);
             for (const count of [0, 1, 100]) {
@@ -196,7 +196,7 @@ TestCase {
         tryCompare(dialogButton.item, "activeFocus", true);
     }
     function test_long_dialog_document_data() {
-        return [{ tag: "platinum", name: "platinum" }, { tag: "win98", name: "win98" }];
+        return [{ tag: "platinum", name: "platinum" }, { tag: "memphis", name: "memphis" }];
     }
     function test_long_dialog_document(data) {
         Theme.name = data.name;
@@ -219,7 +219,7 @@ TestCase {
         tryCompare(dialog, "visible", false);
     }
     function test_menu_accessible_actions_data() {
-        return [{ tag: "platinum", name: "platinum" }, { tag: "win98", name: "win98" }];
+        return [{ tag: "platinum", name: "platinum" }, { tag: "memphis", name: "memphis" }];
     }
     function test_menu_accessible_actions(data) {
         Theme.name = data.name;

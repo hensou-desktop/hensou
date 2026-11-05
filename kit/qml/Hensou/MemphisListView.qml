@@ -2,14 +2,14 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 
-// A Win98 list view: a sunken white well, 2 u of padding, the rows, and a
+// A Memphis list view: a sunken white well, 2 u of padding, the rows, and a
 // scroll bar 2 u to the right of them when the rows do not fit. An empty
 // list shows emptyText, centred and grey, saying what to do.
 //
 // Scrolling moves whole rows (rowUnits per step), so rows stay on the unit
 // grid; the wheel and the scroll bar both step. Up/Down/Home/End/Page keys
 // move currentIndex and keep it in view; activated(index) on Enter or a
-// double click. Use Win98ListRow as the delegate; it reads the view's
+// double click. Use MemphisListRow as the delegate; it reads the view's
 // currentIndex and focus through ListView.view.
 FocusScope {
     id: root
@@ -22,7 +22,7 @@ FocusScope {
     property alias currentIndex: view.currentIndex
     property alias view: view
     property alias count: view.count
-    property real rowUnits: Win98Tokens.listRowTwo
+    property real rowUnits: MemphisTokens.listRowTwo
     property string emptyText: ""
     // Draw the current row's focus mark without keyboard focus (galleries).
     property bool showFocus: false
@@ -68,16 +68,16 @@ FocusScope {
         view.contentY = Math.max(0, Math.min(y, Math.max(0, view.contentHeight - view.height)));
     }
 
-    Win98Bevel {
+    MemphisBevel {
         anchors.fill: parent
         variant: "field"
-        color: Win98Tokens.win
+        color: MemphisTokens.win
     }
 
     ListView {
         id: view
         x: 2 * root.u; y: 2 * root.u
-        width: root.width - 4 * root.u - (root.overflows ? Win98Tokens.scrollBar * root.u + 2 * root.u : 0)
+        width: root.width - 4 * root.u - (root.overflows ? MemphisTokens.scrollBar * root.u + 2 * root.u : 0)
         height: root.height - 4 * root.u
         clip: true
         interactive: false
@@ -95,7 +95,7 @@ FocusScope {
         }
     }
 
-    Win98ScrollBar {
+    MemphisScrollBar {
         visible: root.overflows
         x: root.width - 2 * root.u - width
         y: 2 * root.u
@@ -104,15 +104,15 @@ FocusScope {
         step: root.step
     }
 
-    Win98Text {
+    MemphisText {
         visible: view.count === 0 && root.emptyText !== ""
         x: 12 * root.u
         width: root.width - 24 * root.u
-        y: Win98Tokens.snap((root.height - height) / 2, root.u)
+        y: MemphisTokens.snap((root.height - height) / 2, root.u)
         wrap: true
         horizontalAlignment: Text.AlignHCenter
         text: root.emptyText
         accessMarks: false
-        color: Win98Tokens.gray
+        color: MemphisTokens.gray
     }
 }

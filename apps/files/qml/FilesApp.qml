@@ -9,7 +9,7 @@ import "Alerts.js" as Alerts
 // this object and the transfers it watches stay.
 QtObject {
     id: app
-    readonly property string theme: Theme.name === "win98" ? "win98" : "platinum"
+    readonly property string theme: Theme.name === "memphis" ? "memphis" : "platinum"
     readonly property string hostname: FilesBridge.hostname
     property FilesStore store: FilesStore {}
     property var windows: []
@@ -107,7 +107,7 @@ QtObject {
             if (o.closeFrom && o.from && o.from !== existing) o.from.close();
             return existing;
         }
-        if (theme === "win98" && o.from && !o.newWindow) {
+        if (theme === "memphis" && o.from && !o.newWindow) {
             o.from.navigate(location);
             return o.from;
         }
@@ -130,7 +130,7 @@ QtObject {
     }
     function openEnclosing(from, closeFrom) {
         const up = Model.parent(from.location);
-        if (up) openLocation(up, { from: from, closeFrom: closeFrom, newWindow: theme !== "win98" });
+        if (up) openLocation(up, { from: from, closeFrom: closeFrom, newWindow: theme !== "memphis" });
     }
 
     // ---- entries ----
@@ -214,7 +214,7 @@ QtObject {
             if (permanent.length) {
                 return confirmPermanent(locations, names, permanent[0][1].reason, owner);
             }
-            if (theme === "win98") {
+            if (theme === "memphis") {
                 alert(Alerts.moveToTrash(names, theme), owner, function(action) {
                     if (action === "trash") store.send({ command: "move-to-trash", locations: locations });
                 });

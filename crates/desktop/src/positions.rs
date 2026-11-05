@@ -17,7 +17,7 @@ pub fn grid(theme: Theme) -> GridSpec {
 fn theme_name(theme: Theme) -> &'static str {
     match theme {
         Theme::Platinum => "platinum",
-        Theme::Memphis => "win98",
+        Theme::Memphis => "memphis",
     }
 }
 fn icon_key(theme: Theme, id: &str) -> String {

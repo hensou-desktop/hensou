@@ -135,7 +135,7 @@ fb.setupNameTable(
         "fullName": "W95FA Grid",
         "psName": "W95FAGrid-Regular",
         "version": "Version 1.002-grid1",
-        "copyright": "W95FA by Alina Sava / FontsArena (SIL OFL 1.1). Grid fix and added glyphs: win98-mock, 2026.",
+        "copyright": "W95FA by Alina Sava / FontsArena (SIL OFL 1.1). Grid fix and added glyphs: memphis-mock, 2026.",
         "licenseDescription": "This Font Software is licensed under the SIL Open Font License, Version 1.1.",
         "licenseInfoURL": "https://openfontlicense.org",
     }

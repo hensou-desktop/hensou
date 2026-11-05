@@ -5,7 +5,7 @@ Loader {
     id: root
     property string text: ""
     property bool wrap: false
-    sourceComponent: Theme.name === "win98" ? win98 : platinum
+    sourceComponent: Theme.name === "memphis" ? memphis : platinum
     Component {
         id: platinum
         Text {
@@ -22,8 +22,8 @@ Loader {
         }
     }
     Component {
-        id: win98
-        Win98Text {
+        id: memphis
+        MemphisText {
             text: root.text
             wrap: root.wrap
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere

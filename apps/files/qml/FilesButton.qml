@@ -9,8 +9,8 @@ Loader {
     property bool isDefault: false
     property var roleLabels: []
     signal clicked()
-    readonly property bool win98: Theme.name === "win98"
-    sourceComponent: win98 ? memphis : platinum
+    readonly property bool memphis: Theme.name === "memphis"
+    sourceComponent: memphis ? memphis : platinum
     activeFocusOnTab: false
     function takeFocus() { if (item) item.forceActiveFocus(); }
     Accessible.role: Accessible.Button
@@ -28,7 +28,7 @@ Loader {
     }
     Component {
         id: memphis
-        Win98Button {
+        MemphisButton {
             text: root.text
             isDefault: root.isDefault
             enabled: root.enabled

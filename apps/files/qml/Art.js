@@ -2,7 +2,7 @@
 // Files' own theme art: kind icons, alert icons and the Explorer toolbar.
 // Drawn for Hensou in each theme's idiom (Mac OS 8 Platinum, the Memphis
 // 16-colour set); never Adwaita or hicolor. #000001 is the outline ink:
-// black on light faces, Win98Tokens.ink on Memphis dark grey.
+// black on light faces, MemphisTokens.ink on Memphis dark grey.
 //
 // INTEGRATE(file-icons): hensou_file_icons resolves exact theme icons for a
 // MIME type; until it is wired, kinds map to these generic pictures.
@@ -37,7 +37,7 @@ var platinum = {
 
 // The Memphis 16-colour set: yellow folders, white pages, grey hardware.
 var PAGE_W = '<path d="M6.5 1.5 H20.5 L26.5 7.5 V30.5 H6.5 Z" fill="#ffffff" stroke="#000001"/><path d="M20.5 1.5 V7.5 H26.5" fill="#c0c0c0" stroke="#000001"/>';
-var win98 = {
+var memphis = {
     folder: S + '<path d="M2.5 6.5 H12.5 L14.5 9.5 H28.5 V27.5 H2.5 Z" fill="#ffff80" stroke="#808000"/><path d="M3 11 H28" stroke="#ffffff"/><path d="M2.5 11.5 H29.5 L27.5 27.5 H2.5 Z" fill="#e0e060" stroke="#808000"/>' + E,
     home: S + '<path d="M2.5 6.5 H12.5 L14.5 9.5 H28.5 V27.5 H2.5 Z" fill="#ffff80" stroke="#808000"/><path d="M8.5 4.5 H20.5 V18.5 H8.5 Z" fill="#ffffff" stroke="#000001"/><path d="M10 8 H19 M10 11 H19 M10 14 H17" stroke="#000080"/><path d="M2.5 13.5 H29.5 L27.5 27.5 H2.5 Z" fill="#e0e060" stroke="#808000"/>' + E,
     document: S + PAGE_W + '<path d="M9 12.5 H23 M9 16.5 H23" stroke="#808080"/>' + E,
@@ -75,10 +75,10 @@ var win98 = {
 };
 
 function svg(theme, name) {
-    var set = theme === "win98" ? win98 : platinum;
+    var set = theme === "memphis" ? memphis : platinum;
     if (set[name]) return set[name];
     // Alert names differ per idiom; each set answers the other's.
-    var aliases = theme === "win98"
+    var aliases = theme === "memphis"
         ? { caution: "warning", stop: "error", note: "question" }
         : { warning: "caution", error: "stop", question: "note", disk: "disk" };
     if (aliases[name] && set[aliases[name]]) return set[aliases[name]];
@@ -101,7 +101,7 @@ function mix(color, toward, amount) {
 function url(theme, name, ink, tint) {
     var text = svg(theme, name).replace(/#000001/g, String(ink || "#000000"));
     if (tint) {
-        var toward = theme === "win98" ? String(tint) : "#000000";
+        var toward = theme === "memphis" ? String(tint) : "#000000";
         text = text.replace(/(fill|stroke)="(#[0-9a-fA-F]{6})"/g, function(m, attr, color) {
             return attr + '="' + mix(color, toward, 0.45) + '"';
         });

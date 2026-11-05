@@ -2,10 +2,10 @@ pragma Singleton
 
 import QtQuick
 
-// The Windows 98 theme's tokens: the unit, the two appearances, the font
-// and the metrics every Win98 control shares.
+// The Memphis theme's tokens: the unit, the two appearances, the font
+// and the metrics every Memphis control shares.
 //
-// The unit. One Win98 pixel ("u") is two physical pixels, so every bevel
+// The unit. One Memphis pixel ("u") is two physical pixels, so every bevel
 // line is exactly 1 u and lands on whole physical pixels. At Myoko's scale
 // 1.5, 1 u = 4/3 logical px. All geometry is whole units: never centre
 // with anchors.centerIn on an odd remainder, use snap(). It rounds a half
@@ -14,7 +14,7 @@ import QtQuick
 // controls land on the same pixels as the approved mock.
 //
 // The appearance follows Theme.dark: light is Windows Standard (sampled
-// from Win98 screenshots), dark is the dark grey ramp from the approved
+// from Memphis screenshots), dark is the dark grey ramp from the approved
 // mock. Both keep the same order of light and dark edges.
 QtObject {
     id: root
@@ -71,7 +71,7 @@ QtObject {
             // Windows Standard's selection takes its caption's navy. White
             // has 12.2:1 on caption1 and 5.1:1 on caption2 (WCAG AA at both
             // ends) and 6.4:1 on the selection. Light stays Windows Standard.
-            // docs/plans/desktop-themes.md, "Win98 dark caption".
+            // docs/plans/desktop-themes.md, "Memphis dark caption".
             selection: dark ? "#41608a" : "#000080",
             selectionText: "#ffffff",
             caption1: dark ? "#26364f" : "#000080",
@@ -161,7 +161,7 @@ QtObject {
     }
 
     // ---- the font. W95FA Grid: one font pixel is 1 u at 12.5 u. Qt rounds
-    // font sizes to whole logical pixels, so Win98Text draws at 25 px (two
+    // font sizes to whole logical pixels, so MemphisText draws at 25 px (two
     // text pixels per font pixel, exact) and scales by u / 2.
     readonly property string fontFamily: "W95FA Grid"
     readonly property int fontRaster: 25

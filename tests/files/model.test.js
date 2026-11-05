@@ -23,49 +23,49 @@ function entry(path, kind, extra) {
 
 // ---- locations and names ----
 assert.equal(Model.windowTitle(Model.computer(), "platinum", "Myoko"), "Myoko");
-assert.equal(Model.windowTitle(Model.computer(), "win98", "Myoko"), "My Computer");
-assert.equal(Model.windowTitle(Model.local("/home/fixture/Documents"), "win98", "Myoko"), "Exploring - Documents");
+assert.equal(Model.windowTitle(Model.computer(), "memphis", "Myoko"), "My Computer");
+assert.equal(Model.windowTitle(Model.local("/home/fixture/Documents"), "memphis", "Myoko"), "Exploring - Documents");
 assert.equal(Model.windowTitle(Model.host("fuji", "/"), "platinum", ""), "fuji");
-assert.equal(Model.locationName(Model.sshHosts(), "win98"), "Network Neighborhood");
-assert.equal(Model.locationName(Model.trash(), "win98"), "Recycle Bin");
+assert.equal(Model.locationName(Model.sshHosts(), "memphis"), "Network Neighborhood");
+assert.equal(Model.locationName(Model.trash(), "memphis"), "Recycle Bin");
 deepEqual(plain(Model.parent(Model.local("/home/fixture"))), plain(Model.local("/home")));
 deepEqual(plain(Model.parent(Model.local("/"))), plain(Model.computer()));
 deepEqual(plain(Model.parent(Model.host("fuji", "/"))), plain(Model.sshHosts()));
 assert.equal(Model.parent(Model.computer()), null);
 assert.equal(Model.ancestors(Model.local("/home/a")).length, 4);
-deepEqual(plain(Model.parseAddress("fuji:/srv/media", "win98", "Myoko")), plain(Model.host("fuji", "/srv/media")));
-deepEqual(plain(Model.parseAddress("/home", "win98", "Myoko")), plain(Model.local("/home")));
-deepEqual(plain(Model.parseAddress("my computer", "win98", "Myoko")), plain(Model.computer()));
-assert.equal(Model.parseAddress("relative/path", "win98", "Myoko"), null);
-assert.equal(Model.entryName({ kind: "ssh-hosts", name: "SSH Hosts" }, "win98"), "Network Neighborhood");
+deepEqual(plain(Model.parseAddress("fuji:/srv/media", "memphis", "Myoko")), plain(Model.host("fuji", "/srv/media")));
+deepEqual(plain(Model.parseAddress("/home", "memphis", "Myoko")), plain(Model.local("/home")));
+deepEqual(plain(Model.parseAddress("my computer", "memphis", "Myoko")), plain(Model.computer()));
+assert.equal(Model.parseAddress("relative/path", "memphis", "Myoko"), null);
+assert.equal(Model.entryName({ kind: "ssh-hosts", name: "SSH Hosts" }, "memphis"), "Network Neighborhood");
 console.log("locations, titles and addresses: PASS");
 
 // ---- values: unknown is never 0 ----
 assert.equal(Model.sizeText(null, "platinum", entry("/a", "file")), "--");
-assert.equal(Model.sizeText(null, "win98", entry("/a", "file")), "Unknown");
-assert.equal(Model.sizeText(null, "win98", entry("/a", "folder")), "");
+assert.equal(Model.sizeText(null, "memphis", entry("/a", "file")), "Unknown");
+assert.equal(Model.sizeText(null, "memphis", entry("/a", "folder")), "");
 assert.equal(Model.sizeText(0, "platinum"), "0 bytes");
-assert.equal(Model.sizeText(0, "win98"), "0KB");
-assert.equal(Model.sizeText(1, "win98"), "1KB");
+assert.equal(Model.sizeText(0, "memphis"), "0KB");
+assert.equal(Model.sizeText(1, "memphis"), "1KB");
 assert.equal(Model.sizeText(3400000, "platinum"), "3.2 MB");
 assert.equal(Model.sizeText(5000000000000, "platinum"), "4.5 TB");
 assert.equal(Model.sizeInfo(null, "platinum"), "Unknown");
-assert.equal(Model.sizeInfo(120000, "win98"), "117KB (120,000 bytes)");
-assert.equal(Model.dateText(null, "win98", "column"), "Unknown");
+assert.equal(Model.sizeInfo(120000, "memphis"), "117KB (120,000 bytes)");
+assert.equal(Model.dateText(null, "memphis", "column"), "Unknown");
 assert.equal(Model.permissionsText(0o644), "rw-r--r-- (644)");
 assert.equal(Model.permissionsText(null), "Unknown");
 assert.equal(Model.isLocked(0o444), true);
 assert.equal(Model.isLocked(0o644), false);
 assert.equal(Model.isLocked(null), false);
 assert.equal(Model.kindText(entry("/a", "alias"), "platinum"), "alias");
-assert.equal(Model.kindText(entry("/a", "alias"), "win98"), "Shortcut");
+assert.equal(Model.kindText(entry("/a", "alias"), "memphis"), "Shortcut");
 console.log("sizes, dates, permissions and kinds: PASS");
 
 // ---- listings ----
 const listed = [entry("/h/b.txt"), entry("/h/.hidden"), entry("/h/A", "folder", { size: null }), entry("/h/c", "file", { size: null })];
 assert.equal(Model.visibleEntries(listed, false).length, 3);
 assert.equal(Model.visibleEntries(listed, true).length, 4);
-deepEqual(Model.sortEntries(listed, "name", true, "win98").map((e) => e.name), ["A", ".hidden", "b.txt", "c"]);
+deepEqual(Model.sortEntries(listed, "name", true, "memphis").map((e) => e.name), ["A", ".hidden", "b.txt", "c"]);
 deepEqual(Model.sortEntries(listed, "size", false, "platinum").map((e) => e.name), ["b.txt", ".hidden", "c", "A"]);
 assert.equal(Model.artName(entry("/h/x.jpg", "file", { icon: { name: "image-jpeg" } })), "image");
 assert.equal(Model.artName({ kind: "folder", icon: { name: "user-home" } }), "home");
@@ -84,10 +84,10 @@ assert.equal(Model.dropAction("platinum", file, docs, 0, "left", volumes), "move
 assert.equal(Model.dropAction("platinum", file, docs, Model.ALT, "left", volumes), "copy");
 assert.equal(Model.dropAction("platinum", file, usb, 0, "left", volumes), "copy");
 assert.equal(Model.dropAction("platinum", file, Model.host("fuji", "/srv"), 0, "left", volumes), "copy");
-assert.equal(Model.dropAction("win98", file, docs, 0, "left", volumes), "move");
-assert.equal(Model.dropAction("win98", file, docs, Model.CONTROL, "left", volumes), "copy");
-assert.equal(Model.dropAction("win98", file, usb, Model.SHIFT, "left", volumes), "move");
-assert.equal(Model.dropAction("win98", file, usb, 0, "right", volumes), "menu");
+assert.equal(Model.dropAction("memphis", file, docs, 0, "left", volumes), "move");
+assert.equal(Model.dropAction("memphis", file, docs, Model.CONTROL, "left", volumes), "copy");
+assert.equal(Model.dropAction("memphis", file, usb, Model.SHIFT, "left", volumes), "move");
+assert.equal(Model.dropAction("memphis", file, usb, 0, "right", volumes), "menu");
 assert.equal(Model.dropAction("platinum", file, Model.trash(), 0, "left", volumes), "trash");
 assert.equal(Model.dropAction("platinum", [docs], docs, 0, "left", volumes), "none");
 assert.equal(Model.dropAction("platinum", [home], docs, 0, "left", volumes), "none");
@@ -137,14 +137,14 @@ const computerEntries = [Object.assign(entry("/home/fixture", "folder"), { name:
     { location: Model.trash(), name: "Trash", kind: "trash", hidden: false, icon: { name: "user-trash" } }];
 const children = { [Model.key(Model.computer())]: computerEntries, [Model.key(home)]: listed };
 const expanded = { [Model.key(Model.computer())]: true, [Model.key(home)]: true };
-const rows = Model.treeRows([Model.placeEntry(Model.computer(), "win98", "Myoko")], expanded, (l) => children[Model.key(l)] || null, "win98", "Myoko");
+const rows = Model.treeRows([Model.placeEntry(Model.computer(), "memphis", "Myoko")], expanded, (l) => children[Model.key(l)] || null, "memphis", "Myoko");
 deepEqual(plain(rows.map((r) => r.name)), ["My Computer", "Home", "A", "Network Neighborhood", "Recycle Bin"]);
 assert.equal(rows[2].depth, 2);
 assert.equal(rows[4].expandable, false);
 console.log("tree rows: PASS");
 
 // ---- alerts: Cancel is the default where data is at risk ----
-for (const theme of ["platinum", "win98"]) {
+for (const theme of ["platinum", "memphis"]) {
     const key = Alerts.hostKey({ host: "fuji", algorithm: "ssh-ed25519", fingerprint: "SHA256:abc" }, theme);
     assert.equal(key.defaultAction, "reject");
     assert.equal(key.cancelAction, "reject");
@@ -155,17 +155,17 @@ for (const theme of ["platinum", "win98"]) {
     deepEqual(Alerts.changedKey("nara", "SHA256:x", theme).buttons.map((b) => b.action), ["ok"]);
     assert.ok(Alerts.ejectBusy("USB", ["ghostty"], theme).detail.includes("ghostty"));
 }
-assert.equal(Alerts.moveToTrash(["a"], "win98").defaultAction, "trash");
+assert.equal(Alerts.moveToTrash(["a"], "memphis").defaultAction, "trash");
 assert.ok(Alerts.emptyTrash(3, null, "platinum").message.indexOf("disk space") < 0);
 console.log("alert defaults: PASS");
 
 // ---- layout plan: thresholds at +/- 1 ----
-for (const [w, shown] of [[459, false], [460, true], [461, true]]) assert.equal(Plan.folderPlan("win98", w, 600).treeShown, shown);
+for (const [w, shown] of [[459, false], [460, true], [461, true]]) assert.equal(Plan.folderPlan("memphis", w, 600).treeShown, shown);
 assert.equal(Plan.folderPlan("platinum", 2000, 600).treeShown, false);
-assert.equal(Plan.folderPlan("win98", 900, 600, { treeWanted: false }).treeShown, false);
-for (const [h, shown] of [[219, false], [220, true], [221, true]]) assert.equal(Plan.folderPlan("win98", 600, h).toolbar, shown);
-for (const [h, shown] of [[249, false], [250, true]]) assert.equal(Plan.folderPlan("win98", 600, h).address, shown);
-assert.equal(Plan.folderPlan("win98", 600, 140, { addressForced: true }).address, true);
+assert.equal(Plan.folderPlan("memphis", 900, 600, { treeWanted: false }).treeShown, false);
+for (const [h, shown] of [[219, false], [220, true], [221, true]]) assert.equal(Plan.folderPlan("memphis", 600, h).toolbar, shown);
+for (const [h, shown] of [[249, false], [250, true]]) assert.equal(Plan.folderPlan("memphis", 600, h).address, shown);
+assert.equal(Plan.folderPlan("memphis", 600, 140, { addressForced: true }).address, true);
 for (const [h, shown] of [[169, false], [170, true]]) assert.equal(Plan.folderPlan("platinum", 600, h).status, shown);
 deepEqual(plain(Plan.listColumns(150 + 190 - 1)), []);
 deepEqual(plain(Plan.listColumns(150 + 190)), ["modified"]);

@@ -13,7 +13,7 @@ for file in root.glob("*.qml"):
     assert not re.search(r"^import\s+[\"'].*(?:\.\./|Hensou)", text, re.M), file
     assert "Screen.devicePixelRatio" not in re.sub(r"//[^\n]*", "", text), file
     # Reject missing transitive drawing dependencies, not only import leaks.
-    for dependency in re.findall(r"\b((?:Win98|Platinum)[A-Z]\w*)\s*\{", text):
+    for dependency in re.findall(r"\b((?:Memphis|Platinum)[A-Z]\w*)\s*\{", text):
         assert (root / (dependency + ".qml")).is_file(), (file, dependency)
 exports = (root / "qmldir").read_text().splitlines()
 assert exports[0] == "module Hensou"

@@ -6,7 +6,7 @@ Loader {
     required property QtObject modelState
     property bool restoring: true
     signal focused()
-    sourceComponent: Theme.name === "win98" ? win98 : platinum
+    sourceComponent: Theme.name === "memphis" ? memphis : platinum
     onSourceComponentChanged: restoring = true
     onLoaded: Qt.callLater(restore)
     function takeFocus() { if (item) item.input.forceActiveFocus(); }
@@ -40,8 +40,8 @@ Loader {
         }
     }
     Component {
-        id: win98
-        Win98TextField {
+        id: memphis
+        MemphisTextField {
             Component.onDestruction: root.restoring = true
             text: root.modelState.text
             input.objectName: "editableInput"

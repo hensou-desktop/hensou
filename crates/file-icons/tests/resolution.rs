@@ -51,7 +51,7 @@ fn theme_chain_excludes_modern_art_and_falls_back() {
 #[test]
 fn exact_active_art_wins_and_every_mime_kind_has_period_fallback() {
     let dir = tempfile::tempdir().unwrap();
-    let theme = dir.path().join("Mountainous-win98");
+    let theme = dir.path().join("Mountainous-memphis");
     std::fs::create_dir_all(theme.join("32x32/mimetypes")).unwrap();
     std::fs::write(
         theme.join("index.theme"),

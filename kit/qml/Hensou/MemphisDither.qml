@@ -1,12 +1,12 @@
 import QtQuick
 
-// Win98's 50% dither: every other unit in color, the rest transparent, so
+// Memphis's 50% dither: every other unit in color, the rest transparent, so
 // the face shows through. Scroll-bar tracks and latched buttons use it.
 // phase 0 colours the units where x + y is odd (the mock's CSS); 1 the even.
-Win98Svg {
+MemphisSvg {
     id: root
 
-    property color color: Win98Tokens.dither
+    property color color: MemphisTokens.dither
     property int phase: 0
 
     readonly property int cols: Math.max(1, Math.round(width / root.u))

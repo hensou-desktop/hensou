@@ -9,7 +9,7 @@ Loader {
     signal edited(string text)
     signal accepted()
     signal escaped()
-    sourceComponent: Theme.name === "win98" ? memphis : platinum
+    sourceComponent: Theme.name === "memphis" ? memphis : platinum
     function takeFocus() { if (item) { item.forceActiveFocus(); item.input.forceActiveFocus(); } }
     function selectAll() { if (item) item.input.selectAll(); }
     function selectBase() {
@@ -36,7 +36,7 @@ Loader {
     }
     Component {
         id: memphis
-        Win98TextField {
+        MemphisTextField {
             text: root.text
             enabled: root.enabled
             Accessible.name: root.accessibleName

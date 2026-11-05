@@ -13,8 +13,8 @@ import "LayoutPlan.js" as LayoutPlan
 Window {
     id: root
     required property var app
-    readonly property bool win98: Theme.name === "win98"
-    readonly property string theme: win98 ? "win98" : "platinum"
+    readonly property bool memphis: Theme.name === "memphis"
+    readonly property string theme: memphis ? "memphis" : "platinum"
     readonly property real u: 2 / Math.max(0.5, metrics.devicePixelRatio)
     readonly property var plan: LayoutPlan.transfersPlan(width, height)
     property var dismissed: ({})
@@ -36,9 +36,9 @@ Window {
         return list;
     }
 
-    title: win98 ? "Transfers" : "Transfers"
+    title: memphis ? "Transfers" : "Transfers"
     flags: Qt.Window | Qt.FramelessWindowHint
-    color: win98 ? Win98Tokens.face : PlatinumTokens.menuSurface
+    color: memphis ? MemphisTokens.face : PlatinumTokens.menuSurface
     width: 820
     height: 480
     minimumWidth: 220
@@ -70,7 +70,7 @@ Window {
         // ---- chrome ----
         Loader {
             anchors.fill: parent
-            sourceComponent: root.win98 ? memphisChrome : platinumChrome
+            sourceComponent: root.memphis ? memphisChrome : platinumChrome
         }
         Component {
             id: platinumChrome
@@ -89,25 +89,25 @@ Window {
         Component {
             id: memphisChrome
             Item {
-                Win98Bevel { anchors.fill: parent; variant: "window" }
+                MemphisBevel { anchors.fill: parent; variant: "window" }
                 Rectangle {
                     x: 3 * root.u; y: 3 * root.u
                     width: parent.width - 6 * root.u
-                    height: Win98Tokens.captionHeight * root.u
+                    height: MemphisTokens.captionHeight * root.u
                     gradient: Gradient {
                         orientation: Gradient.Horizontal
-                        GradientStop { position: 0; color: root.active ? Win98Tokens.caption1 : Win98Tokens.inactiveCaption1 }
-                        GradientStop { position: 1; color: root.active ? Win98Tokens.caption2 : Win98Tokens.inactiveCaption2 }
+                        GradientStop { position: 0; color: root.active ? MemphisTokens.caption1 : MemphisTokens.inactiveCaption1 }
+                        GradientStop { position: 1; color: root.active ? MemphisTokens.caption2 : MemphisTokens.inactiveCaption2 }
                     }
                     MouseArea { anchors.fill: parent; onPressed: root.startSystemMove() }
-                    Win98Text {
+                    MemphisText {
                         x: 3 * root.u; y: 3 * root.u
                         text: root.title
                         bold: true
                         accessMarks: false
-                        color: root.active ? Win98Tokens.captionText : Win98Tokens.inactiveCaptionText
+                        color: root.active ? MemphisTokens.captionText : MemphisTokens.inactiveCaptionText
                     }
-                    Win98CaptionButton {
+                    MemphisCaptionButton {
                         x: parent.width - width - 2 * root.u
                         y: 2 * root.u
                         glyph: "close"
@@ -121,13 +121,13 @@ Window {
         // ---- the two lists ----
         GridLayout {
             id: lists
-            x: root.win98 ? 8 * root.u : 12
-            y: root.win98 ? 26 * root.u : 32
+            x: root.memphis ? 8 * root.u : 12
+            y: root.memphis ? 26 * root.u : 32
             width: parent.width - 2 * x
-            height: parent.height - y - (root.win98 ? 8 * root.u : 12)
+            height: parent.height - y - (root.memphis ? 8 * root.u : 12)
             columns: root.plan.sideBySide ? 2 : 1
-            columnSpacing: root.win98 ? 8 * root.u : 12
-            rowSpacing: root.win98 ? 6 * root.u : 10
+            columnSpacing: root.memphis ? 8 * root.u : 12
+            rowSpacing: root.memphis ? 6 * root.u : 10
 
             Section {
                 objectName: "transfersSection"
@@ -184,14 +184,14 @@ Window {
         }
         Item {
             id: well
-            y: heading.height + (root.win98 ? 8 * root.u : 10)
+            y: heading.height + (root.memphis ? 8 * root.u : 10)
             width: parent.width
             height: parent.height - y
-            Rectangle { anchors.fill: parent; visible: !root.win98; color: PlatinumTokens.list; border.width: PlatinumTokens.hairFor(metrics.devicePixelRatio); border.color: PlatinumTokens.bevelDark }
-            Win98Bevel { anchors.fill: parent; visible: root.win98; variant: "field"; color: Win98Tokens.win }
+            Rectangle { anchors.fill: parent; visible: !root.memphis; color: PlatinumTokens.list; border.width: PlatinumTokens.hairFor(metrics.devicePixelRatio); border.color: PlatinumTokens.bevelDark }
+            MemphisBevel { anchors.fill: parent; visible: root.memphis; variant: "field"; color: MemphisTokens.win }
             Flickable {
                 id: flick
-                x: root.win98 ? 2 * root.u : 1
+                x: root.memphis ? 2 * root.u : 1
                 y: x
                 width: parent.width - 2 * x - (bar.visible ? bar.width : 0)
                 height: parent.height - 2 * y
@@ -217,26 +217,26 @@ Window {
             Loader {
                 id: bar
                 anchors.right: parent.right
-                y: root.win98 ? 2 * root.u : 1
+                y: root.memphis ? 2 * root.u : 1
                 height: parent.height - 2 * y
                 visible: flick.contentHeight > flick.height + 1
-                width: visible ? (root.win98 ? Win98Tokens.scrollBar * root.u : PlatinumTokens.menuScrollBar - PlatinumTokens.hairFor(metrics.devicePixelRatio)) : 0
-                sourceComponent: root.win98 ? win98Bar : platinumBar
+                width: visible ? (root.memphis ? MemphisTokens.scrollBar * root.u : PlatinumTokens.menuScrollBar - PlatinumTokens.hairFor(metrics.devicePixelRatio)) : 0
+                sourceComponent: root.memphis ? memphisBar : platinumBar
                 Component { id: platinumBar; PlatinumScrollBar { flickable: flick } }
-                Component { id: win98Bar; Win98ScrollBar { flickable: flick } }
+                Component { id: memphisBar; MemphisScrollBar { flickable: flick } }
             }
         }
     }
 
     component Buttons: Flow {
-        spacing: root.win98 ? 6 * root.u : 8
+        spacing: root.memphis ? 6 * root.u : 8
     }
 
     component TransferRow: Item {
         id: row
         required property var transfer
         readonly property string phase: transfer.state.state
-        readonly property real pad: root.win98 ? 6 * root.u : 10
+        readonly property real pad: root.memphis ? 6 * root.u : 10
         objectName: "transfer-" + transfer.id
         implicitHeight: body.implicitHeight + 2 * pad + separator.height
         height: implicitHeight
@@ -246,7 +246,7 @@ Window {
             id: body
             x: row.pad; y: row.pad
             width: row.width - 2 * row.pad
-            spacing: root.win98 ? 4 * root.u : 6
+            spacing: root.memphis ? 4 * root.u : 6
             FilesText {
                 Layout.fillWidth: true
                 text: Model.transferTitle(row.transfer, root.theme, root.app.hostname)
@@ -265,13 +265,13 @@ Window {
                 wrap: true
                 small: true
                 onWell: true
-                color: row.phase === "failed" ? (root.win98 ? Win98Tokens.danger : PlatinumTokens.menuDanger) : "transparent"
+                color: row.phase === "failed" ? (root.memphis ? MemphisTokens.danger : PlatinumTokens.menuDanger) : "transparent"
             }
             // The conflict: both items, then the choice.
             ColumnLayout {
                 visible: row.phase === "conflict"
                 Layout.fillWidth: true
-                spacing: root.win98 ? 4 * root.u : 6
+                spacing: root.memphis ? 4 * root.u : 6
                 readonly property var conflict: row.phase === "conflict" ? row.transfer.state.conflict : null
                 FilesText {
                     Layout.fillWidth: true
@@ -319,7 +319,7 @@ Window {
                 FilesButton {
                     objectName: "transfer-cancel"
                     visible: Model.transferActive(row.transfer)
-                    text: root.win98 ? "Cancel" : "Stop"
+                    text: root.memphis ? "Cancel" : "Stop"
                     onClicked: root.app.store.cancelTransfer(row.transfer.id)
                 }
                 FilesButton {
@@ -333,15 +333,15 @@ Window {
             id: separator
             anchors.bottom: parent.bottom
             x: row.pad; width: row.width - 2 * row.pad
-            height: root.win98 ? root.u : PlatinumTokens.hairFor(metrics.devicePixelRatio)
-            color: root.win98 ? Win98Tokens.sh : PlatinumTokens.bevelDark
+            height: root.memphis ? root.u : PlatinumTokens.hairFor(metrics.devicePixelRatio)
+            color: root.memphis ? MemphisTokens.sh : PlatinumTokens.bevelDark
         }
     }
 
     component CopyRow: Item {
         id: copyRow
         required property var copy
-        readonly property real pad: root.win98 ? 6 * root.u : 10
+        readonly property real pad: root.memphis ? 6 * root.u : 10
         readonly property string phase: copy.state.state
         implicitHeight: column.implicitHeight + 2 * pad + line.height
         height: implicitHeight
@@ -352,7 +352,7 @@ Window {
             id: column
             x: copyRow.pad; y: copyRow.pad
             width: copyRow.width - 2 * copyRow.pad
-            spacing: root.win98 ? 3 * root.u : 4
+            spacing: root.memphis ? 3 * root.u : 4
             FilesText {
                 Layout.fillWidth: true
                 wrap: true
@@ -373,7 +373,7 @@ Window {
                 wrap: true
                 small: true
                 onWell: true
-                color: copyRow.phase === "remote-changed" || copyRow.phase === "failed" ? (root.win98 ? Win98Tokens.warning : PlatinumTokens.menuWarning) : "transparent"
+                color: copyRow.phase === "remote-changed" || copyRow.phase === "failed" ? (root.memphis ? MemphisTokens.warning : PlatinumTokens.menuWarning) : "transparent"
                 text: Model.copyStateText(copyRow.copy) + (copyRow.copy.last_saved ? ". Last saved " + Model.dateText(copyRow.copy.last_saved, root.theme, "column") : "")
             }
             Buttons {
@@ -396,8 +396,8 @@ Window {
             id: line
             anchors.bottom: parent.bottom
             x: copyRow.pad; width: copyRow.width - 2 * copyRow.pad
-            height: root.win98 ? root.u : PlatinumTokens.hairFor(metrics.devicePixelRatio)
-            color: root.win98 ? Win98Tokens.sh : PlatinumTokens.bevelDark
+            height: root.memphis ? root.u : PlatinumTokens.hairFor(metrics.devicePixelRatio)
+            color: root.memphis ? MemphisTokens.sh : PlatinumTokens.bevelDark
         }
     }
 }

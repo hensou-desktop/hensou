@@ -1,13 +1,13 @@
 import QtQuick
 
-// A Win98 check box: a 13-u sunken white box with a 7-u check, the label
+// A Memphis check box: a 13-u sunken white box with a 7-u check, the label
 // 5 u to its right. Disabled: a face-coloured box, a grey check and a grey
 // embossed label. Focus: a dotted rectangle around the label. Space or a
 // click toggles; the owner sets checked from toggled(!root.checked).
 FocusScope {
     id: root
     Accessible.role: Accessible.CheckBox
-    Accessible.name: Win98Tokens.plainText(text)
+    Accessible.name: MemphisTokens.plainText(text)
 
 
     property string text: ""           // "&" marks the access key
@@ -23,8 +23,8 @@ FocusScope {
     readonly property real u: 2 / WindowMetrics.ratio(root)
     readonly property bool pressing: showPressed || (area.pressed && area.containsMouse)
 
-    implicitWidth: Win98Tokens.checkBox * u + (text !== "" ? 5 * u + label.implicitWidth : 0)
-    implicitHeight: Win98Tokens.checkBox * u
+    implicitWidth: MemphisTokens.checkBox * u + (text !== "" ? 5 * u + label.implicitWidth : 0)
+    implicitHeight: MemphisTokens.checkBox * u
     activeFocusOnTab: enabled
 
     Keys.onPressed: event => {
@@ -34,23 +34,23 @@ FocusScope {
         }
     }
 
-    Win98Bevel {
+    MemphisBevel {
         id: box
-        width: Win98Tokens.checkBox * root.u
+        width: MemphisTokens.checkBox * root.u
         height: width
         variant: "field"
-        // Win98 greys the box while the pointer holds it, and when disabled.
-        color: root.enabled && !root.pressing ? Win98Tokens.win : Win98Tokens.face
+        // Memphis greys the box while the pointer holds it, and when disabled.
+        color: root.enabled && !root.pressing ? MemphisTokens.win : MemphisTokens.face
 
-        Win98Icon {
+        MemphisIcon {
             visible: root.checked
             x: 3 * root.u; y: 3 * root.u
             name: "check"
-            color: root.enabled ? Win98Tokens.winText : Win98Tokens.gray
+            color: root.enabled ? MemphisTokens.winText : MemphisTokens.gray
         }
     }
 
-    Win98Text {
+    MemphisText {
         id: label
         visible: root.text !== ""
         x: box.width + 5 * root.u
@@ -59,7 +59,7 @@ FocusScope {
         disabledLook: !root.enabled
     }
 
-    Win98FocusRect {
+    MemphisFocusRect {
         visible: root.enabled && root.text !== "" && (root.showFocus || root.activeFocus)
         x: label.x - root.u; y: -root.u
         width: label.width + 2 * root.u

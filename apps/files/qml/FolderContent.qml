@@ -11,8 +11,8 @@ import "LayoutPlan.js" as LayoutPlan
 FocusScope {
     id: root
     required property var window
-    readonly property bool win98: Theme.name === "win98"
-    readonly property string theme: win98 ? "win98" : "platinum"
+    readonly property bool memphis: Theme.name === "memphis"
+    readonly property string theme: memphis ? "memphis" : "platinum"
     readonly property real u: 2 / WindowMetrics.ratio(root)
     readonly property bool listMode: window.memory.view === "list"
     readonly property var entries: window.entries
@@ -22,29 +22,29 @@ FocusScope {
     readonly property bool showsItems: !refused && entries.length > 0 && (status === "ready" || status === "refreshing" || window.greyed || status === "error")
     readonly property var columns: {
         const shown = window.plan.columns;
-        const order = win98 ? ["size", "kind", "modified"] : ["modified", "size", "kind"];
+        const order = memphis ? ["size", "kind", "modified"] : ["modified", "size", "kind"];
         return order.filter(function(c) { return shown.indexOf(c) >= 0; });
     }
     // Platinum takes the plan's widths; Memphis keeps them on its unit grid.
     readonly property var columnWidths: ({
-        modified: win98 ? Win98Tokens.snap(LayoutPlan.columnWidth("modified"), u) : LayoutPlan.columnWidth("modified"),
-        size: win98 ? Win98Tokens.snap(LayoutPlan.columnWidth("size"), u) : LayoutPlan.columnWidth("size"),
-        kind: win98 ? Win98Tokens.snap(LayoutPlan.columnWidth("kind"), u) : LayoutPlan.columnWidth("kind")
+        modified: memphis ? MemphisTokens.snap(LayoutPlan.columnWidth("modified"), u) : LayoutPlan.columnWidth("modified"),
+        size: memphis ? MemphisTokens.snap(LayoutPlan.columnWidth("size"), u) : LayoutPlan.columnWidth("size"),
+        kind: memphis ? MemphisTokens.snap(LayoutPlan.columnWidth("kind"), u) : LayoutPlan.columnWidth("kind")
     })
-    readonly property real rowHeight: win98 ? 18 * u : 20
+    readonly property real rowHeight: memphis ? 18 * u : 20
     readonly property real columnsWidth: columns.reduce(function(sum, c) { return sum + columnWidths[c]; }, 0)
     readonly property Flickable flick: viewLoader.item ? viewLoader.item.flick : null
     property bool dragActive: false
-    readonly property real barWidth: win98 ? Win98Tokens.scrollBar * u : PlatinumTokens.menuScrollBar - PlatinumTokens.hairFor(WindowMetrics.ratio(root))
+    readonly property real barWidth: memphis ? MemphisTokens.scrollBar * u : PlatinumTokens.menuScrollBar - PlatinumTokens.hairFor(WindowMetrics.ratio(root))
     activeFocusOnTab: true
     Accessible.role: Accessible.List
     Accessible.name: window.title
 
     function columnTitle(c) {
-        if (c === "modified") return win98 ? "Modified" : "Date Modified";
+        if (c === "modified") return memphis ? "Modified" : "Date Modified";
         if (c === "size") return "Size";
-        if (c === "kind") return win98 ? "Type" : "Kind";
-        return win98 ? "Name" : "Name";
+        if (c === "kind") return memphis ? "Type" : "Kind";
+        return memphis ? "Name" : "Name";
     }
     function columnValue(c, entry) {
         if (c === "modified") return Model.dateText(entry.modified, theme, "column");
@@ -76,7 +76,7 @@ FocusScope {
         else if (event.key === Qt.Key_End) window.moveCurrent(entries.length, extend);
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
             // Memphis opens; the Finder's Return names the item (Get Info).
-            if (win98 || (event.modifiers & Qt.ControlModifier)) window.openSelection(event.modifiers & Qt.AltModifier ? Model.ALT : 0);
+            if (memphis || (event.modifiers & Qt.ControlModifier)) window.openSelection(event.modifiers & Qt.AltModifier ? Model.ALT : 0);
             else window.act("rename");
         }
         else if (event.key === Qt.Key_Menu || (event.key === Qt.Key_F10 && extend)) {
@@ -91,20 +91,20 @@ FocusScope {
     // The well.
     Rectangle {
         anchors.fill: parent
-        visible: !root.win98
+        visible: !root.memphis
         color: PlatinumTokens.list
     }
-    Win98Bevel {
+    MemphisBevel {
         anchors.fill: parent
-        visible: root.win98
+        visible: root.memphis
         variant: "field"
-        color: Win98Tokens.win
+        color: MemphisTokens.win
     }
 
     Item {
         id: viewport
         anchors.fill: parent
-        anchors.margins: root.win98 ? 2 * root.u : 0
+        anchors.margins: root.memphis ? 2 * root.u : 0
         clip: true
         opacity: root.window.greyed ? 0.45 : 1
 
@@ -115,7 +115,7 @@ FocusScope {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onPressed: function(mouse) {
                 root.forceActiveFocus();
-                const contextual = mouse.button === Qt.RightButton || (!root.win98 && (mouse.modifiers & Qt.ControlModifier));
+                const contextual = mouse.button === Qt.RightButton || (!root.memphis && (mouse.modifiers & Qt.ControlModifier));
                 if (contextual) {
                     const p = mapToItem(root.window.popupOverlay, mouse.x, mouse.y);
                     root.window.contextMenu(null, p.x, p.y);
@@ -144,7 +144,7 @@ FocusScope {
             onWell: true
             horizontalAlignment: Text.AlignHCenter
             disabledLook: root.status !== "error" && !root.refused
-            color: root.win98 ? "transparent" : PlatinumTokens.menuText
+            color: root.memphis ? "transparent" : PlatinumTokens.menuText
             text: root.refused ? root.window.banner.text
                 : root.status === "error" ? Model.errorText(root.listing.error)
                 : root.status === "loading" || root.status === "refreshing" ? (Model.isRemote(root.window.location) ? "Connecting\u2026" : "Opening\u2026")
@@ -186,13 +186,13 @@ FocusScope {
         anchors.fill: parent
         visible: root.dragActive && root.window.dropTargetKey === ""
         color: "transparent"
-        border.width: root.win98 ? 2 * root.u : 2
-        border.color: root.win98 ? Win98Tokens.selection : PlatinumTokens.focusRing
+        border.width: root.memphis ? 2 * root.u : 2
+        border.color: root.memphis ? MemphisTokens.selection : PlatinumTokens.focusRing
     }
     // Keyboard focus, Platinum style (the lavender ring inside the well).
     Rectangle {
         anchors.fill: parent
-        visible: !root.win98 && root.activeFocus
+        visible: !root.memphis && root.activeFocus
         color: "transparent"
         border.width: PlatinumTokens.focusRingFor(WindowMetrics.ratio(root))
         border.color: PlatinumTokens.focusRing
@@ -211,8 +211,8 @@ FocusScope {
             pressPoint = Qt.point(mouse.x, mouse.y);
             pressButton = mouse.button;
             dragging = false;
-            const contextual = mouse.button === Qt.RightButton || (!root.win98 && (mouse.modifiers & Qt.ControlModifier));
-            if (contextual && !(root.win98 && mouse.button === Qt.RightButton)) {
+            const contextual = mouse.button === Qt.RightButton || (!root.memphis && (mouse.modifiers & Qt.ControlModifier));
+            if (contextual && !(root.memphis && mouse.button === Qt.RightButton)) {
                 const p = mapToItem(root.window.popupOverlay, mouse.x, mouse.y);
                 root.window.contextMenu(entry, p.x, p.y);
                 return;
@@ -231,7 +231,7 @@ FocusScope {
         }
         onReleased: function(mouse) {
             if (dragging) { dragging = false; return; }
-            if (root.win98 && mouse.button === Qt.RightButton) {
+            if (root.memphis && mouse.button === Qt.RightButton) {
                 const p = mapToItem(root.window.popupOverlay, mouse.x, mouse.y);
                 root.window.contextMenu(entry, p.x, p.y);
             } else if (mouse.button === Qt.LeftButton && !(mouse.modifiers & (Qt.ShiftModifier | Qt.ControlModifier))
@@ -256,10 +256,10 @@ FocusScope {
                 anchors.rightMargin: bar.visible ? bar.width : 0
                 clip: true
                 model: root.entries
-                cellWidth: root.win98 ? 76 * root.u : 96
-                cellHeight: root.win98 ? 70 * root.u : 80
+                cellWidth: root.memphis ? 76 * root.u : 96
+                cellHeight: root.memphis ? 70 * root.u : 80
                 boundsBehavior: Flickable.StopAtBounds
-                topMargin: root.win98 ? 4 * root.u : 8
+                topMargin: root.memphis ? 4 * root.u : 8
                 currentIndex: root.window.indexOfKey(root.window.currentKey)
                 highlightFollowsCurrentItem: false
                 keyNavigationEnabled: false
@@ -279,7 +279,7 @@ FocusScope {
                     EntryIcon {
                         id: icon
                         anchors.horizontalCenter: parent.horizontalCenter
-                        y: root.win98 ? 2 * root.u : 2
+                        y: root.memphis ? 2 * root.u : 2
                         art: modelData.kind === "trash" && root.window.app.store.state.trash.length > 0 ? "trash-full" : Model.artName(modelData)
                         large: true
                         alias: cell.alias
@@ -289,29 +289,29 @@ FocusScope {
                     Rectangle {
                         id: nameBox
                         anchors.horizontalCenter: parent.horizontalCenter
-                        y: icon.y + icon.height + (root.win98 ? 3 * root.u : 4)
-                        width: Math.min(parent.width - 6, label.implicitWidth + (root.win98 ? 4 * root.u : 6))
-                        height: label.height + (root.win98 ? 2 * root.u : 2)
-                        color: cell.selected ? (root.win98 ? Win98Tokens.selection : (Theme.dark ? PlatinumTokens.highlight : "#000000")) : "transparent"
+                        y: icon.y + icon.height + (root.memphis ? 3 * root.u : 4)
+                        width: Math.min(parent.width - 6, label.implicitWidth + (root.memphis ? 4 * root.u : 6))
+                        height: label.height + (root.memphis ? 2 * root.u : 2)
+                        color: cell.selected ? (root.memphis ? MemphisTokens.selection : (Theme.dark ? PlatinumTokens.highlight : "#000000")) : "transparent"
                         FilesText {
                             id: label
                             anchors.centerIn: parent
                             // Measured, plus a unit, so a short name never wraps.
-                            width: Math.min(root.win98 ? Win98Tokens.ceilU(Win98Tokens.textWidth(text, false, root.u), root.u) + root.u
+                            width: Math.min(root.memphis ? MemphisTokens.ceilU(MemphisTokens.textWidth(text, false, root.u), root.u) + root.u
                                 : PlatinumMetrics.smallWidth(text) + (cell.alias ? 4 : 2), cell.width - 10)
                             text: Model.entryName(modelData, root.theme)
                             wrap: true
                             maximumLineCount: cell.selected ? 4 : 2
                             italic: cell.alias
-                            small: !root.win98
+                            small: !root.memphis
                             onWell: true
                             horizontalAlignment: Text.AlignHCenter
-                            color: cell.selected ? (root.win98 ? Win98Tokens.selectionText : "#ffffff") : "transparent"
+                            color: cell.selected ? (root.memphis ? MemphisTokens.selectionText : "#ffffff") : "transparent"
                         }
-                        Win98FocusRect {
-                            visible: root.win98 && root.activeFocus && root.window.currentKey === cell.itemKey
+                        MemphisFocusRect {
+                            visible: root.memphis && root.activeFocus && root.window.currentKey === cell.itemKey
                             anchors.fill: parent
-                            color: cell.selected ? Win98Tokens.selectionText : Win98Tokens.winText
+                            color: cell.selected ? MemphisTokens.selectionText : MemphisTokens.winText
                         }
                     }
                     Gestures {
@@ -328,9 +328,9 @@ FocusScope {
                 height: parent.height
                 visible: grid.contentHeight > grid.height + 1
                 width: visible ? root.barWidth : 0
-                sourceComponent: root.win98 ? win98Bar : platinumBar
+                sourceComponent: root.memphis ? memphisBar : platinumBar
                 Component { id: platinumBar; PlatinumScrollBar { flickable: grid } }
-                Component { id: win98Bar; Win98ScrollBar { flickable: grid; step: grid.cellHeight } }
+                Component { id: memphisBar; MemphisScrollBar { flickable: grid; step: grid.cellHeight } }
             }
         }
     }
@@ -343,10 +343,10 @@ FocusScope {
             Item {
                 id: header
                 width: parent.width
-                height: root.win98 ? 18 * root.u : 20
+                height: root.memphis ? 18 * root.u : 20
                 Rectangle {
                     anchors.fill: parent
-                    visible: !root.win98
+                    visible: !root.memphis
                     color: PlatinumTokens.menuSurface
                     Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: PlatinumTokens.hairFor(WindowMetrics.ratio(parent)); color: PlatinumTokens.bevelDark }
                 }
@@ -362,22 +362,22 @@ FocusScope {
                             height: header.height
                             Accessible.role: Accessible.ColumnHeader
                             Accessible.name: root.columnTitle(modelData)
-                            Win98Bevel {
-                                visible: root.win98
+                            MemphisBevel {
+                                visible: root.memphis
                                 anchors.fill: parent
                                 variant: headArea.pressed ? "thinSunken" : "button"
                             }
                             FilesText {
-                                x: root.win98 ? 5 * root.u : 8
-                                y: root.win98 ? 3 * root.u : (parent.height - height) / 2
+                                x: root.memphis ? 5 * root.u : 8
+                                y: root.memphis ? 3 * root.u : (parent.height - height) / 2
                                 width: parent.width - 2 * x
                                 text: root.columnTitle(modelData)
-                                small: !root.win98
+                                small: !root.memphis
                                 bold: false
-                                color: !root.win98 && parent.sorted ? PlatinumTokens.highlight : "transparent"
+                                color: !root.memphis && parent.sorted ? PlatinumTokens.highlight : "transparent"
                             }
                             Rectangle {
-                                visible: !root.win98 && parent.sorted
+                                visible: !root.memphis && parent.sorted
                                 anchors.bottom: parent.bottom
                                 anchors.bottomMargin: 2
                                 x: 6; width: parent.width - 12; height: 2
@@ -411,55 +411,55 @@ FocusScope {
                     readonly property string itemKey: Model.key(modelData.location)
                     readonly property bool selected: root.window.selection[itemKey] === true
                     readonly property bool target: root.window.dropTargetKey === itemKey
-                    readonly property color ink: selected ? (root.win98 ? Win98Tokens.selectionText : PlatinumTokens.highlightText) : "transparent"
+                    readonly property color ink: selected ? (root.memphis ? MemphisTokens.selectionText : PlatinumTokens.highlightText) : "transparent"
                     width: list.width
                     height: root.rowHeight
                     Accessible.role: Accessible.ListItem
                     Accessible.name: Model.entryName(modelData, root.theme)
                     Accessible.selected: selected
                     Rectangle {
-                        visible: !root.win98 && (row.selected || row.target)
+                        visible: !root.memphis && (row.selected || row.target)
                         anchors.fill: parent
                         color: PlatinumTokens.highlight
                     }
                     EntryIcon {
                         id: small
-                        x: root.win98 ? 2 * root.u : 6
+                        x: root.memphis ? 2 * root.u : 6
                         anchors.verticalCenter: parent.verticalCenter
                         art: modelData.kind === "trash" && root.window.app.store.state.trash.length > 0 ? "trash-full" : Model.artName(modelData)
                         large: false
                         alias: modelData.kind === "alias"
-                        selected: root.win98 && (row.selected || row.target)
+                        selected: root.memphis && (row.selected || row.target)
                         dim: root.isCut(modelData) || modelData.hidden
                     }
                     Rectangle {
                         id: nameCell
-                        x: small.x + small.width + (root.win98 ? 3 * root.u : 6)
+                        x: small.x + small.width + (root.memphis ? 3 * root.u : 6)
                         anchors.verticalCenter: parent.verticalCenter
                         readonly property string name: Model.entryName(modelData, root.theme)
-                        readonly property real pad: root.win98 ? 2 * root.u : 0
+                        readonly property real pad: root.memphis ? 2 * root.u : 0
                         // The room left of the detail columns, and the name's own width.
-                        readonly property real room: list.width - root.columnsWidth - x - (root.win98 ? 4 * root.u : 8)
-                        readonly property real natural: root.win98 ? Win98Tokens.ceilU(Win98Tokens.textWidth(name, false, root.u), root.u)
+                        readonly property real room: list.width - root.columnsWidth - x - (root.memphis ? 4 * root.u : 8)
+                        readonly property real natural: root.memphis ? MemphisTokens.ceilU(MemphisTokens.textWidth(name, false, root.u), root.u)
                             : PlatinumMetrics.smallWidth(name) + (modelData.kind === "alias" ? 4 : 0)
-                        width: Math.max(0, Math.min(natural + 2 * pad + (root.win98 ? root.u : 2), room))
-                        height: root.win98 ? 14 * root.u : root.rowHeight - 4
-                        color: root.win98 && (row.selected || row.target) ? Win98Tokens.selection : "transparent"
+                        width: Math.max(0, Math.min(natural + 2 * pad + (root.memphis ? root.u : 2), room))
+                        height: root.memphis ? 14 * root.u : root.rowHeight - 4
+                        color: root.memphis && (row.selected || row.target) ? MemphisTokens.selection : "transparent"
                         FilesText {
                             id: nameText
                             x: nameCell.pad
-                            y: root.win98 ? root.u : (nameCell.height - height) / 2
+                            y: root.memphis ? root.u : (nameCell.height - height) / 2
                             width: nameCell.width - 2 * nameCell.pad
                             text: nameCell.name
                             italic: modelData.kind === "alias"
-                            small: !root.win98
+                            small: !root.memphis
                             onWell: true
                             color: row.ink
                         }
-                        Win98FocusRect {
-                            visible: root.win98 && root.activeFocus && root.window.currentKey === row.itemKey
+                        MemphisFocusRect {
+                            visible: root.memphis && root.activeFocus && root.window.currentKey === row.itemKey
                             anchors.fill: parent
-                            color: row.selected ? Win98Tokens.selectionText : Win98Tokens.winText
+                            color: row.selected ? MemphisTokens.selectionText : MemphisTokens.winText
                         }
                     }
                     Row {
@@ -472,14 +472,14 @@ FocusScope {
                                 width: root.columnWidths[modelData]
                                 height: row.height
                                 FilesText {
-                                    x: root.win98 ? 6 * root.u : 10
+                                    x: root.memphis ? 6 * root.u : 10
                                     width: parent.width - 2 * x
                                     y: (row.height - height) / 2
                                     text: root.columnValue(parent.modelData, row.modelData)
-                                    small: !root.win98
+                                    small: !root.memphis
                                     onWell: true
                                     horizontalAlignment: parent.modelData === "size" ? Text.AlignRight : Text.AlignLeft
-                                    color: row.selected && !root.win98 ? PlatinumTokens.highlightText : "transparent"
+                                    color: row.selected && !root.memphis ? PlatinumTokens.highlightText : "transparent"
                                 }
                             }
                         }
@@ -497,9 +497,9 @@ FocusScope {
                 height: parent.height - header.height
                 visible: list.contentHeight > list.height + 1
                 width: visible ? root.barWidth : 0
-                sourceComponent: root.win98 ? win98ListBar : platinumListBar
+                sourceComponent: root.memphis ? memphisListBar : platinumListBar
                 Component { id: platinumListBar; PlatinumScrollBar { flickable: list } }
-                Component { id: win98ListBar; Win98ScrollBar { flickable: list; step: root.rowHeight } }
+                Component { id: memphisListBar; MemphisScrollBar { flickable: list; step: root.rowHeight } }
             }
         }
     }

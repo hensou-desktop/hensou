@@ -12,25 +12,25 @@ PlatinumMenuFrame 1.0 PlatinumMenuFrame.qml
 PlatinumDialogFrame 1.0 PlatinumDialogFrame.qml
 PlatinumIcon 1.0 PlatinumIcon.qml
 singleton PlatinumIconStore 1.0 PlatinumIconStore.qml
-singleton Win98Tokens 1.0 Win98Tokens.qml
-Win98Bevel 1.0 Win98Bevel.qml
-Win98Button 1.0 Win98Button.qml
-Win98CheckBox 1.0 Win98CheckBox.qml
-Win98TextField 1.0 Win98TextField.qml
-Win98ListView 1.0 Win98ListView.qml
-Win98ListRow 1.0 Win98ListRow.qml
-Win98ScrollBar 1.0 Win98ScrollBar.qml
-Win98MenuPanel 1.0 Win98MenuPanel.qml
-Win98Window 1.0 Win98Window.qml
-Win98CaptionButton 1.0 Win98CaptionButton.qml
-Win98Text 1.0 Win98Text.qml
-Win98Svg 1.0 Win98Svg.qml
-Win98FocusRect 1.0 Win98FocusRect.qml
-Win98Icon 1.0 Win98Icon.qml
-singleton Win98IconStore 1.0 Win98IconStore.qml
-Win98Separator 1.0 Win98Separator.qml
-Win98LevelBar 1.0 Win98LevelBar.qml
+singleton MemphisTokens 1.0 MemphisTokens.qml
+MemphisBevel 1.0 MemphisBevel.qml
+MemphisButton 1.0 MemphisButton.qml
+MemphisCheckBox 1.0 MemphisCheckBox.qml
+MemphisTextField 1.0 MemphisTextField.qml
+MemphisListView 1.0 MemphisListView.qml
+MemphisListRow 1.0 MemphisListRow.qml
+MemphisScrollBar 1.0 MemphisScrollBar.qml
+MemphisMenuPanel 1.0 MemphisMenuPanel.qml
+MemphisWindow 1.0 MemphisWindow.qml
+MemphisCaptionButton 1.0 MemphisCaptionButton.qml
+MemphisText 1.0 MemphisText.qml
+MemphisSvg 1.0 MemphisSvg.qml
+MemphisFocusRect 1.0 MemphisFocusRect.qml
+MemphisIcon 1.0 MemphisIcon.qml
+singleton MemphisIconStore 1.0 MemphisIconStore.qml
+MemphisSeparator 1.0 MemphisSeparator.qml
+MemphisLevelBar 1.0 MemphisLevelBar.qml
 singleton Theme 1.0 Theme.qml
 WindowScale 1.0 WindowScale.qml
 singleton WindowMetrics 1.0 WindowMetrics.qml
-Win98Dither 1.0 Win98Dither.qml
+MemphisDither 1.0 MemphisDither.qml

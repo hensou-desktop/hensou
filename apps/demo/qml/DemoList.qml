@@ -6,7 +6,7 @@ Loader {
     required property QtObject modelState
     signal activated(int index)
     signal focused()
-    sourceComponent: Theme.name === "win98" ? win98 : platinum
+    sourceComponent: Theme.name === "memphis" ? memphis : platinum
     function takeFocus() { if (item) item.view.forceActiveFocus(); }
     Connections {
         target: root.item ? root.item.view : null
@@ -52,27 +52,27 @@ Loader {
         }
     }
     Component {
-        id: win98
-        Win98ListView {
-            id: win98List
+        id: memphis
+        MemphisListView {
+            id: memphisList
             objectName: "fixtureList"
             model: root.modelState.rows
             currentIndex: root.modelState.selectedIndex
             emptyText: "No rows. Choose a fixture in More."
-            rowUnits: Win98Tokens.listRow
+            rowUnits: MemphisTokens.listRow
             Accessible.role: Accessible.List
             Accessible.name: "Fixture rows"
             onCurrentIndexChanged: if (currentIndex >= 0) root.modelState.selectedIndex = currentIndex
             onActivated: function(index) { root.activated(index); }
             onActiveFocusChanged: if (activeFocus) root.focused()
-            delegate: Win98ListRow {
+            delegate: MemphisListRow {
                 required property int index
                 required property string modelData
                 title: modelData
                 Accessible.role: Accessible.ListItem
                 Accessible.name: modelData
                 Accessible.selected: selected
-                onClicked: { root.modelState.selectedIndex = index; win98List.view.forceActiveFocus(); }
+                onClicked: { root.modelState.selectedIndex = index; memphisList.view.forceActiveFocus(); }
                 onDoubleClicked: root.activated(index)
             }
         }

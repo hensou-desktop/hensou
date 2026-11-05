@@ -9,7 +9,7 @@ Loader {
     onLoaded: Qt.callLater(function() { if (root.wantsFocus) root.takeFocus(); })
     signal changed(bool value)
     signal focused()
-    sourceComponent: Theme.name === "win98" ? win98 : platinum
+    sourceComponent: Theme.name === "memphis" ? memphis : platinum
     function takeFocus() { if (item) item.forceActiveFocus(); }
     Component {
         id: platinum
@@ -23,8 +23,8 @@ Loader {
         }
     }
     Component {
-        id: win98
-        Win98CheckBox {
+        id: memphis
+        MemphisCheckBox {
             text: root.text
             checked: root.checked
             Accessible.name: root.text

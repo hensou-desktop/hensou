@@ -2,11 +2,11 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 
-// A Win98 text field: 21 u tall, sunken, white (dark in dark grey), the
+// A Memphis text field: 21 u tall, sunken, white (dark in dark grey), the
 // text 4 u in, a 1-u caret that blinks (steady under reduced motion).
 // Selected text takes the selection colours. Disabled: face background
 // and grey text. The text draws through the same 25 px / scale route as
-// Win98Text, so it stays on the grid.
+// MemphisText, so it stays on the grid.
 FocusScope {
     id: root
     Accessible.name: placeholder
@@ -33,13 +33,13 @@ FocusScope {
     readonly property real k: (root.u / 2)
 
     implicitWidth: 120 * u
-    implicitHeight: Win98Tokens.fieldHeight * u
+    implicitHeight: MemphisTokens.fieldHeight * u
     activeFocusOnTab: enabled
 
-    Win98Bevel {
+    MemphisBevel {
         anchors.fill: parent
         variant: "field"
-        color: root.enabled ? Win98Tokens.win : Win98Tokens.face
+        color: root.enabled ? MemphisTokens.win : MemphisTokens.face
     }
 
     Item {
@@ -49,14 +49,14 @@ FocusScope {
         height: root.height - 4 * root.u
         clip: true
 
-        Win98Text {
+        MemphisText {
             visible: input.text === "" && root.placeholder !== ""
             x: 2 * root.u
             y: 2 * root.u
             width: clipper.width - 4 * root.u
             text: root.placeholder
             accessMarks: false
-            color: Win98Tokens.gray
+            color: MemphisTokens.gray
         }
 
         TextInput {
@@ -65,21 +65,21 @@ FocusScope {
             x: 2 * root.u
             y: 2 * root.u
             width: (clipper.width - 4 * root.u) / root.k
-            height: Win98Tokens.lineUnits * 2
+            height: MemphisTokens.lineUnits * 2
             transformOrigin: Item.TopLeft
             scale: root.k
             focus: true
             enabled: root.enabled
             clip: false
             renderType: Text.NativeRendering
-            color: root.enabled ? Win98Tokens.winText : Win98Tokens.gray
-            selectionColor: Win98Tokens.selection
-            selectedTextColor: Win98Tokens.selectionText
+            color: root.enabled ? MemphisTokens.winText : MemphisTokens.gray
+            selectionColor: MemphisTokens.selection
+            selectedTextColor: MemphisTokens.selectionText
             selectByMouse: true
-            // W95FA has no bullet; Win98 masked with asterisks.
+            // W95FA has no bullet; Memphis masked with asterisks.
             passwordCharacter: "*"
-            font.family: Win98Tokens.fontFamily
-            font.pixelSize: Win98Tokens.fontRaster
+            font.family: MemphisTokens.fontFamily
+            font.pixelSize: MemphisTokens.fontRaster
             font.hintingPreference: Font.PreferNoHinting
             font.kerning: false
             cursorVisible: root.enabled && (root.activeFocus || root.showCaret)
@@ -90,15 +90,15 @@ FocusScope {
             cursorDelegate: Rectangle {
                 id: caret
                 width: 2          // 1 u
-                height: Win98Tokens.lineUnits * 2
-                color: Win98Tokens.winText
+                height: MemphisTokens.lineUnits * 2
+                color: MemphisTokens.winText
                 visible: input.cursorVisible && blink.on
                 Timer {
                     id: blink
                     property bool on: true
                     interval: 530
                     repeat: true
-                    running: input.cursorVisible && !Win98Tokens.reducedMotion && !root.showCaret
+                    running: input.cursorVisible && !MemphisTokens.reducedMotion && !root.showCaret
                     onRunningChanged: on = true
                     onTriggered: on = !on
                 }

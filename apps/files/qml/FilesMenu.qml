@@ -25,7 +25,7 @@ Popup {
     implicitWidth: surface.implicitWidth
     implicitHeight: surface.implicitHeight
     background: Item {}
-    readonly property bool win98: Theme.name === "win98"
+    readonly property bool memphis: Theme.name === "memphis"
 
     function usable(i) {
         const e = entries[i];
@@ -84,11 +84,11 @@ Popup {
         Loader {
             id: panel
             anchors.fill: parent
-            sourceComponent: root.win98 ? memphis : platinum
+            sourceComponent: root.memphis ? memphis : platinum
         }
         Component {
             id: memphis
-            Win98MenuPanel {
+            MemphisMenuPanel {
                 // Names are data: an "&" in a folder name is literal.
                 items: root.entries.map(function(e) {
                     if (e.separator) return { separator: true };

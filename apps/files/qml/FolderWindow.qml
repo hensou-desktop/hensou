@@ -30,7 +30,7 @@ ApplicationWindow {
     property string dropTargetKey: ""
 
     readonly property string theme: app.theme
-    readonly property bool win98: theme === "win98"
+    readonly property bool memphis: theme === "memphis"
     readonly property string locationKey: Model.key(location)
     readonly property var listing: app.store.state.listings[locationKey] || null
     readonly property var connection: Model.hostName(location) ? (app.store.state.connections[Model.hostName(location)] || null) : null
@@ -56,11 +56,11 @@ ApplicationWindow {
 
     title: Model.windowTitle(location, theme, app.hostname)
     flags: Qt.Window | Qt.FramelessWindowHint
-    width: win98 ? 640 : 520
-    height: win98 ? 440 : 340
+    width: memphis ? 640 : 520
+    height: memphis ? 440 : 340
     minimumWidth: 180
     minimumHeight: 120
-    color: win98 ? Win98Tokens.face : PlatinumTokens.menuSurface
+    color: memphis ? MemphisTokens.face : PlatinumTokens.menuSurface
     background: null
 
     function raiseWindow() {
@@ -165,7 +165,7 @@ ApplicationWindow {
         historyIndex = 0;
         expandTo(location);
         load();
-        if (win98) app.store.list(Model.computer());
+        if (memphis) app.store.list(Model.computer());
     }
 
     // A host that comes back lists again; one that was waiting for trust too.
@@ -188,8 +188,8 @@ ApplicationWindow {
         const k = Model.key(entry.location);
         // Memphis: Ctrl toggles, Shift extends. Platinum: Shift toggles
         // (Control-click is the contextual menu).
-        const toggle = win98 ? (modifiers & Model.CONTROL) : (modifiers & Model.SHIFT);
-        const range = win98 && (modifiers & Model.SHIFT) && anchorKey !== "";
+        const toggle = memphis ? (modifiers & Model.CONTROL) : (modifiers & Model.SHIFT);
+        const range = memphis && (modifiers & Model.SHIFT) && anchorKey !== "";
         let next = {};
         if (range) {
             const a = indexOfKey(anchorKey), b = indexOfKey(k);
@@ -231,7 +231,7 @@ ApplicationWindow {
     // ---- actions ----
     function activate(entry, modifiers) {
         // Platinum: Option-double-click closes the parent window.
-        app.openEntry(entry, win, !win98 && (modifiers & Model.ALT));
+        app.openEntry(entry, win, !memphis && (modifiers & Model.ALT));
     }
     function openSelection(modifiers) {
         for (const e of selectedEntries) activate(e, modifiers || 0);
@@ -239,7 +239,7 @@ ApplicationWindow {
     function newFolder() {
         if (!canWrite) return;
         let name = "untitled folder", n = 2;
-        if (win98) name = "New Folder";
+        if (memphis) name = "New Folder";
         const taken = {};
         for (const e of allEntries) taken[e.name] = true;
         const base = name;
@@ -296,7 +296,7 @@ ApplicationWindow {
         case "invert-selection": return invertSelection();
         case "view-icons": return setMemory({ view: "icons" });
         case "view-list": return setMemory({ view: "list" });
-        case "sort": return setMemory({ sort_column: data, sort_ascending: data === "modified" || data === "size" ? (win98 ? true : false) : true });
+        case "sort": return setMemory({ sort_column: data, sort_ascending: data === "modified" || data === "size" ? (memphis ? true : false) : true });
         case "reverse": return setMemory({ sort_ascending: !memory.sort_ascending });
         case "hidden": return setMemory({ show_hidden: !memory.show_hidden });
         case "tree": treeWanted = !treeWanted; return;
@@ -328,7 +328,7 @@ ApplicationWindow {
     function sortEntry(text, column) { return { text: text, action: "sort", data: column, checked: memory.sort_column === column }; }
     function menus() {
         const sep = { separator: true };
-        if (!win98) return [
+        if (!memphis) return [
             { id: "file", title: "File", entries: [
                 { text: "New Folder", action: "new-folder", shortcut: "Ctrl-N", enabled: canWrite },
                 { text: "Open", action: "open", shortcut: "Ctrl-O", enabled: hasSelection },
@@ -401,7 +401,7 @@ ApplicationWindow {
     function itemMenu(entry) {
         const sep = { separator: true };
         const container = Model.isContainer(entry);
-        if (!win98) return [
+        if (!memphis) return [
             { text: "Open", action: "open" },
             { text: "Open With\u2026", action: "open-with-menu", enabled: !container && oneSelected },
             { text: "Get Info", action: "info" }, sep,
@@ -420,7 +420,7 @@ ApplicationWindow {
     }
     function backgroundMenu() {
         const sep = { separator: true };
-        if (!win98) return [
+        if (!memphis) return [
             { text: "New Folder", action: "new-folder", enabled: canWrite },
             { text: "Paste", action: "paste", enabled: canWrite }, sep,
             { text: "as Icons", action: "view-icons", checked: memory.view !== "list" },
@@ -502,26 +502,26 @@ ApplicationWindow {
     Shortcut { sequence: "Ctrl+A"; onActivated: win.selectAll() }
     Shortcut { sequence: "Ctrl+C"; onActivated: win.act("copy") }
     Shortcut { sequence: "Ctrl+V"; onActivated: win.act("paste") }
-    Shortcut { sequence: "Ctrl+X"; enabled: win.win98; onActivated: win.act("cut") }
-    Shortcut { sequence: "Ctrl+I"; enabled: !win.win98; onActivated: win.act("info") }
-    Shortcut { sequence: "Ctrl+N"; enabled: !win.win98; onActivated: win.act("new-folder") }
+    Shortcut { sequence: "Ctrl+X"; enabled: win.memphis; onActivated: win.act("cut") }
+    Shortcut { sequence: "Ctrl+I"; enabled: !win.memphis; onActivated: win.act("info") }
+    Shortcut { sequence: "Ctrl+N"; enabled: !win.memphis; onActivated: win.act("new-folder") }
     Shortcut { sequence: "Ctrl+O"; onActivated: win.act("open") }
-    Shortcut { sequence: "Ctrl+Down"; enabled: !win.win98; onActivated: win.openSelection(0) }
-    Shortcut { sequence: "Ctrl+Alt+Down"; enabled: !win.win98; onActivated: win.openSelection(Model.ALT) }
+    Shortcut { sequence: "Ctrl+Down"; enabled: !win.memphis; onActivated: win.openSelection(0) }
+    Shortcut { sequence: "Ctrl+Alt+Down"; enabled: !win.memphis; onActivated: win.openSelection(Model.ALT) }
     // Cmd-Up opens the enclosing folder; Cmd-Option-Up also closes this one.
-    Shortcut { sequence: "Ctrl+Up"; enabled: !win.win98; onActivated: win.app.openEnclosing(win, false) }
-    Shortcut { sequence: "Ctrl+Alt+Up"; enabled: !win.win98; onActivated: win.app.openEnclosing(win, true) }
-    Shortcut { sequences: ["Ctrl+Backspace", "Ctrl+Del"]; enabled: !win.win98; onActivated: win.act("trash") }
-    Shortcut { sequence: "Ctrl+E"; enabled: !win.win98; onActivated: win.act("eject") }
-    Shortcut { sequence: "Ctrl+Y"; enabled: !win.win98; onActivated: win.act("restore") }
-    Shortcut { sequence: "Del"; enabled: win.win98; onActivated: win.act("trash") }
-    Shortcut { sequence: "Shift+Del"; enabled: win.win98; onActivated: win.act("delete-permanently") }
-    Shortcut { sequence: "Backspace"; enabled: win.win98; onActivated: win.app.openEnclosing(win, false) }
-    Shortcut { sequence: "F2"; enabled: win.win98; onActivated: win.act("rename") }
+    Shortcut { sequence: "Ctrl+Up"; enabled: !win.memphis; onActivated: win.app.openEnclosing(win, false) }
+    Shortcut { sequence: "Ctrl+Alt+Up"; enabled: !win.memphis; onActivated: win.app.openEnclosing(win, true) }
+    Shortcut { sequences: ["Ctrl+Backspace", "Ctrl+Del"]; enabled: !win.memphis; onActivated: win.act("trash") }
+    Shortcut { sequence: "Ctrl+E"; enabled: !win.memphis; onActivated: win.act("eject") }
+    Shortcut { sequence: "Ctrl+Y"; enabled: !win.memphis; onActivated: win.act("restore") }
+    Shortcut { sequence: "Del"; enabled: win.memphis; onActivated: win.act("trash") }
+    Shortcut { sequence: "Shift+Del"; enabled: win.memphis; onActivated: win.act("delete-permanently") }
+    Shortcut { sequence: "Backspace"; enabled: win.memphis; onActivated: win.app.openEnclosing(win, false) }
+    Shortcut { sequence: "F2"; enabled: win.memphis; onActivated: win.act("rename") }
     Shortcut { sequence: "F5"; onActivated: win.refresh() }
-    Shortcut { sequences: ["Alt+Return", "Alt+Enter"]; enabled: win.win98; onActivated: win.act("info") }
-    Shortcut { sequence: "Alt+Left"; enabled: win.win98; onActivated: win.goHistory(-1) }
-    Shortcut { sequence: "Alt+Right"; enabled: win.win98; onActivated: win.goHistory(1) }
+    Shortcut { sequences: ["Alt+Return", "Alt+Enter"]; enabled: win.memphis; onActivated: win.act("info") }
+    Shortcut { sequence: "Alt+Left"; enabled: win.memphis; onActivated: win.goHistory(-1) }
+    Shortcut { sequence: "Alt+Right"; enabled: win.memphis; onActivated: win.goHistory(1) }
 
     WindowScale {
         id: scale
@@ -533,7 +533,7 @@ ApplicationWindow {
             objectName: "folderFrame"
             anchors.fill: parent
             focus: true
-            sourceComponent: win.win98 ? memphisFrame : platinumFrame
+            sourceComponent: win.memphis ? memphisFrame : platinumFrame
         }
         Component { id: platinumFrame; PlatinumFolderFrame { window: win } }
         Component { id: memphisFrame; MemphisExplorerFrame { window: win } }

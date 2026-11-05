@@ -11,9 +11,9 @@ Item {
     required property var window
     property var menus: []          // [{ id, title, entries }]
     property int openIndex: -1
-    readonly property bool win98: Theme.name === "win98"
+    readonly property bool memphis: Theme.name === "memphis"
     readonly property real u: 2 / WindowMetrics.ratio(root)
-    readonly property real pad: win98 ? 6 * u : 10
+    readonly property real pad: memphis ? 6 * u : 10
     readonly property var widths: menus.map(function(m) { return root.titleWidth(m.title); })
     readonly property real overflowWidth: titleWidth("\u00bb")
     readonly property int inlineCount: LayoutPlan.fit(widths, width, overflowWidth)
@@ -25,10 +25,10 @@ Item {
         }
         return out;
     }
-    implicitHeight: win98 ? 18 * u : 22
+    implicitHeight: memphis ? 18 * u : 22
 
     function titleWidth(text) {
-        return win98 ? Math.ceil(Win98Tokens.textWidth(text, false, u) / u) * u + 12 * u
+        return memphis ? Math.ceil(MemphisTokens.textWidth(text, false, u) / u) * u + 12 * u
             : PlatinumMetrics.width(text) + 2 * pad;
     }
     // index === menus.length (or more) is the overflow title.
@@ -47,10 +47,10 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: root.win98 ? Win98Tokens.face : PlatinumTokens.menuSurface
+        color: root.memphis ? MemphisTokens.face : PlatinumTokens.menuSurface
     }
     Rectangle {
-        visible: !root.win98
+        visible: !root.memphis
         anchors.bottom: parent.bottom
         width: parent.width
         height: PlatinumTokens.hairFor(WindowMetrics.ratio(root))
@@ -67,12 +67,12 @@ Item {
         Accessible.role: Accessible.MenuItem
         Accessible.name: text
         Rectangle {
-            visible: !root.win98 && title.isOpen
+            visible: !root.memphis && title.isOpen
             anchors.fill: parent
             color: PlatinumTokens.highlight
         }
-        Win98Bevel {
-            visible: root.win98 && (title.isOpen || area.containsMouse)
+        MemphisBevel {
+            visible: root.memphis && (title.isOpen || area.containsMouse)
             y: root.u
             width: parent.width
             height: parent.height - 2 * root.u
@@ -80,10 +80,10 @@ Item {
             variant: title.isOpen ? "thinSunken" : "thinRaised"
         }
         FilesText {
-            x: root.pad + (root.win98 && title.isOpen ? root.u : 0)
-            y: root.win98 ? 3 * root.u + (title.isOpen ? root.u : 0) : (parent.height - height) / 2
+            x: root.pad + (root.memphis && title.isOpen ? root.u : 0)
+            y: root.memphis ? 3 * root.u + (title.isOpen ? root.u : 0) : (parent.height - height) / 2
             text: title.text
-            color: !root.win98 && title.isOpen ? PlatinumTokens.highlightText : "transparent"
+            color: !root.memphis && title.isOpen ? PlatinumTokens.highlightText : "transparent"
             small: false
         }
         MouseArea {

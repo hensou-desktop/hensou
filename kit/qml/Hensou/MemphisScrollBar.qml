@@ -2,7 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 
-// A Win98 scroll bar: two 16-u arrow buttons and a dithered track with a
+// A Memphis scroll bar: two 16-u arrow buttons and a dithered track with a
 // raised thumb (at least 8 u long). Vertical by default, 16 u wide.
 //
 // Give it a Flickable and it drives it: an arrow scrolls one step, the
@@ -15,7 +15,7 @@ Item {
 
     property int orientation: Qt.Vertical
     property Flickable flickable: null
-    property real step: Win98Tokens.listRow * root.u   // logical px per arrow
+    property real step: MemphisTokens.listRow * root.u   // logical px per arrow
     property real position: 0
     property real size: 1
     // "", "back", "forward" or "thumb": draw that part pressed.
@@ -32,13 +32,13 @@ Item {
     readonly property real shownPosition: flickable ? (range > 0 ? (vertical ? flickable.contentY : flickable.contentX) / range : 0) : position
     readonly property real shownSize: flickable ? (range > 0 ? (vertical ? flickable.height / flickable.contentHeight : flickable.width / flickable.contentWidth) : 1) : size
     readonly property bool active: enabled && shownSize < 1
-    readonly property real track: Math.max(0, length - 2 * Win98Tokens.scrollBar * u)
-    readonly property real thumbLength: Math.max(8 * u, Win98Tokens.snap(track * Math.min(1, shownSize), root.u))
-    readonly property real thumbAt: Win98Tokens.snap((track - thumbLength) * Math.max(0, Math.min(1, shownPosition)), root.u)
+    readonly property real track: Math.max(0, length - 2 * MemphisTokens.scrollBar * u)
+    readonly property real thumbLength: Math.max(8 * u, MemphisTokens.snap(track * Math.min(1, shownSize), root.u))
+    readonly property real thumbAt: MemphisTokens.snap((track - thumbLength) * Math.max(0, Math.min(1, shownPosition)), root.u)
     property string pressedPart: ""
 
-    implicitWidth: vertical ? Win98Tokens.scrollBar * u : 100 * u
-    implicitHeight: vertical ? 100 * u : Win98Tokens.scrollBar * u
+    implicitWidth: vertical ? MemphisTokens.scrollBar * u : 100 * u
+    implicitHeight: vertical ? 100 * u : MemphisTokens.scrollBar * u
 
     function moveTo(px) {
         if (!flickable || range <= 0) return;
@@ -58,26 +58,26 @@ Item {
         id: arrow
         property string part: "back"
         readonly property bool down: root.showPressed === part || root.pressedPart === part
-        width: Win98Tokens.scrollBar * root.u
+        width: MemphisTokens.scrollBar * root.u
         height: width
-        Win98Bevel {
+        MemphisBevel {
             anchors.fill: parent
             variant: arrow.down ? "flatPressed" : "button"
         }
-        Win98Icon {
+        MemphisIcon {
             id: glyph
             name: root.vertical ? (arrow.part === "back" ? "arrow-up" : "arrow-down")
                                 : (arrow.part === "back" ? "arrow-left" : "arrow-right")
-            color: root.active ? Win98Tokens.text : Win98Tokens.gray
-            x: Win98Tokens.snap((parent.width - width) / 2, root.u) + (arrow.down ? root.u : 0)
-            y: Win98Tokens.snap((parent.height - height) / 2, root.u) + (arrow.down ? root.u : 0)
+            color: root.active ? MemphisTokens.text : MemphisTokens.gray
+            x: MemphisTokens.snap((parent.width - width) / 2, root.u) + (arrow.down ? root.u : 0)
+            y: MemphisTokens.snap((parent.height - height) / 2, root.u) + (arrow.down ? root.u : 0)
         }
         // Disabled glyphs carry the white emboss, as disabled text does.
-        Win98Icon {
-            visible: !root.active && Win98Tokens.emboss.a > 0
+        MemphisIcon {
+            visible: !root.active && MemphisTokens.emboss.a > 0
             z: -1
             name: glyph.name
-            color: Win98Tokens.emboss
+            color: MemphisTokens.emboss
             x: glyph.x + root.u; y: glyph.y + root.u
         }
         MouseArea {
@@ -97,17 +97,17 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: Win98Tokens.face
+        color: MemphisTokens.face
     }
 
     Item {
         id: trackArea
-        x: root.vertical ? 0 : Win98Tokens.scrollBar * root.u
-        y: root.vertical ? Win98Tokens.scrollBar * root.u : 0
+        x: root.vertical ? 0 : MemphisTokens.scrollBar * root.u
+        y: root.vertical ? MemphisTokens.scrollBar * root.u : 0
         width: root.vertical ? root.width : root.track
         height: root.vertical ? root.track : root.height
 
-        Win98Dither {
+        MemphisDither {
             anchors.fill: parent
         }
         MouseArea {
@@ -118,7 +118,7 @@ Item {
                 root.doPage(at < root.thumbAt ? -1 : 1);
             }
         }
-        Win98Bevel {
+        MemphisBevel {
             visible: root.active
             variant: "window"
             x: root.vertical ? 0 : root.thumbAt

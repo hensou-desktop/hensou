@@ -5,11 +5,11 @@
 // defaultAction, cancelAction }. Platinum alerts have no title bar text;
 // Memphis message boxes have a caption.
 
-function q(name, theme) { return theme === "win98" ? name : "\u201c" + name + "\u201d"; }
+function q(name, theme) { return theme === "memphis" ? name : "\u201c" + name + "\u201d"; }
 function itemsWord(n) { return n === 1 ? "1 item" : n + " items"; }
 
 function hostKey(prompt, theme) {
-    var w = theme === "win98";
+    var w = theme === "memphis";
     return {
         kind: "host-key",
         art: "key",
@@ -24,7 +24,7 @@ function hostKey(prompt, theme) {
 }
 
 function changedKey(host, fingerprint, theme) {
-    var w = theme === "win98";
+    var w = theme === "memphis";
     return {
         kind: "changed-key",
         art: w ? "error" : "stop",
@@ -57,7 +57,7 @@ function moveToTrash(names, theme) {
 
 // Both themes warn before anything that cannot be undone.
 function deletePermanently(names, reason, theme) {
-    var w = theme === "win98", one = names.length === 1;
+    var w = theme === "memphis", one = names.length === 1;
     var what = one ? q(names[0], theme) : itemsWord(names.length);
     return {
         kind: "delete-permanently",
@@ -81,7 +81,7 @@ function sizeWords(bytes) {
 }
 
 function emptyTrash(count, bytes, theme) {
-    var w = theme === "win98";
+    var w = theme === "memphis";
     var known = bytes !== null && bytes !== undefined;
     return {
         kind: "empty-trash",
@@ -98,7 +98,7 @@ function emptyTrash(count, bytes, theme) {
 }
 
 function ejectBusy(name, holders, theme) {
-    var w = theme === "win98";
+    var w = theme === "memphis";
     var who = holders && holders.length ? holders.join(", ") : "another program";
     return {
         kind: "eject-busy",
@@ -114,7 +114,7 @@ function ejectBusy(name, holders, theme) {
 }
 
 function failure(text, theme) {
-    var w = theme === "win98";
+    var w = theme === "memphis";
     return {
         kind: "failure",
         art: w ? "error" : "stop",

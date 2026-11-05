@@ -1,7 +1,7 @@
 .pragma library
 // Files' view model: pure functions over files-model JSON (the serde format
 // of crates/files-model). No Qt objects; tests/files/model.test.js runs it.
-// Theme ids are "platinum" and "win98" (Memphis).
+// Theme ids are "platinum" and "memphis" (Memphis).
 
 // ---- modifiers (Qt::KeyboardModifier values) ----
 var SHIFT = 0x02000000;
@@ -63,9 +63,9 @@ function contains(outer, inner) {
 }
 
 // ---- names and titles ----
-function computerName(theme, hostname) { return theme === "win98" ? "My Computer" : (hostname || "Computer"); }
-function sshHostsName(theme) { return theme === "win98" ? "Network Neighborhood" : "SSH Hosts"; }
-function trashName(theme) { return theme === "win98" ? "Recycle Bin" : "Trash"; }
+function computerName(theme, hostname) { return theme === "memphis" ? "My Computer" : (hostname || "Computer"); }
+function sshHostsName(theme) { return theme === "memphis" ? "Network Neighborhood" : "SSH Hosts"; }
+function trashName(theme) { return theme === "memphis" ? "Recycle Bin" : "Trash"; }
 
 function locationName(location, theme, hostname) {
     var t = placeType(location);
@@ -78,7 +78,7 @@ function locationName(location, theme, hostname) {
 }
 function windowTitle(location, theme, hostname) {
     var name = locationName(location, theme, hostname);
-    return theme === "win98" && !isVirtual(location) ? "Exploring - " + name : name;
+    return theme === "memphis" && !isVirtual(location) ? "Exploring - " + name : name;
 }
 // The Memphis address bar, and what it accepts back.
 function addressText(location, theme, hostname) {
@@ -123,7 +123,7 @@ var MIME_KINDS = {
     "application-octet-stream": ["document", "File"]
 };
 function kindText(entry, theme) {
-    var w = theme === "win98";
+    var w = theme === "memphis";
     switch (entry.kind) {
     case "folder": return w ? "File Folder" : "folder";
     case "alias": return w ? "Shortcut" : "alias";
@@ -189,7 +189,7 @@ function oneDecimal(v) { return v >= 100 ? String(Math.round(v)) : (Math.round(v
 // folders that way) and empty in Memphis (Explorer leaves folders blank),
 // with "Unknown" for files whose size is not known.
 function sizeText(size, theme, entry) {
-    var w = theme === "win98";
+    var w = theme === "memphis";
     if (size === null || size === undefined) {
         if (entry && entry.kind !== "file") return w ? "" : "--";
         return w ? "Unknown" : "--";
@@ -205,10 +205,10 @@ function sizeText(size, theme, entry) {
 function sizeInfo(size, theme) {
     if (size === null || size === undefined) return "Unknown";
     var unit = size < 1024 ? size + " bytes"
-        : size < 1048576 ? oneDecimal(size / 1024) + (theme === "win98" ? "KB" : " K")
-        : size < 1073741824 ? oneDecimal(size / 1048576) + (theme === "win98" ? "MB" : " MB")
-        : size < 1099511627776 ? oneDecimal(size / 1073741824) + (theme === "win98" ? "GB" : " GB")
-        : oneDecimal(size / 1099511627776) + (theme === "win98" ? "TB" : " TB");
+        : size < 1048576 ? oneDecimal(size / 1024) + (theme === "memphis" ? "KB" : " K")
+        : size < 1073741824 ? oneDecimal(size / 1048576) + (theme === "memphis" ? "MB" : " MB")
+        : size < 1099511627776 ? oneDecimal(size / 1073741824) + (theme === "memphis" ? "GB" : " GB")
+        : oneDecimal(size / 1099511627776) + (theme === "memphis" ? "TB" : " TB");
     return size < 1024 ? unit : unit + " (" + group(size) + " bytes)";
 }
 
@@ -217,11 +217,11 @@ var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "A
 function pad(n) { return n < 10 ? "0" + n : String(n); }
 // style: "column" (short) or "info" (long). Unknown dates say so.
 function dateText(seconds, theme, style) {
-    if (seconds === null || seconds === undefined) return theme === "win98" ? "Unknown" : "--";
+    if (seconds === null || seconds === undefined) return theme === "memphis" ? "Unknown" : "--";
     var d = new Date(seconds * 1000);
     var h = d.getHours(), m = pad(d.getMinutes());
     var h12 = (h % 12) || 12, ampm = h < 12 ? "AM" : "PM";
-    if (theme === "win98") {
+    if (theme === "memphis") {
         if (style === "info") return DAYS[d.getDay()] + ", " + MONTHS[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() + " " + h12 + ":" + m + ":" + pad(d.getSeconds()) + " " + ampm;
         return (d.getMonth() + 1) + "/" + d.getDate() + "/" + String(d.getFullYear()).slice(2) + " " + h12 + ":" + m + " " + ampm;
     }
@@ -254,7 +254,7 @@ var KIND_ORDER = { computer: 0, volume: 1, folder: 2, "ssh-hosts": 3, host: 3, t
 // Explorer lists folders before files; the Finder mixes them by name.
 function sortEntries(entries, column, ascending, theme) {
     var dir = ascending === false ? -1 : 1;
-    var foldersFirst = theme === "win98";
+    var foldersFirst = theme === "memphis";
     var list = (entries || []).slice();
     list.sort(function(a, b) {
         if (foldersFirst) {
@@ -309,7 +309,7 @@ function dropAction(theme, sources, destination, modifiers, button, volumes) {
         if (contains(sources[i], destination)) return "none";
     }
     var allHere = sources.every(function(s) { return same(parent(s), destination); });
-    if (theme === "win98") {
+    if (theme === "memphis") {
         if (button === "right") return "menu";
         if (modifiers & CONTROL) return "copy";
         if (modifiers & SHIFT) return allHere ? "none" : "move";
@@ -343,7 +343,7 @@ var ACTIVE = ["queued", "running", "waiting-for-host", "ask-keep-waiting", "conf
 function transferActive(t) { return ACTIVE.indexOf(t.state.state) >= 0; }
 function transferNeedsChoice(t) { return t.state.state === "conflict" || t.state.state === "ask-keep-waiting"; }
 function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
-function quote(name, theme) { return theme === "win98" ? name : "\u201c" + name + "\u201d"; }
+function quote(name, theme) { return theme === "memphis" ? name : "\u201c" + name + "\u201d"; }
 function transferTitle(t, theme, hostname) {
     var verb = t.mode === "move" ? "Moving" : "Copying";
     var count = t.items_total !== null && t.items_total !== undefined ? t.items_total : t.sources.length;

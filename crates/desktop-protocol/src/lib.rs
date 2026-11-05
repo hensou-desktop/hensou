@@ -31,8 +31,8 @@ pub fn socket_path() -> Option<PathBuf> {
 #[serde(rename_all = "kebab-case")]
 pub enum Theme {
     Platinum,
-    /// Persisted as `win98`.
-    #[serde(rename = "win98")]
+    /// Persisted as `memphis`.
+    #[serde(rename = "memphis")]
     Memphis,
 }
 
@@ -262,8 +262,8 @@ mod tests {
     }
 
     #[test]
-    fn memphis_is_persisted_as_win98() {
-        assert_eq!(serde_json::to_string(&Theme::Memphis).unwrap(), "\"win98\"");
+    fn memphis_is_persisted_as_memphis() {
+        assert_eq!(serde_json::to_string(&Theme::Memphis).unwrap(), "\"memphis\"");
     }
 
     #[test]

@@ -35,7 +35,7 @@ ApplicationWindow {
     minimumWidth: 180
     minimumHeight: 100
     visible: true
-    color: Theme.name === "win98" ? Win98Tokens.face : PlatinumTokens.menuSurface
+    color: Theme.name === "memphis" ? MemphisTokens.face : PlatinumTokens.menuSurface
     function restoreFocus(target) {
         if (dialog.visible) return;
         state.focusTarget = target;

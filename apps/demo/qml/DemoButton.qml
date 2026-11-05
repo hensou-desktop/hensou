@@ -8,7 +8,7 @@ Loader {
     onLoaded: Qt.callLater(function() { if (root.wantsFocus) root.takeFocus(); })
     signal clicked()
     signal focused()
-    sourceComponent: Theme.name === "win98" ? win98 : platinum
+    sourceComponent: Theme.name === "memphis" ? memphis : platinum
     function takeFocus() { if (item) item.forceActiveFocus(); }
     Component {
         id: platinum
@@ -20,8 +20,8 @@ Loader {
         }
     }
     Component {
-        id: win98
-        Win98Button {
+        id: memphis
+        MemphisButton {
             text: root.text
             Accessible.name: root.text
             onClicked: root.clicked()

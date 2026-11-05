@@ -14,8 +14,8 @@ An appearance and interaction style for the same capabilities. A theme can chang
 The Mac-inspired theme. Its persisted identifier is `platinum`. It has light, dark and extra-dark appearances.
 
 **Memphis**:
-The Windows-inspired theme. Its persisted identifier stays `win98`; user-visible text says Memphis. It has light and dark appearances.
-_Avoid_: Windows 98, Win98 (in user-visible text)
+The Windows-inspired theme. Its persisted identifier is `memphis`. It has light and dark appearances.
+_Avoid_: any Windows version name, in code or text
 
 **Theme parity**:
 Every supported theme exposes the same capabilities and handles the same states. A difference needs an explicit reason.

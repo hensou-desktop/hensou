@@ -30,9 +30,9 @@ Item {
 
     readonly property real u: 2 / WindowMetrics.ratio(root)
     readonly property real fill: Math.max(0, Math.min(1, isNaN(root.value) ? 0 : root.value))
-    readonly property color blockColor: root.onSelection ? Win98Tokens.selectionText
-        : root.stale || isNaN(root.value) ? Win98Tokens.meterStale
-        : root.tone === "danger" ? Win98Tokens.meterDanger : root.tone === "warning" ? Win98Tokens.meterWarn : Win98Tokens.meter
+    readonly property color blockColor: root.onSelection ? MemphisTokens.selectionText
+        : root.stale || isNaN(root.value) ? MemphisTokens.meterStale
+        : root.tone === "danger" ? MemphisTokens.meterDanger : root.tone === "warning" ? MemphisTokens.meterWarn : MemphisTokens.meter
     // The mock's counts: (length - 4 + 1) / 4 horizontal blocks; 30 / 3
     // vertical ones in a 32-u meter.
     readonly property int count: !root.blocks ? 0 : root.vertical
@@ -44,9 +44,9 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: root.onSelection ? Win98Tokens.selection : Win98Tokens.face
+        color: root.onSelection ? MemphisTokens.selection : MemphisTokens.face
     }
-    Win98Bevel {
+    MemphisBevel {
         anchors.fill: parent
         filled: false
         visible: !root.onSelection
@@ -57,14 +57,14 @@ Item {
         anchors.fill: parent
         color: "transparent"
         border.width: root.u
-        border.color: Win98Tokens.selectionText
+        border.color: MemphisTokens.selectionText
     }
     Rectangle {
         visible: !root.blocks
         x: root.u; y: root.u
         height: root.height - 2 * root.u
-        width: Math.max(0, Win98Tokens.snap(root.width * root.fill, root.u) - 2 * root.u)
-        color: root.onSelection ? Win98Tokens.selectionText : root.muted ? Win98Tokens.gray : Win98Tokens.selection
+        width: Math.max(0, MemphisTokens.snap(root.width * root.fill, root.u) - 2 * root.u)
+        color: root.onSelection ? MemphisTokens.selectionText : root.muted ? MemphisTokens.gray : MemphisTokens.selection
     }
     Repeater {
         model: root.blocks ? root.count : 0

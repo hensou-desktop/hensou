@@ -36,11 +36,11 @@ font outputs rather than maintaining a second generator.
 
 | File | Valid values | Missing or invalid |
 | --- | --- | --- |
-| `theme-name` | `platinum`, `win98` | `platinum` |
+| `theme-name` | `platinum`, `memphis` | `platinum` |
 | `theme` | `light`, `dark` | Keep current mode; startup `dark` |
 | `theme-extra` | `on`, `off` | `off` |
 
-Win98 retains the extra preference but does not apply it. `HostTheme` is an I/O
+Memphis retains the extra preference but does not apply it. `HostTheme` is an I/O
 adapter, not a second drawing-token singleton. The composition root binds its
 values to the single `Hensou.Theme`. QFileSystemWatcher watches files and their
 containing directory, including atomic replacements. A 35 ms debounce
