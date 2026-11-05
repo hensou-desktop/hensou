@@ -208,7 +208,7 @@ impl FilesService for FakeFiles {
         sink(Event::Trash { items: Vec::new() });
         for transfer in &state.transfers {
             sink(Event::Transfer {
-                transfer: transfer.clone(),
+                transfer: Box::new(transfer.clone()),
             });
         }
         drop(state);
@@ -295,7 +295,9 @@ impl FilesService for FakeFiles {
                 };
                 state.transfers.push(transfer.clone());
                 drop(state);
-                self.emit(Event::Transfer { transfer });
+                self.emit(Event::Transfer {
+                    transfer: Box::new(transfer),
+                });
             }
             Command::LoadView { location } => {
                 let key = format!("{location:?}");

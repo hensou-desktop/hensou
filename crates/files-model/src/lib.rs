@@ -157,7 +157,7 @@ pub enum TransferState {
         host: String,
     },
     Conflict {
-        conflict: Conflict,
+        conflict: Box<Conflict>,
     },
     Done,
     Failed {
@@ -419,7 +419,7 @@ pub enum Event {
         names: Vec<String>,
     },
     Transfer {
-        transfer: Transfer,
+        transfer: Box<Transfer>,
     },
     WorkingCopy {
         copy: WorkingCopy,
