@@ -11,3 +11,6 @@ workspace = true
 
 [dependencies]
 hensou-files-model.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
