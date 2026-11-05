@@ -64,7 +64,10 @@ impl Engine {
         match result {
             Ok(()) => DeleteKind::Trash,
             Err(e) => DeleteKind::Permanent {
-                reason: format!("The host has no verified same-filesystem Trash: {e:?}"),
+                reason: {
+                    eprintln!("hensou-files: no host Trash: {e:?}");
+                    "This host has no Trash for this item, so deleting it is permanent.".into()
+                },
             },
         }
     }

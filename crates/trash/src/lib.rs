@@ -178,7 +178,12 @@ impl TrashStore for FreedesktopTrash {
         match self.root_for(path) {
             Ok(_) => DeleteKind::Trash,
             Err(e) => DeleteKind::Permanent {
-                reason: format!("No writable Trash on this filesystem: {e:?}"),
+                // User-visible: no storage words ("mount", "filesystem"),
+                // which each theme names differently (CONTEXT.md, Volume).
+                reason: {
+                    eprintln!("hensou-trash: no Trash for {}: {e:?}", path.display());
+                    "This item cannot go to the Trash, so deleting it is permanent.".into()
+                },
             },
         }
     }

@@ -35,28 +35,153 @@ impl Default for Host {
         }
     }
 }
+/// The concrete `Host` names in an OpenSSH client configuration, following
+/// `Include` (relative paths resolve against `~/.ssh`, globs expand, depth is
+/// bounded as in OpenSSH). Patterns and negations are not hosts.
 pub(crate) fn host_names(path: &Path) -> Vec<String> {
     let mut names = vec![];
-    if let Ok(text) = fs::read_to_string(path) {
-        for line in text.lines() {
-            let line = line.split('#').next().unwrap_or("").trim();
-            let mut fields = line.split_whitespace();
-            if fields
-                .next()
-                .is_some_and(|s| s.eq_ignore_ascii_case("Host"))
-            {
-                names.extend(
-                    fields
-                        .filter(|s| !s.contains(['*', '?', '!']) && !s.starts_with('-'))
-                        .map(str::to_owned),
-                );
-            }
-        }
-    }
+    let ssh_dir = path.parent().map(Path::to_path_buf).unwrap_or_default();
+    collect_hosts(path, &ssh_dir, 0, &mut names);
     names.sort();
     names.dedup();
     names
 }
+
+const INCLUDE_DEPTH: usize = 16;
+
+fn collect_hosts(path: &Path, ssh_dir: &Path, depth: usize, names: &mut Vec<String>) {
+    if depth > INCLUDE_DEPTH {
+        return;
+    }
+    let Ok(text) = fs::read_to_string(path) else {
+        return;
+    };
+    for line in text.lines() {
+        let Some((keyword, args)) = directive(line) else {
+            continue;
+        };
+        if keyword.eq_ignore_ascii_case("Host") {
+            names.extend(
+                arguments(args)
+                    .filter(|s| !s.contains(['*', '?', '!']) && !s.starts_with('-'))
+                    .map(str::to_owned),
+            );
+        } else if keyword.eq_ignore_ascii_case("Include") {
+            for pattern in arguments(args) {
+                for file in expand_include(pattern, ssh_dir) {
+                    collect_hosts(&file, ssh_dir, depth + 1, names);
+                }
+            }
+        }
+    }
+}
+
+/// Splits `Keyword args`, `Keyword=args` or `Keyword = args`; skips comments.
+fn directive(line: &str) -> Option<(&str, &str)> {
+    let line = line.trim();
+    if line.is_empty() || line.starts_with('#') {
+        return None;
+    }
+    let end = line.find(|c: char| c.is_whitespace() || c == '=')?;
+    let (keyword, rest) = line.split_at(end);
+    let rest = rest.trim_start();
+    let rest = rest.strip_prefix('=').unwrap_or(rest).trim();
+    Some((keyword, rest))
+}
+
+/// Whitespace-separated arguments, honouring double quotes and stopping at a
+/// comment.
+fn arguments(args: &str) -> impl Iterator<Item = &str> {
+    let mut out = vec![];
+    let mut rest = args;
+    loop {
+        rest = rest.trim_start();
+        if rest.is_empty() || rest.starts_with('#') {
+            break;
+        }
+        if let Some(quoted) = rest.strip_prefix('"') {
+            let end = quoted.find('"').unwrap_or(quoted.len());
+            out.push(&quoted[..end]);
+            rest = quoted.get(end + 1..).unwrap_or("");
+        } else {
+            let end = rest.find(char::is_whitespace).unwrap_or(rest.len());
+            out.push(&rest[..end]);
+            rest = &rest[end..];
+        }
+    }
+    out.into_iter()
+}
+
+fn expand_include(pattern: &str, ssh_dir: &Path) -> Vec<std::path::PathBuf> {
+    let home = std::env::var_os("HOME").map(std::path::PathBuf::from);
+    let path = if let Some(rest) = pattern.strip_prefix("~/") {
+        match home {
+            Some(home) => home.join(rest),
+            None => return vec![],
+        }
+    } else if Path::new(pattern).is_absolute() {
+        std::path::PathBuf::from(pattern)
+    } else {
+        ssh_dir.join(pattern)
+    };
+    let Some(name) = path.file_name().and_then(|n| n.to_str()) else {
+        return vec![];
+    };
+    if !name.contains(['*', '?']) {
+        return vec![path];
+    }
+    let Some(dir) = path.parent() else {
+        return vec![];
+    };
+    let Ok(entries) = fs::read_dir(dir) else {
+        return vec![];
+    };
+    let mut files: Vec<_> = entries
+        .filter_map(Result::ok)
+        .filter(|e| e.file_name().to_str().is_some_and(|f| glob_match(name, f)))
+        .map(|e| e.path())
+        .collect();
+    files.sort();
+    files
+}
+
+fn glob_match(pattern: &str, text: &str) -> bool {
+    fn go(p: &[u8], t: &[u8]) -> bool {
+        match (p.first(), t.first()) {
+            (None, None) => true,
+            (Some(b'*'), _) => go(&p[1..], t) || (!t.is_empty() && go(p, &t[1..])),
+            (Some(b'?'), Some(_)) => go(&p[1..], &t[1..]),
+            (Some(a), Some(b)) if a == b => go(&p[1..], &t[1..]),
+            _ => false,
+        }
+    }
+    go(pattern.as_bytes(), text.as_bytes())
+}
+
+#[cfg(test)]
+mod host_name_tests {
+    use super::host_names;
+    use std::fs;
+
+    #[test]
+    fn hosts_follow_includes_and_equals_syntax() {
+        let dir = tempfile::tempdir().unwrap();
+        let ssh = dir.path();
+        fs::create_dir_all(ssh.join("config.d")).unwrap();
+        fs::write(
+            ssh.join("config"),
+            "Include config.d/*.conf\nHost=fuji kaiju # comment\nHost * !bad\n  HostName x\nhost \"quoted\"\n",
+        )
+        .unwrap();
+        fs::write(ssh.join("config.d/a.conf"), "Host aka\nInclude ../config\n").unwrap();
+        fs::write(ssh.join("config.d/b.txt"), "Host ignored\n").unwrap();
+        assert_eq!(
+            host_names(&ssh.join("config")),
+            ["aka", "fuji", "kaiju", "quoted"]
+        );
+    }
+}
+
 impl Engine {
     fn host(&self, name: &str) -> Result<Arc<Mutex<Host>>, FilesError> {
         if !host_names(&self.config.ssh_config)
