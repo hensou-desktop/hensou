@@ -103,6 +103,7 @@ ApplicationWindow {
     }
     // Saves size, position (from Hyprland when it runs), view and sort.
     function saveMemory() {
+        saveTimer.stop();
         if (!memoryLoaded) return;
         let geometry = { x: memory.geometry ? memory.geometry.x : 0, y: memory.geometry ? memory.geometry.y : 0,
             width: Math.round(width), height: Math.round(height) };
@@ -120,8 +121,8 @@ ApplicationWindow {
         saveTimer.restart();
     }
     Timer { id: saveTimer; interval: 600; onTriggered: win.saveMemory() }
-    onWidthChanged: if (memoryLoaded) saveTimer.restart()
-    onHeightChanged: if (memoryLoaded) saveTimer.restart()
+    onWidthChanged: if (memoryLoaded && visible) saveTimer.restart()
+    onHeightChanged: if (memoryLoaded && visible) saveTimer.restart()
     onActiveChanged: if (active) placeNow()
     onClosing: saveMemory()
 

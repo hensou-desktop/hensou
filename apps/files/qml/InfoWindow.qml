@@ -241,7 +241,7 @@ Window {
                         color: Win98Tokens.danger
                     }
                     Row {
-                        anchors.right: parent.right
+                        x: memphisColumn.width - width
                         spacing: 6 * root.u
                         FilesButton { text: "OK"; isDefault: true; roleLabels: ["OK", "Cancel", "Apply"]; onClicked: { if (root.rename()) root.close(); } }
                         FilesButton { text: "Cancel"; roleLabels: ["OK", "Cancel", "Apply"]; onClicked: root.close() }
