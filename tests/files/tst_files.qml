@@ -41,6 +41,14 @@ TestCase {
         tryVerify(function() { return w.visible && w.listing && (w.listing.status === "ready" || w.listing.status === "error"); }, 4000, "listing for " + Model.key(location));
         return w;
     }
+    // Real keys go to the focused window: wait until the compositor focuses
+    // the alert, asking again while it has not.
+    function activate(window) {
+        tryVerify(function() {
+            if (!window.active) { window.raise(); window.requestActivate(); wait(100); }
+            return window.active;
+        }, 6000, "the alert has keyboard focus");
+    }
     function alertOf(kind) {
         for (const a of app.alerts) if (a.spec.kind === kind) return a;
         return null;
@@ -119,8 +127,7 @@ TestCase {
         verify(findChild(a.contentItem, "alertFingerprint").text.indexOf("SHA256:") >= 0);
         if (data.theme === "platinum") {
             // Return answers with the default: Cancel. Nothing is trusted.
-            a.requestActivate();
-            tryVerify(function() { return a.active; }, 2000);
+            activate(a);
             keyClick(Qt.Key_Return);
             tryVerify(function() { return alertOf("host-key") === null; });
             tryVerify(function() { return w.listing && w.listing.status === "error"; });
@@ -268,8 +275,7 @@ TestCase {
         const e = waitAlert("empty-trash");
         compare(e.spec.defaultAction, "cancel");
         compare(findChild(e.contentItem, "alertButton-cancel").isDefault, true);
-        e.requestActivate();
-        tryVerify(function() { return e.active; }, 2000);
+        activate(e);
         keyClick(Qt.Key_Escape);
         tryVerify(function() { return alertOf("empty-trash") === null; });
         verify(app.store.state.trash.length > 0, "Escape empties nothing");

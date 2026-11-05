@@ -89,6 +89,7 @@ with tempfile.TemporaryDirectory(prefix="hensou-files-") as temporary:
     config.write_text("""output HEADLESS-1 mode 2400x1600 scale 1.5 position 0 0
 seat seat0 fallback true
 focus_follows_mouse no
+focus_on_window_activation focus
 default_border none
 default_floating_border none
 for_window [app_id=".*"] floating enable
