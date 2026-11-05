@@ -26,6 +26,9 @@ A location Files can browse, such as a local folder, an SSH host or a library.
 **SSH host**:
 A machine Files connects to inside the app using the user's existing SSH identity. It does not require a prior filesystem mount. The SSH hosts are exactly the named hosts in the user's SSH configuration.
 
+**Computer window**:
+The Files window for the local machine. It lists Home, the volumes, SSH Hosts and the Trash. Platinum titles it with the machine's name; Memphis calls it My Computer.
+
 **Transfer**:
 A copy or move that Files runs on behalf of the user. It belongs to Files, not to a window, and ends as done, failed or cancelled. An interrupted transfer is not resumed.
 

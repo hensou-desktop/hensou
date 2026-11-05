@@ -32,7 +32,10 @@ Open remote files through a local working copy. Upload after saves only after ch
 - A working copy saved while its host is offline queues its upload. The upload runs after the reconnect, with the normal remote-change check. The local copy is kept until an upload succeeds.
 - Dragging or copying a remote file to another app starts its download at drag start or at Copy. The path is handed over at the drop or paste, after the download. Large files show the normal progress window. Cancel delivers nothing. There is no size prompt.
 - Files is Myoko's default handler for folders (`inode/directory`), set in Mountainous. A second launch hands its folder to the running Files.
-- Launch: Super+E in Hyprland, plus an entry in the Platinum Apple menu and the Memphis Start menu.
+- Launch: Super+E in Hyprland, plus an entry in the Platinum Apple menu and the Memphis Start menu. Each opens the Computer window: "Myoko" (the machine's name) in Platinum, My Computer in Memphis. It holds Home, the volumes, SSH Hosts and the Trash. The desktop's computer icon (Phase 5) opens the same window.
+- Move to Trash follows each OS, as on the desktop: Memphis asks first, Platinum does not. Both always warn before a permanent delete.
+- Transfers appear as a StatusNotifierItem while copies run, in both themes. Phase 3 also replaces the shell's hard-coded tray with a real StatusNotifierItem host: the Memphis tray row and the Platinum top bar's status area list app items after the built-in controls. An app icon without theme art gets a period lettermark, and app menus are drawn with kit menus. This shell work is in Mountainous.
+- Trash, volumes (udisks2, mount on insert, eject and power-off) and file-kind icons are separate Hensou crates. Phase 3 builds them. The Phase 5 desktop provider reuses them, and Files' resident process embeds that provider.
 - Symbolic links appear as aliases (Platinum, italic name) or shortcuts (Memphis, arrow overlay). Opening follows the link. Copying copies the link itself.
 
 ## Future libraries
