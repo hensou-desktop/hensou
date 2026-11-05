@@ -30,7 +30,7 @@ Loader {
             text: root.text
             textFormat: Text.PlainText
             wrapMode: root.wrap ? Text.WrapAtWordBoundaryOrAnywhere : Text.NoWrap
-            elide: root.wrap ? Text.ElideNone : Text.ElideRight
+            elide: root.wrap && root.maximumLineCount >= 1000 ? Text.ElideNone : Text.ElideRight
             maximumLineCount: root.maximumLineCount
             horizontalAlignment: root.horizontalAlignment
             font.family: PlatinumTokens.platinumFont

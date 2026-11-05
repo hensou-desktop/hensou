@@ -27,8 +27,10 @@ FocusScope {
     }
     readonly property var columnWidths: ({ modified: win98 ? 120 * u : 170, size: win98 ? 64 * u : 80, kind: win98 ? 100 * u : 130 })
     readonly property real rowHeight: win98 ? 18 * u : 20
+    readonly property real columnsWidth: columns.reduce(function(sum, c) { return sum + columnWidths[c]; }, 0)
     readonly property Flickable flick: viewLoader.item ? viewLoader.item.flick : null
     property bool dragActive: false
+    readonly property real barWidth: win98 ? Win98Tokens.scrollBar * u : PlatinumTokens.menuScrollBar - PlatinumTokens.hairFor(WindowMetrics.ratio(root))
     activeFocusOnTab: true
     Accessible.role: Accessible.List
     Accessible.name: window.title
@@ -289,7 +291,9 @@ FocusScope {
                         FilesText {
                             id: label
                             anchors.centerIn: parent
-                            width: Math.min(implicitWidth, cell.width - 10)
+                            // Measured, plus a unit, so a short name never wraps.
+                            width: Math.min(root.win98 ? Win98Tokens.ceilU(Win98Tokens.textWidth(text, false, root.u), root.u) + root.u
+                                : PlatinumMetrics.smallWidth(text) + (cell.alias ? 4 : 2), cell.width - 10)
                             text: Model.entryName(modelData, root.theme)
                             wrap: true
                             maximumLineCount: cell.selected ? 4 : 2
@@ -318,7 +322,7 @@ FocusScope {
                 anchors.right: parent.right
                 height: parent.height
                 visible: grid.contentHeight > grid.height + 1
-                width: visible && item ? item.width : 0
+                width: visible ? root.barWidth : 0
                 sourceComponent: root.win98 ? win98Bar : platinumBar
                 Component { id: platinumBar; PlatinumScrollBar { flickable: grid } }
                 Component { id: win98Bar; Win98ScrollBar { flickable: grid; step: grid.cellHeight } }
@@ -348,7 +352,7 @@ FocusScope {
                         Item {
                             required property string modelData
                             readonly property bool sorted: root.window.memory.sort_column === modelData
-                            width: modelData === "name" ? header.width - root.columns.reduce(function(s, c) { return s + root.columnWidths[c]; }, 0) - (barList.visible ? barList.width : 0)
+                            width: modelData === "name" ? header.width - root.columnsWidth - (barList.visible ? barList.width : 0)
                                 : root.columnWidths[modelData]
                             height: header.height
                             Accessible.role: Accessible.ColumnHeader
@@ -427,16 +431,21 @@ FocusScope {
                         id: nameCell
                         x: small.x + small.width + (root.win98 ? 3 * root.u : 6)
                         anchors.verticalCenter: parent.verticalCenter
-                        width: Math.min(nameText.implicitWidth + (root.win98 ? 4 * root.u : 0), nameColumnWidth - x)
-                        readonly property real nameColumnWidth: list.width - root.columns.reduce(function(s, c) { return s + root.columnWidths[c]; }, 0)
-                        height: root.win98 ? 14 * root.u : nameText.height
+                        readonly property string name: Model.entryName(modelData, root.theme)
+                        readonly property real pad: root.win98 ? 2 * root.u : 0
+                        // The room left of the detail columns, and the name's own width.
+                        readonly property real room: list.width - root.columnsWidth - x - (root.win98 ? 4 * root.u : 8)
+                        readonly property real natural: root.win98 ? Win98Tokens.ceilU(Win98Tokens.textWidth(name, false, root.u), root.u)
+                            : PlatinumMetrics.smallWidth(name) + (modelData.kind === "alias" ? 4 : 0)
+                        width: Math.max(0, Math.min(natural + 2 * pad + (root.win98 ? root.u : 2), room))
+                        height: root.win98 ? 14 * root.u : root.rowHeight - 4
                         color: root.win98 && (row.selected || row.target) ? Win98Tokens.selection : "transparent"
                         FilesText {
                             id: nameText
-                            x: root.win98 ? 2 * root.u : 0
-                            y: root.win98 ? root.u : 0
-                            width: Math.min(implicitWidth, parent.nameColumnWidth - parent.x - (root.win98 ? 4 * root.u : 4))
-                            text: Model.entryName(modelData, root.theme)
+                            x: nameCell.pad
+                            y: root.win98 ? root.u : (nameCell.height - height) / 2
+                            width: nameCell.width - 2 * nameCell.pad
+                            text: nameCell.name
                             italic: modelData.kind === "alias"
                             small: !root.win98
                             onWell: true
@@ -453,18 +462,22 @@ FocusScope {
                         height: parent.height
                         Repeater {
                             model: root.columns
-                            FilesText {
+                            Item {
                                 required property string modelData
-                                width: root.columnWidths[modelData] - (root.win98 ? 6 * root.u : 8)
-                                y: (row.height - height) / 2
-                                text: root.columnValue(modelData, row.modelData)
-                                small: !root.win98
-                                onWell: true
-                                horizontalAlignment: modelData === "size" ? Text.AlignRight : Text.AlignLeft
-                                color: row.selected && !root.win98 ? PlatinumTokens.highlightText : "transparent"
+                                width: root.columnWidths[modelData]
+                                height: row.height
+                                FilesText {
+                                    x: root.win98 ? 6 * root.u : 10
+                                    width: parent.width - 2 * x
+                                    y: (row.height - height) / 2
+                                    text: root.columnValue(parent.modelData, row.modelData)
+                                    small: !root.win98
+                                    onWell: true
+                                    horizontalAlignment: parent.modelData === "size" ? Text.AlignRight : Text.AlignLeft
+                                    color: row.selected && !root.win98 ? PlatinumTokens.highlightText : "transparent"
+                                }
                             }
                         }
-                        Item { width: root.win98 ? 6 * root.u : 8; height: 1 }
                     }
                     Gestures {
                         entry: modelData
@@ -478,7 +491,7 @@ FocusScope {
                 y: header.height
                 height: parent.height - header.height
                 visible: list.contentHeight > list.height + 1
-                width: visible && item ? item.width : 0
+                width: visible ? root.barWidth : 0
                 sourceComponent: root.win98 ? win98ListBar : platinumListBar
                 Component { id: platinumListBar; PlatinumScrollBar { flickable: list } }
                 Component { id: win98ListBar; Win98ScrollBar { flickable: list; step: root.rowHeight } }

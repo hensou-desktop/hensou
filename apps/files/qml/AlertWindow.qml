@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Layouts
 import Hensou
 import Hensou.Host
 import "Art.js" as Art
@@ -29,9 +28,9 @@ Window {
     height: wantedHeight
     minimumWidth: frameWidth
     maximumWidth: frameWidth
-    minimumHeight: wantedHeight
-    maximumHeight: wantedHeight
 
+    // Escape always answers with the cancel action, wherever focus is.
+    Shortcut { sequence: "Escape"; onActivated: root.choose(root.spec.cancelAction) }
     function present() {
         show();
         raise();
@@ -58,8 +57,7 @@ Window {
         Accessible.name: root.spec.message
         focus: true
         Keys.onPressed: function(event) {
-            if (event.key === Qt.Key_Escape) root.choose(root.spec.cancelAction);
-            else if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter)) {
+            if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter)) {
                 // Return runs the focused button in Memphis, the default in Platinum.
                 const focused = frame.item ? frame.item.focusedAction() : "";
                 root.choose(root.win98 && focused !== "" ? focused : root.spec.defaultAction);
@@ -73,21 +71,22 @@ Window {
         }
     }
 
-    component Body: ColumnLayout {
+    // Fixed widths, so wrapped text has its height before the window maps.
+    component Body: Column {
         id: body
         spacing: root.win98 ? 8 * root.u : 10
         property real textWidth: 200
+        width: textWidth
         FilesText {
             objectName: "alertMessage"
-            Layout.preferredWidth: body.textWidth
+            width: body.textWidth
             text: root.spec.message
             wrap: true
-            bold: false
         }
         FilesText {
             objectName: "alertDetail"
             visible: !!root.spec.detail
-            Layout.preferredWidth: body.textWidth
+            width: body.textWidth
             text: root.spec.detail || ""
             wrap: true
             small: true
@@ -95,8 +94,8 @@ Window {
         // The fingerprint stays whole and selectable, never elided.
         Rectangle {
             visible: !!root.spec.fingerprint
-            Layout.preferredWidth: body.textWidth
-            Layout.preferredHeight: fingerprintText.implicitHeight + (root.win98 ? 6 * root.u : 8)
+            width: body.textWidth
+            height: fingerprintText.implicitHeight + (root.win98 ? 6 * root.u : 8)
             color: root.win98 ? Win98Tokens.win : PlatinumTokens.field
             border.width: root.win98 ? root.u : PlatinumTokens.hairFor(metrics.devicePixelRatio)
             border.color: root.win98 ? Win98Tokens.sh : PlatinumTokens.bevelDark
@@ -158,24 +157,24 @@ Window {
             // An alert box: a black edge, the raised bevel, no title.
             PlatinumBevel { anchors.fill: parent; color: PlatinumTokens.menuSurface }
             MouseArea { anchors.fill: parent; onPressed: root.startSystemMove() }
-            RowLayout {
+            Item {
                 id: content
                 x: 18; y: 18
                 width: parent.width - 36
-                spacing: 16
+                implicitHeight: Math.max(32, textColumn.height)
                 Image {
-                    Layout.alignment: Qt.AlignTop
-                    Layout.preferredWidth: 32
-                    Layout.preferredHeight: 32
+                    width: 32; height: 32
                     sourceSize.width: Math.round(32 * metrics.devicePixelRatio)
                     sourceSize.height: Math.round(32 * metrics.devicePixelRatio)
                     source: Art.url("platinum", root.spec.art, "#000000", "")
                 }
-                ColumnLayout {
-                    Layout.fillWidth: true
+                Column {
+                    id: textColumn
+                    x: 48
+                    width: content.width - 48
                     spacing: 16
-                    Body { textWidth: content.width - 48 }
-                    Buttons { id: buttons; Layout.alignment: Qt.AlignRight }
+                    Body { textWidth: textColumn.width }
+                    Buttons { id: buttons; anchors.right: parent.right }
                 }
             }
         }
@@ -192,16 +191,13 @@ Window {
                 title: root.spec.title || "Files"
                 showClose: true
                 onCloseClicked: root.choose(root.spec.cancelAction)
-                ColumnLayout {
+                Column {
                     width: root.width - 22 * root.u
                     spacing: 10 * root.u
-                    RowLayout {
-                        Layout.fillWidth: true
+                    Row {
                         spacing: 10 * root.u
                         Image {
-                            Layout.alignment: Qt.AlignTop
-                            Layout.preferredWidth: 32 * root.u
-                            Layout.preferredHeight: 32 * root.u
+                            width: 32 * root.u; height: 32 * root.u
                             smooth: false
                             sourceSize.width: 64
                             sourceSize.height: 64
@@ -209,7 +205,7 @@ Window {
                         }
                         Body { textWidth: root.width - 80 * root.u }
                     }
-                    Buttons { id: buttons; Layout.alignment: Qt.AlignHCenter }
+                    Buttons { id: buttons; anchors.horizontalCenter: parent.horizontalCenter }
                 }
             }
             // Drag the caption to move the message box.

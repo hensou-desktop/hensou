@@ -220,7 +220,7 @@ Window {
                 y: root.win98 ? 2 * root.u : 1
                 height: parent.height - 2 * y
                 visible: flick.contentHeight > flick.height + 1
-                width: visible && item ? item.width : 0
+                width: visible ? (root.win98 ? Win98Tokens.scrollBar * root.u : PlatinumTokens.menuScrollBar - PlatinumTokens.hairFor(metrics.devicePixelRatio)) : 0
                 sourceComponent: root.win98 ? win98Bar : platinumBar
                 Component { id: platinumBar; PlatinumScrollBar { flickable: flick } }
                 Component { id: win98Bar; Win98ScrollBar { flickable: flick } }

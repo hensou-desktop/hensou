@@ -38,8 +38,10 @@ TestCase {
     function open(location, w, h) {
         const win = app.openLocation(location, {});
         verify(win);
-        if (w) { win.width = w; win.height = h; }
         tryVerify(function() { return win.visible && win.listing && (win.listing.status === "ready" || win.listing.status === "error"); }, 4000);
+        // Remembered sizes apply first; the capture's size wins after them.
+        tryVerify(function() { return win.memoryLoaded; }, 4000);
+        if (w) { win.width = w; win.height = h; }
         return win;
     }
     function entryNamed(w, name) {

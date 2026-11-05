@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Layouts
 import Hensou
 import Hensou.Host
 import "Model.js" as Model
@@ -71,31 +70,42 @@ Window {
         }
     }
 
-    component Facts: GridLayout {
+    // Label and value rows; values wrap in the room the window gives them.
+    component Facts: Column {
         id: facts
-        columns: 2
-        columnSpacing: root.win98 ? 8 * root.u : 10
-        rowSpacing: root.win98 ? 6 * root.u : 6
-        property real labelWidth: root.win98 ? 64 * root.u : 92
+        spacing: root.win98 ? 6 * root.u : 6
+        readonly property real labelWidth: root.win98 ? 64 * root.u : 92
+        readonly property real gap: root.win98 ? 8 * root.u : 10
         Repeater {
-            model: root.rows.length * 2
-            FilesText {
-                required property int index
-                readonly property var fact: root.rows[Math.floor(index / 2)]
-                Layout.preferredWidth: index % 2 === 0 ? facts.labelWidth : facts.width - facts.labelWidth - facts.columnSpacing
-                Layout.alignment: Qt.AlignTop
-                horizontalAlignment: index % 2 === 0 && !root.win98 ? Text.AlignRight : Text.AlignLeft
-                text: index % 2 === 0 ? fact[0] : fact[1]
-                wrap: index % 2 === 1
-                small: !root.win98
+            model: root.rows
+            Item {
+                required property var modelData
+                width: facts.width
+                height: Math.max(label.height, value.height)
+                FilesText {
+                    id: label
+                    width: facts.labelWidth
+                    horizontalAlignment: root.win98 ? Text.AlignLeft : Text.AlignRight
+                    text: parent.modelData[0]
+                    small: !root.win98
+                }
+                FilesText {
+                    id: value
+                    x: facts.labelWidth + facts.gap
+                    width: facts.width - x
+                    text: parent.modelData[1]
+                    wrap: true
+                    small: !root.win98
+                }
             }
         }
     }
-    component NameRow: RowLayout {
+    component NameRow: Item {
         id: nameRow
-        spacing: root.win98 ? 10 * root.u : 10
+        implicitHeight: Math.max(icon.height, root.renamable ? field.height : plainName.height)
         function focusName() { field.takeFocus(); field.selectBase(); }
         EntryIcon {
+            id: icon
             art: Model.artName(root.live)
             large: true
             alias: root.live.kind === "alias"
@@ -103,8 +113,10 @@ Window {
         FilesField {
             id: field
             objectName: "infoName"
-            Layout.fillWidth: true
-            Layout.preferredHeight: root.win98 ? Win98Tokens.fieldHeight * root.u : 24
+            x: icon.width + (root.win98 ? 10 * root.u : 10)
+            anchors.verticalCenter: icon.verticalCenter
+            width: nameRow.width - x
+            height: root.win98 ? Win98Tokens.fieldHeight * root.u : 24
             visible: root.renamable
             accessibleName: "Name"
             text: root.shownName
@@ -113,8 +125,11 @@ Window {
             onEscaped: root.close()
         }
         FilesText {
+            id: plainName
             visible: !root.renamable
-            Layout.fillWidth: true
+            x: field.x
+            anchors.verticalCenter: icon.verticalCenter
+            width: nameRow.width - x
             text: root.shownName
             wrap: true
             italic: root.live.kind === "alias" && !root.win98
@@ -137,15 +152,15 @@ Window {
                 collapsible: false
                 onCloseClicked: root.close()
             }
-            ColumnLayout {
+            Column {
                 id: column
                 x: 16
                 y: infoTitle.y + infoTitle.height + 14
                 width: parent.width - 32
                 spacing: 12
-                NameRow { id: nameRow; Layout.fillWidth: true }
-                Rectangle { Layout.fillWidth: true; Layout.preferredHeight: PlatinumTokens.hairFor(metrics.devicePixelRatio); color: PlatinumTokens.bevelDark }
-                Facts { Layout.fillWidth: true }
+                NameRow { id: nameRow; width: column.width }
+                Rectangle { width: column.width; height: PlatinumTokens.hairFor(metrics.devicePixelRatio); color: PlatinumTokens.bevelDark }
+                Facts { width: column.width }
                 FilesCheckBox {
                     objectName: "lockedBox"
                     text: "Locked"
@@ -155,7 +170,7 @@ Window {
                 }
                 FilesText {
                     visible: root.problem !== ""
-                    Layout.fillWidth: true
+                    width: column.width
                     wrap: true
                     small: true
                     color: PlatinumTokens.menuDanger
@@ -176,21 +191,22 @@ Window {
                 title: root.title
                 showHelp: false
                 onCloseClicked: root.close()
-                ColumnLayout {
+                Column {
+                    id: memphisColumn
                     width: root.width - 22 * root.u
                     spacing: 8 * root.u
                     // The General tab.
                     Item {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 18 * root.u
+                        width: memphisColumn.width
+                        height: 18 * root.u
                         Win98Bevel { width: tabText.width + 12 * root.u; height: 20 * root.u; variant: "window" }
                         Win98Text { id: tabText; x: 6 * root.u; y: 4 * root.u; text: "General"; accessMarks: false }
                     }
-                    NameRow { id: nameRow; Layout.fillWidth: true }
-                    Win98Separator { Layout.fillWidth: true }
-                    Facts { Layout.fillWidth: true }
-                    Win98Separator { Layout.fillWidth: true }
-                    RowLayout {
+                    NameRow { id: nameRow; width: memphisColumn.width }
+                    Win98Separator { width: memphisColumn.width }
+                    Facts { width: memphisColumn.width }
+                    Win98Separator { width: memphisColumn.width }
+                    Row {
                         spacing: 12 * root.u
                         Win98Text { text: "Attributes:"; accessMarks: false }
                         FilesCheckBox {
@@ -207,14 +223,14 @@ Window {
                     }
                     Win98Text {
                         visible: root.problem !== ""
-                        Layout.fillWidth: true
+                        width: memphisColumn.width
                         wrap: true
                         text: root.problem
                         accessMarks: false
                         color: Win98Tokens.danger
                     }
-                    RowLayout {
-                        Layout.alignment: Qt.AlignRight
+                    Row {
+                        anchors.right: parent.right
                         spacing: 6 * root.u
                         FilesButton { text: "OK"; isDefault: true; roleLabels: ["OK", "Cancel", "Apply"]; onClicked: { if (root.rename()) root.close(); } }
                         FilesButton { text: "Cancel"; roleLabels: ["OK", "Cancel", "Apply"]; onClicked: root.close() }

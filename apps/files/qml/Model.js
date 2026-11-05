@@ -507,7 +507,8 @@ function treeRows(roots, expanded, childrenOf, theme, hostname) {
         rows.push({ key: k, location: loc, name: entryName(entry, theme), art: artName(entry), depth: depth, expanded: open,
             expandable: folders === null ? entry.kind !== "trash" : folders.length > 0 });
         if (open && folders) {
-            var sorted = sortEntries(folders, "name", true, theme);
+            // My Computer keeps its own order: Home, volumes, hosts, the Bin.
+            var sorted = placeType(loc) === "computer" ? computerOrder(folders) : sortEntries(folders, "name", true, theme);
             for (var i = 0; i < sorted.length; i++) walk(sorted[i], depth + 1);
         }
     }
