@@ -12,6 +12,7 @@ workspace = true
 [dependencies]
 hensou-files-model.workspace = true
 zbus.workspace = true
+nix.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true

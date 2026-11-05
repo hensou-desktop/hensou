@@ -148,7 +148,7 @@ impl DesktopProvider {
         let weak = Arc::downgrade(&provider);
         let mut watcher =
             notify::recommended_watcher(move |event: notify::Result<notify::Event>| {
-                if event.is_ok() {
+                if event.is_ok_and(|event| !matches!(event.kind, notify::EventKind::Access(_))) {
                     if let Some(provider) = weak.upgrade() {
                         provider.refresh();
                     }

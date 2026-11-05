@@ -85,12 +85,11 @@ impl ThemeIcons {
                     let path = base.join(&directory).join(format!("{name}.{ext}"));
                     if path.is_file() {
                         // A theme may alias art; do not allow a symlink into forbidden sets.
-                        if let Ok(real) = path.canonicalize() {
-                            if !real.components().any(|c| {
+                        if let Ok(real) = path.canonicalize()
+                            && !real.components().any(|c| {
                                 matches!(c.as_os_str().to_str(), Some("hicolor" | "Adwaita"))
                             }) {
-                                return Some(path);
-                            }
+                            return Some(path);
                         }
                     }
                 }
@@ -173,6 +172,19 @@ impl IconResolver for ThemeIcons {
                 size,
                 &mut HashSet::new(),
             ) {
+                return ResolvedIcon::Generic(kind, path);
+            }
+            let standard = match kind {
+                GenericKind::Document => "application-octet-stream",
+                GenericKind::Text => "text-x-generic",
+                GenericKind::Image => "image-x-generic",
+                GenericKind::Audio => "audio-x-generic",
+                GenericKind::Video => "video-x-generic",
+                GenericKind::Archive => "package-x-generic",
+                GenericKind::Application => "application-x-executable",
+                GenericKind::Folder => "folder",
+            };
+            if let Some(path) = self.find(theme, standard, size, &mut HashSet::new()) {
                 return ResolvedIcon::Generic(kind, path);
             }
         }

@@ -249,10 +249,7 @@ impl UdisksBackend for SystemBus {
         let path = PathBuf::from(path);
         let user = std::env::var("USER").map_err(bus_error)?;
         use std::os::unix::fs::MetadataExt;
-        let owner =
-            std::fs::metadata(std::env::var_os("HOME").ok_or_else(|| bus_error("HOME unset"))?)
-                .map_err(bus_error)?
-                .uid();
+        let owner = nix::unistd::Uid::effective().as_raw();
         if !path.starts_with(Path::new("/run/media").join(user))
             || std::fs::metadata(&path).map_err(bus_error)?.uid() != owner
         {
