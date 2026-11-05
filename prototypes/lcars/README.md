@@ -35,3 +35,19 @@ threshold in it is a guess until someone measures it in a real Hensou window.
 - Only chrome is upper case. File names keep their case, because file names
   are case-sensitive.
 - Not built: keyboard focus, motion, sound, light appearance, and a real model.
+
+## Pass 2: the whole desktop (`desktop/`)
+
+`desktop/render.sh` renders `shots/desktop-*.png`: working, notification,
+Super+Tab, laptop plus tablet, and 1280×800. The shell draws one frame per
+screen and apps tile inside it with no title bars. The arm is the window
+list; the top bar carries pages, the focused window's title and the clock.
+
+Findings:
+
+- With no title bars, tiles that are black (terminal, Files) melt into the
+  black frame. A Hyprland border fixes it: dim when inactive, gold when focused.
+- The focused window's full title needs a home; the top bar's long segment
+  holds it, and a notification takes that segment over until it is read.
+- Web pages keep their own colours and body face. Only scroll bars and form
+  controls take LCARS. Making page text Antonio would hurt reading.
