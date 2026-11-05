@@ -41,7 +41,7 @@ impl Default for Host {
 pub(crate) fn host_names(path: &Path) -> Vec<String> {
     let mut names = vec![];
     let ssh_dir = path.parent().map(Path::to_path_buf).unwrap_or_default();
-    collect_hosts(path, &ssh_dir, 0, &mut names);
+    collect_hosts(path, &ssh_dir, &mut vec![], &mut names);
     names.sort();
     names.dedup();
     names
@@ -49,13 +49,22 @@ pub(crate) fn host_names(path: &Path) -> Vec<String> {
 
 const INCLUDE_DEPTH: usize = 16;
 
-fn collect_hosts(path: &Path, ssh_dir: &Path, depth: usize, names: &mut Vec<String>) {
-    if depth > INCLUDE_DEPTH {
+/// `chain` holds the files being read: an Include cycle stops at the first
+/// repeat instead of re-reading files until the depth limit.
+fn collect_hosts(
+    path: &Path,
+    ssh_dir: &Path,
+    chain: &mut Vec<std::path::PathBuf>,
+    names: &mut Vec<String>,
+) {
+    let canonical = fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
+    if chain.len() > INCLUDE_DEPTH || chain.contains(&canonical) {
         return;
     }
     let Ok(text) = fs::read_to_string(path) else {
         return;
     };
+    chain.push(canonical);
     for line in text.lines() {
         let Some((keyword, args)) = directive(line) else {
             continue;
@@ -69,11 +78,12 @@ fn collect_hosts(path: &Path, ssh_dir: &Path, depth: usize, names: &mut Vec<Stri
         } else if keyword.eq_ignore_ascii_case("Include") {
             for pattern in arguments(args) {
                 for file in expand_include(pattern, ssh_dir) {
-                    collect_hosts(&file, ssh_dir, depth + 1, names);
+                    collect_hosts(&file, ssh_dir, chain, names);
                 }
             }
         }
     }
+    chain.pop();
 }
 
 /// Splits `Keyword args`, `Keyword=args` or `Keyword = args`; skips comments.
