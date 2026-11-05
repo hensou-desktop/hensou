@@ -182,7 +182,7 @@ impl TrashStore for FreedesktopTrash {
                 // which each theme names differently (CONTEXT.md, Volume).
                 reason: {
                     eprintln!("hensou-trash: no Trash for {}: {e:?}", path.display());
-                    "This item cannot go to the Trash, so deleting it is permanent.".into()
+                    "This item can only be deleted permanently.".into()
                 },
             },
         }

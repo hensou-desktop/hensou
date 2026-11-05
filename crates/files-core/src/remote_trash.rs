@@ -66,7 +66,7 @@ impl Engine {
             Err(e) => DeleteKind::Permanent {
                 reason: {
                     eprintln!("hensou-files: no host Trash: {e:?}");
-                    "This host has no Trash for this item, so deleting it is permanent.".into()
+                    "On this host, this item can only be deleted permanently.".into()
                 },
             },
         }
