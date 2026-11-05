@@ -47,50 +47,50 @@
     {
       "id": "sw-system",
       "group": "Shell sweep",
-      "title": "System menu (the elbow)",
-      "caption": "The Apple menu / Start menu: about Myoko, control panels, recent apps, Find, and session actions, ending in red Shut down.",
+      "title": "System menu (the elbow): work-area takeover",
+      "caption": "Pass 5: no floating panel. The work area becomes the system screen; the apps keep running behind it. Esc returns.",
       "src": "shell-system.png"
     },
     {
       "id": "sw-sound",
       "group": "Shell sweep",
-      "title": "Sound panel",
-      "caption": "Menus grow down out of their segment: the segment's gold runs down the left and turns along the bottom. Level as LCARS blocks.",
+      "title": "Sound: split-screen band",
+      "caption": "Pass 5: quick controls open as a band under the top bar (TNG split screen). The seam bar closes it; the tiles move down instead of being covered.",
       "src": "shell-sound.png"
     },
     {
       "id": "sw-wifi",
       "group": "Shell sweep",
-      "title": "Wi-Fi panel",
-      "caption": "Networks by strength, the password inline under the chosen one, the last failure said in full.",
+      "title": "Wi-Fi: split-screen band",
+      "caption": "Pass 5: networks in columns, password inline, failure said in full. The windows move down for the band.",
       "src": "shell-wifi.png"
     },
     {
       "id": "sw-layout",
       "group": "Shell sweep",
-      "title": "Layout panel",
-      "caption": "This page or Default; tiled or floating; windows per page; outer gap; zen margins.",
+      "title": "Layout: split-screen band",
+      "caption": "Pass 5: page or default, tiled or floating, windows per page, gap, zen margins, all in one band.",
       "src": "shell-layout.png"
     },
     {
       "id": "sw-find",
       "group": "Shell sweep",
-      "title": "Find (Super+P)",
-      "caption": "One console for the omni lists; scopes sit in its arm with their keys.",
+      "title": "Find: work-area takeover",
+      "caption": "Pass 5: no dimmed overlay. The work area becomes the Find screen; scopes in its sidebar.",
       "src": "shell-find.png"
     },
     {
       "id": "sw-switch",
       "group": "Shell sweep",
-      "title": "Super+Tab (apps)",
-      "caption": "The live shell cycles apps, not windows. The target app's windows list under it, with where they are, never a page number.",
+      "title": "Super+Tab: work-area takeover",
+      "caption": "Pass 5: apps as big blocks, the target's windows below. Costs the preview of your work while switching.",
       "src": "shell-switch.png"
     },
     {
       "id": "sw-glance",
       "group": "Shell sweep",
-      "title": "Glance space (Super+W)",
-      "caption": "Work recedes under a grid; Fleet and Disks stand on it. Fleet hosts with CPU, memory and disk as block levels.",
+      "title": "Glance: work-area takeover",
+      "caption": "Pass 5: the screen becomes a fleet status display. No dither, no dim.",
       "src": "shell-glance.png"
     },
     {
@@ -103,8 +103,8 @@
     {
       "id": "sw-notify",
       "group": "Shell sweep",
-      "title": "A message arrives",
-      "caption": "The comms block grows out of the arm, right under the window list.",
+      "title": "A message arrives, inside the arm",
+      "caption": "Pass 5: the comms block grows taller inside the arm, under the window list. It never crosses into the work area.",
       "src": "shell-notify.png"
     },
     {
@@ -117,15 +117,15 @@
     {
       "id": "sw-critical",
       "group": "Shell sweep",
-      "title": "Critical",
-      "caption": "The whole frame goes red; the title segment says what is wrong.",
+      "title": "Critical: red frame, message in the arm",
+      "caption": "Pass 5: the whole frame goes red (canon: Red Alert); the message stays in the arm until acknowledged.",
       "src": "shell-critical.png"
     },
     {
       "id": "sw-shutdown",
       "group": "Shell sweep",
-      "title": "Shut down?",
-      "caption": "Session confirmation in red; Cancel is the default and the first block.",
+      "title": "Shut down? Work-area takeover in red",
+      "caption": "Pass 5: Cancel is the default and the first block; Shut down at the far end.",
       "src": "shell-shutdown.png"
     },
     {

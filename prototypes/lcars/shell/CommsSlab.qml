@@ -1,32 +1,32 @@
-// PROTOTYPE — a message out of the arm (pass 3), positioned under the window list.
+// PROTOTYPE — a message inside the arm. The comms block grows taller in place,
+// under the window list; it never crosses into the work area. Long messages
+// open Comms as a takeover. Critical also turns the frame red.
 import QtQuick
 import "../tokens.js" as T
 import ".."
 
 Item {
-    id: slab
+    id: c
     property var screen
     readonly property var s: screen
     readonly property bool critical: s.critical
-    readonly property color c: critical ? T.alert : T.periwinkle
-    readonly property real h: 196
-    readonly property real extW: 660
-    // Directly under the window list, where the folded comms block sits.
+    readonly property color col: critical ? T.alert : T.periwinkle
     readonly property real y0: s.armBottom + 4
-    Rectangle { x: 0; y: slab.y0; width: s.f.armW + slab.extW; height: slab.h; color: slab.c; topRightRadius: 44; bottomRightRadius: 44 }
-    Rectangle { x: 0; y: slab.y0 + slab.h; width: s.f.armW; height: 4; color: T.space }
-    Text { x: s.f.armW - width - 12; y: slab.y0 + 6; text: slab.critical ? "ALERT" : "COMMS"; color: T.space; font.family: s.fam; font.pixelSize: 15 }
-    Text { x: s.f.armW - width - 12; y: slab.y0 + 24; text: "1 OF 2"; color: T.space; font.family: s.fam; font.pixelSize: 26 }
-    Rectangle { x: s.f.armW + 8; y: slab.y0 + 14; width: 4; height: slab.h - 28; color: T.space }
+    readonly property real w: s.f.armW
+    Rectangle { x: 0; y: c.y0; width: c.w; height: 340; color: c.col }
+    Rectangle { x: 0; y: c.y0 + 340; width: c.w; height: 4; color: T.space }
     Column {
-        x: s.f.armW + 28; y: slab.y0 + 12; width: slab.extW - 80; spacing: 4
-        Text { text: slab.critical ? "FROM AKA, 21:46" : "FROM SIGNAL, 21:46"; color: T.space; font.family: s.fam; font.pixelSize: 16 }
-        Text { text: slab.critical ? "Storage almost full" : "Laure"; color: T.space; font.family: s.fam; font.pixelSize: 40; font.weight: Font.Medium }
-        Text { width: parent.width; wrapMode: Text.Wrap; text: slab.critical ? "/storage on aka is 97% full. Builds will stop at 100%." : "Are you still up for dinner at 7? I can pick up the bread."; color: T.space; font.family: s.fam; font.pixelSize: 21 }
+        x: 12; y: c.y0 + 8; width: c.w - 24; spacing: 4
+        Text { anchors.right: parent.right; text: (c.critical ? "Alert 1 of 2" : "Comms 1 of 2").toUpperCase(); color: T.space; font.family: s.fam; font.pixelSize: 15 }
+        Text { anchors.right: parent.right; text: c.critical ? "FROM AKA, 21:46" : "SIGNAL, 21:46"; color: T.space; font.family: s.fam; font.pixelSize: 15 }
+        Text { width: parent.width; horizontalAlignment: Text.AlignRight; wrapMode: Text.Wrap; text: c.critical ? "Storage almost full" : "Laure"; color: T.space; font.family: s.fam; font.pixelSize: 32; font.weight: Font.Medium }
+        Text { width: parent.width; horizontalAlignment: Text.AlignRight; wrapMode: Text.Wrap; maximumLineCount: 4; elide: Text.ElideRight
+            text: c.critical ? "/storage on aka is 97% full. Builds will stop at 100%." : "Are you still up for dinner at 7? I can pick up the bread."
+            color: T.space; font.family: s.fam; font.pixelSize: 19 }
     }
-    Row {
-        x: s.f.armW + 28; y: slab.y0 + slab.h - 52; spacing: 4
-        Pill { width: 170; height: 40; text: slab.critical ? "Open storage" : "Reply"; color: T.space; ink: slab.c; rightCap: false; fam: s.fam; px: 18 }
-        Pill { width: 150; height: 40; text: slab.critical ? "Acknowledge" : "Dismiss"; color: T.space; ink: slab.c; leftCap: false; fam: s.fam; px: 18 }
+    Column {
+        x: 12; y: c.y0 + 340 - 104; width: c.w - 24; spacing: 4
+        Pill { width: parent.width; height: 48; leftCap: false; text: c.critical ? "Open storage" : "Reply"; color: T.space; ink: c.col; fam: s.fam; px: 19 }
+        Pill { width: parent.width; height: 48; leftCap: false; text: c.critical ? "Acknowledge" : "Dismiss"; color: T.space; ink: c.col; fam: s.fam; px: 19 }
     }
 }

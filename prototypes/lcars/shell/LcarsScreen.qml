@@ -18,6 +18,8 @@ Item {
     property Component tiles
     readonly property var f: SP.frame(width, height)
     readonly property real armBottom: arm.y + arm.height
+    // Quick controls open a band under the top bar; the tiles move down for it.
+    readonly property real bandH: ["sound", "wifi", "layout"].indexOf(st) >= 0 ? 300 : 0
 
     readonly property bool warn: st === "warn"
     readonly property bool critical: st === "critical"
@@ -196,11 +198,17 @@ Item {
     }
 
     // ── Work area ───────────────────────────────────────────────────
-    Loader { x: s.f.work.x; y: s.f.work.y; width: s.f.work.w; height: s.f.work.h; sourceComponent: s.tiles }
+    Loader { x: s.f.work.x; y: s.f.work.y + s.bandH; width: s.f.work.w; height: s.f.work.h - s.bandH; sourceComponent: s.tiles }
+    Rectangle {
+        // The seam of the split screen: a bar from the arm across, closing the band.
+        visible: s.bandH > 0
+        x: s.f.armW + 4; y: s.f.topH + s.bandH - 8; width: s.width - x; height: 10; color: s.c2
+        topRightRadius: 5; bottomRightRadius: 5
+    }
 
     // ── Overlays by state ───────────────────────────────────────────
     Loader {
-        anchors.fill: parent
+        x: 0; y: 0  // no fill: a Loader would resize the overlay to itself
         active: ["system", "sound", "wifi", "layout", "find", "switch", "glance", "notify", "critical", "shutdown"].indexOf(s.st) >= 0
         source: ({ system: "SystemPanel.qml", sound: "SoundPanel.qml", wifi: "WifiPanel.qml", layout: "LayoutPanel.qml",
                    find: "FindConsole.qml", switch: "AppSwitch.qml", glance: "Glance.qml", notify: "CommsSlab.qml",

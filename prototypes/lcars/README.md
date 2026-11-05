@@ -75,3 +75,15 @@ to an LCARS form. `shell/render.sh` renders 17 states at Myoko's logical
 1920×1200: calm, warn, chord, system, sound, wifi, layout, find, switch,
 glance, dictation, notify, unread, critical, shutdown, dual, small.
 The web theme is postponed: pages render untouched.
+
+## Pass 5: no overlays (research: ~/.cache/research/lcars-overlay-precedent-20261105T023750/)
+
+Canon LCARS never layers a box over a dimmed screen; it reconfigures in place.
+So nothing floats over apps any more:
+
+- inline: a value changes inside its own segment or arm block;
+- split band: Sound, Wi-Fi and Layout open as a band under the top bar and
+  the tiles move down for it (TNG split screen);
+- takeover: the system menu, Find, Super+Tab, glance and Shut down replace
+  the work area with an opaque framed screen; Esc returns;
+- messages grow inside the arm; critical turns the frame red.
