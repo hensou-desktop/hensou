@@ -79,7 +79,7 @@ Window {
         Loader {
             id: frame
             width: parent.width
-            sourceComponent: root.memphis ? memphis : platinum
+            sourceComponent: root.memphis ? memphisView : platinum
         }
     }
 
@@ -192,7 +192,7 @@ Window {
         }
     }
     Component {
-        id: memphis
+        id: memphisView
         Item {
             implicitHeight: box.implicitHeight
             function buttonFor(a) { return buttons.buttonFor(a); }

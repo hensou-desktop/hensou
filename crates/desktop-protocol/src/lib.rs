@@ -263,7 +263,10 @@ mod tests {
 
     #[test]
     fn memphis_is_persisted_as_memphis() {
-        assert_eq!(serde_json::to_string(&Theme::Memphis).unwrap(), "\"memphis\"");
+        assert_eq!(
+            serde_json::to_string(&Theme::Memphis).unwrap(),
+            "\"memphis\""
+        );
     }
 
     #[test]

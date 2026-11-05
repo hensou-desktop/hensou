@@ -16,7 +16,7 @@ Item {
 
     Loader {
         anchors.fill: parent
-        sourceComponent: root.memphis ? memphis : platinum
+        sourceComponent: root.memphis ? memphisView : platinum
     }
     Component {
         id: platinum
@@ -47,7 +47,7 @@ Item {
         }
     }
     Component {
-        id: memphis
+        id: memphisView
         MemphisLevelBar {
             value: Math.max(0, root.value)
             blocks: true

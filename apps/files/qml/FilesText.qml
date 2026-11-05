@@ -20,7 +20,7 @@ Loader {
     property int maximumLineCount: 1000
     readonly property bool truncated: item ? item.truncated : false
     readonly property bool memphis: Theme.name === "memphis"
-    sourceComponent: memphis ? memphis : platinum
+    sourceComponent: memphis ? memphisView : platinum
     Accessible.role: Accessible.StaticText
     Accessible.name: text
 
@@ -42,7 +42,7 @@ Loader {
         }
     }
     Component {
-        id: memphis
+        id: memphisView
         MemphisText {
             text: root.text
             accessMarks: false

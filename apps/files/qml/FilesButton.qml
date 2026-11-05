@@ -10,7 +10,7 @@ Loader {
     property var roleLabels: []
     signal clicked()
     readonly property bool memphis: Theme.name === "memphis"
-    sourceComponent: memphis ? memphis : platinum
+    sourceComponent: memphis ? memphisView : platinum
     activeFocusOnTab: false
     function takeFocus() { if (item) item.forceActiveFocus(); }
     Accessible.role: Accessible.Button
@@ -27,7 +27,7 @@ Loader {
         }
     }
     Component {
-        id: memphis
+        id: memphisView
         MemphisButton {
             text: root.text
             isDefault: root.isDefault

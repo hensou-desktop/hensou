@@ -84,10 +84,10 @@ Popup {
         Loader {
             id: panel
             anchors.fill: parent
-            sourceComponent: root.memphis ? memphis : platinum
+            sourceComponent: root.memphis ? memphisView : platinum
         }
         Component {
-            id: memphis
+            id: memphisView
             MemphisMenuPanel {
                 // Names are data: an "&" in a folder name is literal.
                 items: root.entries.map(function(e) {
