@@ -136,7 +136,7 @@ const computerEntries = [Object.assign(entry("/home/fixture", "folder"), { name:
 const children = { [Model.key(Model.computer())]: computerEntries, [Model.key(home)]: listed };
 const expanded = { [Model.key(Model.computer())]: true, [Model.key(home)]: true };
 const rows = Model.treeRows([Model.placeEntry(Model.computer(), "win98", "Myoko")], expanded, (l) => children[Model.key(l)] || null, "win98", "Myoko");
-assert.deepEqual(rows.map((r) => r.name), ["My Computer", "Home", "A", "Network Neighborhood", "Recycle Bin"]);
+assert.deepEqual(plain(rows.map((r) => r.name)), ["My Computer", "Home", "A", "Network Neighborhood", "Recycle Bin"]);
 assert.equal(rows[2].depth, 2);
 assert.equal(rows[4].expandable, false);
 console.log("tree rows: PASS");
@@ -165,11 +165,11 @@ for (const [h, shown] of [[219, false], [220, true], [221, true]]) assert.equal(
 for (const [h, shown] of [[249, false], [250, true]]) assert.equal(Plan.folderPlan("win98", 600, h).address, shown);
 assert.equal(Plan.folderPlan("win98", 600, 140, { addressForced: true }).address, true);
 for (const [h, shown] of [[169, false], [170, true]]) assert.equal(Plan.folderPlan("platinum", 600, h).status, shown);
-assert.deepEqual(Plan.listColumns(150 + 170 - 1), []);
-assert.deepEqual(Plan.listColumns(150 + 170), ["modified"]);
-assert.deepEqual(Plan.listColumns(150 + 170 + 80), ["modified", "size"]);
-assert.deepEqual(Plan.listColumns(150 + 170 + 80 + 130 - 1), ["modified", "size"]);
-assert.deepEqual(Plan.listColumns(150 + 170 + 80 + 130), ["modified", "size", "kind"]);
+assert.deepEqual(plain(Plan.listColumns(150 + 170 - 1)), []);
+assert.deepEqual(plain(Plan.listColumns(150 + 170)), ["modified"]);
+assert.deepEqual(plain(Plan.listColumns(150 + 170 + 80)), ["modified", "size"]);
+assert.deepEqual(plain(Plan.listColumns(150 + 170 + 80 + 130 - 1)), ["modified", "size"]);
+assert.deepEqual(plain(Plan.listColumns(150 + 170 + 80 + 130)), ["modified", "size", "kind"]);
 // Groups move whole; something always overflows behind one control.
 assert.equal(Plan.fit([40, 40, 40, 40], 160, 20), 4);
 assert.equal(Plan.fit([40, 40, 40, 40], 159, 20), 3);
