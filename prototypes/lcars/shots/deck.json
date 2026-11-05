@@ -1,0 +1,21 @@
+{
+  "title": "LCARS spike: Hensou Files",
+  "sizes": [
+    { "label": "Large 1440×900", "width": 1440, "height": 900 },
+    { "label": "Medium 960×700", "width": 960, "height": 700 },
+    { "label": "Narrow 460×860", "width": 460, "height": 860 },
+    { "label": "Strip 1400×340", "width": 1400, "height": 340 }
+  ],
+  "pages": [
+    { "id": "A", "group": "Which frame?", "title": "A, Console", "caption": "One elbow. Hosts stacked in the left arm; the transfer runs along the bottom elbow. Closest to the on-screen LCARS look.", "src": "A-{width}x{height}-ideal.png" },
+    { "id": "B", "group": "Which frame?", "title": "B, Split", "caption": "TNG double frame. Top half: where you are (hosts, path, transfer). Bottom half: the list, with actions and readouts in the arm. Costs about a quarter of the height.", "src": "B-{width}x{height}-ideal.png" },
+    { "id": "C", "group": "Which frame?", "title": "C, PADD", "caption": "No elbows. Clickable path segments, Miller columns, hosts in a bottom strip. Most usable, least like the show.", "src": "C-{width}x{height}-ideal.png" },
+    { "id": "A-menu", "title": "A, hosts overflow open", "caption": "Hosts that do not fit open in a menu at window level. Check the Host key changed warning on kuro.", "src": "A-1440x900-ideal-menu.png" },
+    { "id": "A-menu-narrow", "title": "A, narrow, Hosts menu", "caption": "At 460 px the arm cannot hold labels, so all hosts move into one Hosts pill.", "src": "A-460x860-ideal-menu.png" },
+    { "id": "B-menu-narrow", "title": "B, narrow, More menu", "src": "B-460x860-ideal-menu.png", "caption": "Hosts row keeps one host and moves four into More." },
+    { "id": "C-menu-narrow", "title": "C, narrow, Hosts menu", "src": "C-460x860-ideal-menu.png", "caption": "Bottom strip folds every host into Hosts; the menu opens upward." },
+    { "id": "A-empty", "title": "A, empty folder", "src": "A-960x700-empty.png", "caption": "Empty state: a plain sentence and the next actions." },
+    { "id": "B-empty", "title": "B, empty folder", "src": "B-960x700-empty.png", "caption": "Same empty state inside the split frame." },
+    { "id": "C-empty", "title": "C, empty folder", "src": "C-960x700-empty.png", "caption": "Same empty state in the current column." }
+  ]
+}
