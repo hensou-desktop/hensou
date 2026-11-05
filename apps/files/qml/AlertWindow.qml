@@ -26,8 +26,17 @@ Window {
     width: frameWidth
     readonly property real wantedHeight: Math.max(80, frame.item ? Math.ceil(frame.item.implicitHeight) : 160)
     height: wantedHeight
-    onHeightChanged: console.log("FILES_ALERT height", height, "wanted", wantedHeight, "dpr", metrics.devicePixelRatio, "width", width)
-    onWantedHeightChanged: console.log("FILES_ALERT wanted", wantedHeight, "height", height, "dpr", metrics.devicePixelRatio)
+    // The window's scale settles after it maps, and the compositor may answer
+    // an earlier size afterwards. Ask again until the window fits its text.
+    onHeightChanged: if (Math.abs(height - wantedHeight) > 0.5) refit.restart()
+    onWantedHeightChanged: if (Math.abs(height - wantedHeight) > 0.5) refit.restart()
+    property int refits: 0
+    Timer {
+        id: refit
+        interval: 50
+        // A compositor that keeps another size wins after a few tries.
+        onTriggered: if (root.refits++ < 8) { root.height = root.wantedHeight; root.height = Qt.binding(function() { return root.wantedHeight; }); }
+    }
     minimumWidth: frameWidth
     maximumWidth: frameWidth
 

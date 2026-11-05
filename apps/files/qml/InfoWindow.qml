@@ -26,7 +26,18 @@ Window {
     flags: Qt.Window | Qt.FramelessWindowHint
     color: win98 ? Win98Tokens.face : PlatinumTokens.menuSurface
     width: win98 ? 300 * u : 340
-    height: Math.max(200, frame.item ? Math.ceil(frame.item.implicitHeight) : 380)
+    readonly property real wantedHeight: Math.max(200, frame.item ? Math.ceil(frame.item.implicitHeight) : 380)
+    height: wantedHeight
+    // As in AlertWindow: fit the content again once the scale settles.
+    onHeightChanged: if (height < wantedHeight - 0.5) refit.restart()
+    onWantedHeightChanged: if (Math.abs(height - wantedHeight) > 0.5) refit.restart()
+    property int refits: 0
+    Timer {
+        id: refit
+        interval: 50
+        // A compositor that keeps another size wins after a few tries.
+        onTriggered: if (root.refits++ < 8) { root.height = root.wantedHeight; root.height = Qt.binding(function() { return root.wantedHeight; }); }
+    }
     minimumWidth: win98 ? 200 * u : 240
     minimumHeight: 160
 
