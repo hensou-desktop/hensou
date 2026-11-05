@@ -11,3 +11,12 @@ workspace = true
 
 [dependencies]
 hensou-files-model.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+openssh = { version = "0.11.5", features = ["native-mux"] }
+openssh-sftp-client = { version = "0.15.6", features = ["openssh"] }
+tokio = { version = "1", features = ["rt-multi-thread", "time", "sync", "io-util"] }
+futures-util = "0.3"
+
+[dev-dependencies]
+tempfile = "3"
