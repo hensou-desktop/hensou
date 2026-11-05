@@ -10,4 +10,6 @@ export QML2_IMPORT_PATH="$qml_root:$qt_qml:${QML2_IMPORT_PATH:-}"
 export QML_IMPORT_PATH="$qml_root:$qt_qml:${QML_IMPORT_PATH:-}"
 export QT_QPA_PLATFORM=${QT_QPA_PLATFORM:-offscreen}
 export QT_QUICK_BACKEND=${QT_QUICK_BACKEND:-software}
+# tst_appearances.qml reads its JSON fixtures (tests/data) with XMLHttpRequest.
+export QML_XHR_ALLOW_FILE_READ=1
 exec qmltestrunner -input "$here" -o -,txt "$@"

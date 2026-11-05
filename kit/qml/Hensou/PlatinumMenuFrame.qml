@@ -38,11 +38,20 @@ Item {
     MouseArea { anchors.fill: parent; acceptedButtons: Qt.AllButtons; onWheel: function (w) { w.accepted = false; } }
 
     Rectangle {
+        visible: !PlatinumTokens.drafting
         x: root.hair
         y: root.hair
         width: parent.width
         height: parent.height
         color: PlatinumTokens.menuShadow
+    }
+    // Drawing Board: a hatched shadow, further down and right.
+    PlatinumHatch {
+        visible: PlatinumTokens.drafting
+        x: 4 * root.hair
+        y: 4 * root.hair
+        width: visible ? parent.width : 0
+        height: visible ? parent.height : 0
     }
 
     PlatinumBevel {
@@ -110,6 +119,8 @@ Item {
                 anchors.rightMargin: root.rightInset
                 anchors.verticalCenter: parent.verticalCenter
                 sunken: closeArea.pressed
+                // Drawing Board sketches the box: an outline, no bevel.
+                bevelled: !PlatinumTokens.drafting
                 color: closeArea.pressed ? PlatinumTokens.well : PlatinumTokens.raised
 
                 PlatinumIcon {
@@ -128,4 +139,7 @@ Item {
             }
         }
     }
+
+    // Drawing Board: the frame lines run past the corners.
+    PlatinumCropMarks { visible: PlatinumTokens.drafting }
 }

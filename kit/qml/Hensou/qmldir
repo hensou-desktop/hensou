@@ -11,6 +11,8 @@ PlatinumMenuListRow 1.0 PlatinumMenuListRow.qml
 PlatinumMenuFrame 1.0 PlatinumMenuFrame.qml
 PlatinumDialogFrame 1.0 PlatinumDialogFrame.qml
 PlatinumIcon 1.0 PlatinumIcon.qml
+PlatinumHatch 1.0 PlatinumHatch.qml
+PlatinumCropMarks 1.0 PlatinumCropMarks.qml
 singleton PlatinumIconStore 1.0 PlatinumIconStore.qml
 singleton MemphisTokens 1.0 MemphisTokens.qml
 MemphisBevel 1.0 MemphisBevel.qml

@@ -107,7 +107,13 @@ Item {
         width: root.vertical ? root.width : root.track
         height: root.vertical ? root.track : root.height
 
+        Rectangle {
+            visible: !MemphisTokens.scrollDither
+            anchors.fill: parent
+            color: MemphisTokens.scrollTrack
+        }
         MemphisDither {
+            visible: MemphisTokens.scrollDither
             anchors.fill: parent
         }
         MouseArea {

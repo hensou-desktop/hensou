@@ -24,11 +24,20 @@ Item {
     implicitHeight: titleHeight + body.childrenRect.height + 2 * padding + 2 * hair
 
     Rectangle {
+        visible: !PlatinumTokens.drafting
         x: 2 * root.hair
         y: 2 * root.hair
         width: parent.width
         height: parent.height
         color: PlatinumTokens.menuShadow
+    }
+    // Drawing Board: a hatched shadow, further down and right.
+    PlatinumHatch {
+        visible: PlatinumTokens.drafting
+        x: 4 * root.hair
+        y: 4 * root.hair
+        width: visible ? parent.width : 0
+        height: visible ? parent.height : 0
     }
     PlatinumBevel {
         anchors.fill: parent
@@ -45,6 +54,12 @@ Item {
         width: parent.width - 2 * root.hair
         height: root.titleHeight
 
+        // Drawing Board: the paper under the title is a shade deeper.
+        Rectangle {
+            visible: PlatinumTokens.drafting
+            anchors.fill: parent
+            color: PlatinumTokens.titleSurface
+        }
         Rectangle {
             anchors.bottom: parent.bottom
             width: parent.width
@@ -62,6 +77,8 @@ Item {
             width: 11
             height: 11
             sunken: boxArea.pressed
+            // Drawing Board sketches the box: an outline, no bevel.
+            bevelled: !PlatinumTokens.drafting
             color: boxArea.pressed ? PlatinumTokens.well : PlatinumTokens.raised
             MouseArea {
                 id: boxArea
@@ -84,7 +101,9 @@ Item {
         }
 
         // Engraved stripes: light, dark, gap, repeated.
+        // Drawing Board's title bar is plain: no stripes.
         component Stripes: Column {
+            visible: !PlatinumTokens.drafting
             spacing: root.hair
             Repeater {
                 model: 3
@@ -114,4 +133,7 @@ Item {
         width: parent.width - 2 * root.hair - 2 * root.padding
         height: parent.height - y - root.hair - root.padding
     }
+
+    // Drawing Board: the frame lines run past the corners.
+    PlatinumCropMarks { visible: PlatinumTokens.drafting }
 }

@@ -131,6 +131,7 @@ Item {
             MemphisBevel {
                 anchors.fill: parent
                 variant: "window"
+                color: MemphisTokens.menu
             }
 
             // The side band: W95FA at twice its size, so it stays on the grid.
@@ -152,8 +153,8 @@ Item {
                     rotation: -90
                     x: 0
                     y: parent.height - 6 * root.u
-                    MemphisText { text: root.bandText; accessMarks: false; size: 2; bold: true; color: "#ffffff" }
-                    MemphisText { text: " " + root.bandSubText; accessMarks: false; size: 2; color: "#c0c0c0"; visible: root.bandSubText !== "" }
+                    MemphisText { text: root.bandText; accessMarks: false; size: 2; bold: true; color: MemphisTokens.bandText }
+                    MemphisText { text: " " + root.bandSubText; accessMarks: false; size: 2; color: MemphisTokens.bandSubText; visible: root.bandSubText !== "" }
                 }
             }
 
@@ -170,7 +171,7 @@ Item {
                     readonly property bool can: modelData < 0 ? root.scrollY > 0 : root.scrollY < root.scrollMax
                     MemphisIcon {
                         name: strip.modelData < 0 ? "arrow-up" : "arrow-down"
-                        color: strip.can ? MemphisTokens.text : MemphisTokens.gray
+                        color: strip.can ? MemphisTokens.menuText : MemphisTokens.gray
                         x: MemphisTokens.half((strip.width - width) / 2, root.u)
                         y: MemphisTokens.snap((strip.height - height) / 2, root.u)
                     }
@@ -208,7 +209,7 @@ Item {
                     readonly property bool header: !separator && modelData.header === true
                     readonly property bool usable: !separator && !header && modelData.enabled !== false
                     readonly property bool sub: !separator && !!modelData.submenu && modelData.submenu.length > 0
-                    readonly property color ink: on ? MemphisTokens.selectionText : MemphisTokens.text
+                    readonly property color ink: on ? MemphisTokens.selectionText : MemphisTokens.menuText
                     x: root.rowX(index)
                     y: root.rowBase(index) - root.pad - root.scrollY
                     width: root.columnWidth
