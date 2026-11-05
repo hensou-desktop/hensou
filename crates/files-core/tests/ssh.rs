@@ -47,7 +47,7 @@ impl Server {
         }
         let user =
             String::from_utf8(Process::new("id").arg("-un").output().unwrap().stdout).unwrap();
-        fs::write(server.path("sshd_config"),format!("ListenAddress 127.0.0.1\nPort {port}\nHostKey {}\nPidFile {}\nAuthorizedKeysFile {}\nStrictModes no\nPasswordAuthentication no\nKbdInteractiveAuthentication no\nUsePAM no\nPermitRootLogin yes\nAllowUsers {}\nSubsystem sftp internal-sftp -d {}\n",server.path("host").display(),server.path("pid").display(),server.path("user.pub").display(),user.trim(),server.root.path().display())).unwrap();
+        fs::write(server.path("sshd_config"),format!("ListenAddress 127.0.0.1\nPort {port}\nHostKey {}\nPidFile {}\nAuthorizedKeysFile {}\nStrictModes no\nPasswordAuthentication no\nKbdInteractiveAuthentication no\nUsePAM no\nPermitRootLogin yes\nAllowUsers {}\nPermitUserRC no\nSetEnv HOME={} XDG_CONFIG_HOME={}/.config\nSubsystem sftp internal-sftp -d {}\n",server.path("host").display(),server.path("pid").display(),server.path("user.pub").display(),user.trim(),server.root.path().display(),server.root.path().display(),server.root.path().display())).unwrap();
         fs::create_dir(server.path(".ssh")).unwrap();
         fs::write(server.path(".ssh/config"),format!("Host loopback\n HostName 127.0.0.1\n Port {port}\n User {}\n IdentityFile {}\n IdentitiesOnly yes\n GlobalKnownHostsFile /dev/null\nHost wildcard-*\n HostName nowhere\n",user.trim(),server.path("user").display())).unwrap();
         server.start();
@@ -62,6 +62,7 @@ impl Server {
             .unwrap_or_else(|| PathBuf::from("/run/current-system/sw/bin/sshd"));
         self.child = Some(
             Process::new(sshd)
+                .env("HOME", self.root.path())
                 .args(["-D", "-e", "-f"])
                 .arg(self.path("sshd_config"))
                 .stdin(Stdio::null())
@@ -521,4 +522,41 @@ fn disconnected_host_reconnects_without_a_new_file_command() {
             }
         )
     });
+}
+
+#[test]
+fn resumed_download_restarts_when_the_remote_source_changed() {
+    let mut server = Server::new();
+    fs::write(server.path("large"), vec![3; 16 * 1024 * 1024]).unwrap();
+    fs::create_dir(server.path("downloads")).unwrap();
+    let (files, rx) = server.files();
+    server.trust(&files, &rx);
+    files.send(
+        91,
+        Command::Transfer {
+            mode: TransferMode::Copy,
+            sources: vec![Location::host("loopback", server.path("large"))],
+            destination: Location::local(server.path("downloads")),
+        },
+    );
+    until(
+        &rx,
+        |e| matches!(e,Event::Transfer { transfer } if transfer.id == 91 && transfer.bytes_done > 0),
+    );
+    server.stop();
+    until(
+        &rx,
+        |e| matches!(e,Event::Transfer { transfer } if transfer.id == 91 && matches!(transfer.state,TransferState::WaitingForHost { .. })),
+    );
+    fs::write(server.path("large"), "replacement after disconnect").unwrap();
+    server.start();
+    files.network_changed();
+    until(
+        &rx,
+        |e| matches!(e,Event::Transfer { transfer } if transfer.id == 91 && transfer.state == TransferState::Done),
+    );
+    assert_eq!(
+        fs::read_to_string(server.path("downloads/large")).unwrap(),
+        "replacement after disconnect"
+    );
 }

@@ -413,6 +413,14 @@ impl Runner<'_> {
             }
             let bytes = self.retry(|| engine.read_chunk(source, offset))?;
             if bytes.is_empty() {
+                // A reconnect may return EOF after the source shrank while
+                // read_chunk was waiting. Do not publish the old prefix.
+                let current = self.retry(|| engine.info(source))?;
+                if (current.size, current.modified) != baseline
+                    || current.size.is_some_and(|size| size != offset)
+                {
+                    continue;
+                }
                 break;
             }
             // On a lost write acknowledgement retry the same offset, rather

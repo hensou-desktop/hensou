@@ -63,7 +63,8 @@ through Error or a retained journal.
 Tests use isolated temporary directories, injected platform implementations,
 and an unprivileged loopback sshd with temporary host/user keys. They do not
 use the owner's SSH configuration or known_hosts. The sshd SFTP starting
-directory is its temporary root. Set `HENSOU_TEST_SSHD` if sshd is not at
+directory is its temporary root. The daemon and sessions use a temporary HOME;
+user SSH rc files are disabled. Set `HENSOU_TEST_SSHD` if sshd is not at
 `/run/current-system/sw/bin/sshd`. SSH runtime directories use short temporary
 paths under `/tmp`, independent of a Nix shell's TMPDIR.
 
