@@ -103,6 +103,59 @@
           mainProgram = "hensou-demo";
         };
       };
+      # The resident Files app (apps/files), built like hensou-demo.
+      files = pkgs.rustPlatform.buildRustPackage {
+        pname = "hensou-files";
+        version = "0.1.0";
+        src = source;
+        cargoLock.lockFile = ./Cargo.lock;
+        cargoBuildFlags = [
+          "--package"
+          "hensou-files"
+        ];
+        # UI behavior is tested on a real Wayland display by tools/test-files.sh.
+        doCheck = false;
+        nativeBuildInputs = [
+          pkgs.pkg-config
+          pkgs.autoPatchelfHook
+          pkgs.lld
+          pkgs.qt6.wrapQtAppsHook
+        ];
+        buildInputs = with pkgs.qt6; [
+          qtbase
+          qtdeclarative
+          qtwayland
+          qtsvg
+          pkgs.libglvnd
+          pkgs.stdenv.cc.cc.lib
+        ];
+        RUSTFLAGS = "-C link-arg=-fuse-ld=lld";
+        QMAKE = "${qt}/bin/qmake";
+        preBuild = ''
+          export QMAKE=${qt}/bin/qmake
+        '';
+        postInstall = ''
+          install -Dm644 apps/files/hensou-files.desktop $out/share/applications/hensou-files.desktop
+        '';
+        qtWrapperArgs = [
+          "--set"
+          "HENSOU_FONT_DIRECTORY"
+          "${fonts.hensou-fonts}/share/fonts/truetype"
+          "--set"
+          "HENSOU_QML_IMPORT_PATH"
+          "${kit}/lib/qt-6/qml"
+          "--prefix"
+          "QML_IMPORT_PATH"
+          ":"
+          "${kit}/lib/qt-6/qml"
+        ];
+        meta = {
+          description = "Hensou Files: local and SSH file manager in Platinum and Memphis";
+          license = pkgs.lib.licenses.mit;
+          platforms = [ system ];
+          mainProgram = "hensou-files";
+        };
+      };
     in
     {
       packages.${system} = {
@@ -110,6 +163,7 @@
         hensou-qml = kit;
         hensou-demo = demo;
         hensou-xtask = tools;
+        hensou-files = files;
         default = demo;
       };
       checks.${system}.workspace = tools;

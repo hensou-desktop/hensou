@@ -645,7 +645,14 @@ dependencies = [
 name = "hensou-files"
 version = "0.1.0"
 dependencies = [
+ "cxx",
+ "cxx-qt",
+ "cxx-qt-build",
+ "cxx-qt-lib",
  "hensou-files-model",
+ "hensou-qt-host",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
