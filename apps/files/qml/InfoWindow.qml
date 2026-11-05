@@ -25,7 +25,8 @@ Window {
     title: win98 ? shownName + " Properties" : shownName + " Info"
     flags: Qt.Window | Qt.FramelessWindowHint
     color: win98 ? Win98Tokens.face : PlatinumTokens.menuSurface
-    width: win98 ? 300 * u : 340
+    // Logical sizes: the unit is only known after the window maps.
+    width: win98 ? 400 : 340
     readonly property real wantedHeight: Math.max(200, frame.item ? Math.ceil(frame.item.implicitHeight) : 380)
     height: wantedHeight
     // As in AlertWindow: fit the content again once the scale settles.
@@ -38,7 +39,7 @@ Window {
         // A compositor that keeps another size wins after a few tries.
         onTriggered: if (root.refits++ < 8) { root.height = root.wantedHeight; root.height = Qt.binding(function() { return root.wantedHeight; }); }
     }
-    minimumWidth: win98 ? 200 * u : 240
+    minimumWidth: win98 ? 280 : 240
     minimumHeight: 160
 
     function focusName() { Qt.callLater(function() { if (frame.item) frame.item.focusName(); }); }

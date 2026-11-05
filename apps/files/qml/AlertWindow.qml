@@ -16,7 +16,8 @@ Window {
 
     readonly property bool win98: Theme.name === "win98"
     readonly property real u: 2 / Math.max(0.5, metrics.devicePixelRatio)
-    readonly property real frameWidth: win98 ? 330 * u : 440
+    // Logical, not units: the unit is only known after the window maps.
+    readonly property real frameWidth: 440
 
     title: spec.title || (win98 ? "Files" : "Alert")
     flags: Qt.Dialog | Qt.FramelessWindowHint
