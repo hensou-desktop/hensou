@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Files
+GenericName=File Manager
+Comment=Browse local folders and SSH hosts
+Exec=hensou-files %U
+Icon=hensou-files
+Terminal=false
+Categories=System;FileTools;FileManager;
+MimeType=inode/directory;
+StartupNotify=false
+Keywords=folder;files;ssh;sftp;
