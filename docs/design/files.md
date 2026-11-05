@@ -41,6 +41,8 @@ Credentials use the existing sops-managed secret-file arrangement. There is no n
 
 The shell draws Desktop folder contents, the local computer, a single SSH Hosts entry, libraries and Trash. Mounted volumes follow each theme's desktop convention. Files supplies data and actions. Users place icons freely, with arrange/cleanup and recovery after display changes.
 
+See [desktop-icons.md](desktop-icons.md) for the Phase 5 design.
+
 ## Non-goals for the first build
 
 No Android, search, new theme variants, library import/delete, or desktop icons. No migrations of the existing desktop happen until kit parity is proved.

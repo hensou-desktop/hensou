@@ -41,3 +41,20 @@ A service-owned catalog presented as items and collections rather than storage p
 
 **Item**:
 A catalog entry that the desktop can open or copy as a file when its service provides the original bytes.
+
+**Desktop**:
+The primary screen's background, where the shell shows desktop icons. Other screens show the pattern only.
+
+**Desktop icon**:
+One thing shown on the desktop: an entry in the desktop folder, the local computer, a volume, the SSH Hosts entry, the libraries, or the Trash. The shell draws it; Files supplies it and acts on it.
+
+**Desktop folder**:
+The user's XDG Desktop directory, `~/Desktop` by default. Its entries appear as desktop icons.
+_Avoid_: desktop (for the folder)
+
+**Volume**:
+A mounted disk or removable drive. Platinum shows each volume on the desktop; Memphis shows them inside My Computer.
+_Avoid_: mount, drive (in user-visible text, each theme uses its own word)
+
+**Trash**:
+Where deleted local files wait until the user empties it. Memphis calls it the Recycle Bin.
