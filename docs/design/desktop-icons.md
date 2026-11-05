@@ -33,7 +33,7 @@ Not in this release: New Folder, drag between the desktop and app windows, cut/c
 
 ## Opening
 
-Files open with their normal desktop handler. Until Files has windows, folders, the computer, the Trash and volumes open with the current default folder handler; SSH Hosts shows a themed notice that Files is not installed yet. A temporary host runs the provider crate until Files' resident process embeds it.
+Files open with their normal desktop handler. Folders, the computer, volumes, the Trash and SSH Hosts open Files windows. The computer icon opens the same Computer window as Super+E. Files' resident process embeds the provider; Phases 3 and 5 ship in one build and one deploy.
 
 ## Volumes
 
@@ -41,6 +41,6 @@ Removable media mounts on insert through udisks2, under `/run/media/$USER`. Inte
 
 ## Icon art
 
-Desktop icons never show Adwaita or hicolor art: that breaks the period look. A file uses its theme's exact icon when the theme's own set has one. Otherwise it gets the theme's generic icon for its kind: document, text, image, audio, video, archive, application or folder. A symbolic link shows as an alias (Platinum, italic name) or a shortcut (Memphis, arrow overlay), as in Files. No thumbnails. An app launcher whose icon exists only in hicolor gets a period lettermark in the theme's style, as web apps do today.
+Desktop icons never show Adwaita or hicolor art: that breaks the period look. A file uses its theme's exact icon when the theme's own set has one. Otherwise it gets the theme's generic icon for its kind: document, text, image, audio, video, archive, application or folder. A symbolic link shows as an alias (Platinum, italic name) or a shortcut (Memphis, arrow overlay), as in Files. No thumbnails. An app launcher whose icon exists only in hicolor gets a period lettermark in the theme's style, from the same generator as the tray's app icons.
 
 The desktop folder is the XDG Desktop directory, `~/Desktop` by default, created when missing.
