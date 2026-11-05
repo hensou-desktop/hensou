@@ -82,7 +82,12 @@ pub struct IconHint {
     /// A freedesktop MIME type or icon name, such as `text-plain` or `folder`.
     pub name: String,
     /// The launcher's own icon name, for lettermark decisions.
+    #[serde(default)]
     pub launcher_icon: Option<String>,
+    /// The launcher's display name (`Name=` in its `.desktop` file); the
+    /// lettermark uses its first letter. `None` for anything but launchers.
+    #[serde(default)]
+    pub launcher_name: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

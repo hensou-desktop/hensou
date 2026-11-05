@@ -23,6 +23,7 @@ fn icon(name: &str) -> IconHint {
     IconHint {
         name: name.into(),
         launcher_icon: None,
+        launcher_name: None,
     }
 }
 
