@@ -216,12 +216,20 @@ impl UdisksBackend for SystemBus {
             let filesystem = self.proxy(path.as_str(), "org.freedesktop.UDisks2.Filesystem")?;
             let points: Vec<Vec<u8>> = filesystem.get_property("MountPoints").map_err(bus_error)?;
             use std::os::unix::ffi::OsStringExt;
-            let mount_point = points.into_iter().next().map(|mut bytes| {
-                if bytes.last() == Some(&0) {
-                    bytes.pop();
-                }
-                PathBuf::from(std::ffi::OsString::from_vec(bytes))
-            });
+            let points: Vec<PathBuf> = points
+                .into_iter()
+                .map(|mut bytes| {
+                    if bytes.last() == Some(&0) {
+                        bytes.pop();
+                    }
+                    PathBuf::from(std::ffi::OsString::from_vec(bytes))
+                })
+                .collect();
+            // The system disk is the computer icon, not a volume.
+            if is_system_mount(&points) {
+                continue;
+            }
+            let mount_point = points.into_iter().next();
             let label: String = block.get_property("IdLabel").unwrap_or_default();
             result.push(Device {
                 volume: Volume {
@@ -271,5 +279,35 @@ impl UdisksBackend for SystemBus {
         self.proxy(drive, "org.freedesktop.UDisks2.Drive")?
             .call("PowerOff", &(options,))
             .map_err(bus_error)
+    }
+}
+
+/// A filesystem that holds the running system: the root, the Nix store or
+/// the boot partition. It belongs to the computer, never to a volume icon.
+pub fn is_system_mount(points: &[PathBuf]) -> bool {
+    points.iter().any(|p| {
+        ["/", "/nix", "/nix/store", "/boot", "/efi", "/home", "/persist"]
+            .iter()
+            .any(|system| p == std::path::Path::new(system))
+    })
+}
+
+#[cfg(test)]
+mod system_mount_tests {
+    use super::is_system_mount;
+    use std::path::PathBuf;
+
+    #[test]
+    fn the_root_disk_is_not_a_volume() {
+        let root: Vec<PathBuf> = ["/srv/games", "/", "/nix/store"].map(PathBuf::from).into();
+        assert!(is_system_mount(&root));
+        assert!(is_system_mount(&[PathBuf::from("/boot")]));
+    }
+
+    #[test]
+    fn other_disks_and_media_are_volumes() {
+        assert!(!is_system_mount(&[PathBuf::from("/run/media/simon/USB")]));
+        assert!(!is_system_mount(&[PathBuf::from("/srv/media")]));
+        assert!(!is_system_mount(&[]));
     }
 }
