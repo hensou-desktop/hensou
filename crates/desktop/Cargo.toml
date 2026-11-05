@@ -12,3 +12,11 @@ workspace = true
 [dependencies]
 hensou-files-model.workspace = true
 hensou-desktop-protocol.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+notify.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+hensou-trash = { path = "../trash" }
+hensou-file-icons = { path = "../file-icons" }

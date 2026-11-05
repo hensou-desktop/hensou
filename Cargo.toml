@@ -29,6 +29,13 @@ serde_json = "1.0.154"
 hensou-files-model = { path = "crates/files-model" }
 hensou-desktop-protocol = { path = "crates/desktop-protocol" }
 
+tempfile = "3"
+notify = "8"
+chrono = "0.4"
+percent-encoding = "2"
+nix = { version = "0.30", features = ["user", "fs"] }
+zbus = { version = "5", default-features = false, features = ["blocking-api", "async-io"] }
+
 [workspace.lints.rust]
 unsafe_code = "forbid"
 

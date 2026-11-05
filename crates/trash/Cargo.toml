@@ -11,3 +11,10 @@ workspace = true
 
 [dependencies]
 hensou-files-model.workspace = true
+notify.workspace = true
+chrono.workspace = true
+percent-encoding.workspace = true
+nix.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
