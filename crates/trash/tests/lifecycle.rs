@@ -96,9 +96,14 @@ fn different_filesystem_uses_relative_volume_trashinfo() {
 }
 #[test]
 fn watch_adds_trash_roots_created_after_subscription() {
-    let home = tempfile::tempdir().unwrap(); let volume = tempfile::tempdir().unwrap();
-    let store = FreedesktopTrash::new(home.path().join("Trash"), vec![volume.path().into()]).unwrap();
-    let (tx, rx) = std::sync::mpsc::channel(); store.watch(Box::new(move || { let _ = tx.send(()); }));
+    let home = tempfile::tempdir().unwrap();
+    let volume = tempfile::tempdir().unwrap();
+    let store =
+        FreedesktopTrash::new(home.path().join("Trash"), vec![volume.path().into()]).unwrap();
+    let (tx, rx) = std::sync::mpsc::channel();
+    store.watch(Box::new(move || {
+        let _ = tx.send(());
+    }));
     let root = hensou_trash::volume_trash(volume.path()).unwrap();
     rx.recv_timeout(std::time::Duration::from_secs(4)).unwrap();
     while rx.try_recv().is_ok() {}
@@ -107,11 +112,20 @@ fn watch_adds_trash_roots_created_after_subscription() {
 }
 #[test]
 fn unsafe_volume_trash_requires_permanent_delete() {
-    let home = tempfile::tempdir().unwrap(); let volume = tempfile::tempdir_in("/dev/shm").unwrap();
-    let store = FreedesktopTrash::new(home.path().join("Trash"), vec![volume.path().into()]).unwrap();
-    let root = volume.path().join(format!(".Trash-{}", nix::unistd::Uid::current()));
+    let home = tempfile::tempdir().unwrap();
+    let volume = tempfile::tempdir_in("/dev/shm").unwrap();
+    let store =
+        FreedesktopTrash::new(home.path().join("Trash"), vec![volume.path().into()]).unwrap();
+    let root = volume
+        .path()
+        .join(format!(".Trash-{}", nix::unistd::Uid::current()));
     std::os::unix::fs::symlink(home.path(), root).unwrap();
-    let source = volume.path().join("file"); std::fs::write(&source, "data").unwrap();
-    assert!(matches!(store.delete_kind(&source), DeleteKind::Permanent { .. }));
-    assert!(store.trash(&source).is_err()); assert_eq!(std::fs::read_to_string(source).unwrap(), "data");
+    let source = volume.path().join("file");
+    std::fs::write(&source, "data").unwrap();
+    assert!(matches!(
+        store.delete_kind(&source),
+        DeleteKind::Permanent { .. }
+    ));
+    assert!(store.trash(&source).is_err());
+    assert_eq!(std::fs::read_to_string(source).unwrap(), "data");
 }

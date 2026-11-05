@@ -331,7 +331,9 @@ fn no_writable_trash_requires_permanent_confirmation() {
 fn overflow_cascades_without_dropping_icons() {
     let h = Harness::new();
     let _server = h.start();
-    for name in ["a", "b", "c", "d", "e", "f"] { std::fs::write(h.dir.path().join("Desktop").join(name), "data").unwrap(); }
+    for name in ["a", "b", "c", "d", "e", "f"] {
+        std::fs::write(h.dir.path().join("Desktop").join(name), "data").unwrap();
+    }
     let mut c = h.client();
     c.send(ShellMessage::Subscribe {
         theme: Theme::Memphis,

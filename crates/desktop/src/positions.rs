@@ -141,6 +141,8 @@ fn overflow(cells: &[Point], used: &[Point], screen: &ScreenLayout) -> Point {
 }
 
 fn occupied(cell: Point, used: &[Point]) -> bool {
-    used.iter().any(|p| (i64::from(p.x) - i64::from(cell.x)).abs() < i64::from(GRID.cell_width)
-        && (i64::from(p.y) - i64::from(cell.y)).abs() < i64::from(GRID.cell_height))
+    used.iter().any(|p| {
+        (i64::from(p.x) - i64::from(cell.x)).abs() < i64::from(GRID.cell_width)
+            && (i64::from(p.y) - i64::from(cell.y)).abs() < i64::from(GRID.cell_height)
+    })
 }
