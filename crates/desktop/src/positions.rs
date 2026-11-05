@@ -41,9 +41,9 @@ impl Positions {
                 .or_else(|| self.latest.get(&icon.id))
                 .copied();
             let position = match old {
-                Some(p) if inside(screen, p) => p,
-                Some(p) => nearest(&cells, &used, p),
-                None => first(&cells, &used),
+                Some(p) if inside(screen, p) || (used.len() >= cells.len() && origin_inside(screen, p)) => p,
+                Some(p) => nearest(&cells, &used, p, screen),
+                None => first(&cells, &used, screen),
             };
             used.push(position);
             icon.position = position;
@@ -85,14 +85,14 @@ pub fn cells(s: &ScreenLayout) -> Vec<Point> {
     }
     points
 }
-pub fn first(cells: &[Point], used: &[Point]) -> Point {
+pub fn first(cells: &[Point], used: &[Point], screen: &ScreenLayout) -> Point {
     cells
         .iter()
         .find(|p| !used.contains(p))
         .copied()
-        .unwrap_or(cells[0])
+        .unwrap_or_else(|| overflow(cells, used, screen))
 }
-pub fn nearest(cells: &[Point], used: &[Point], point: Point) -> Point {
+pub fn nearest(cells: &[Point], used: &[Point], point: Point, screen: &ScreenLayout) -> Point {
     cells
         .iter()
         .filter(|p| !used.contains(p))
@@ -102,5 +102,25 @@ pub fn nearest(cells: &[Point], used: &[Point], point: Point) -> Point {
             i128::from(x) * i128::from(x) + i128::from(y) * i128::from(y)
         })
         .copied()
-        .unwrap_or(cells[0])
+        .unwrap_or_else(|| overflow(cells, used, screen))
+}
+
+fn origin_inside(s: &ScreenLayout, p: Point) -> bool {
+    i64::from(p.x) >= i64::from(s.usable.x) && i64::from(p.y) >= i64::from(s.usable.y)
+        && i64::from(p.x) < i64::from(s.usable.x) + i64::from(s.usable.width)
+        && i64::from(p.y) < i64::from(s.usable.y) + i64::from(s.usable.height)
+}
+// The coordinator's overflow rule: 12px cascade, then 6px inset on wrap.
+fn overflow(cells: &[Point], used: &[Point], screen: &ScreenLayout) -> Point {
+    let last = cells[cells.len() - 1];
+    let n = used.len().saturating_sub(cells.len()) as i64 + 1;
+    let offset = n * 12;
+    let x = i64::from(last.x) + offset;
+    let y = i64::from(last.y) + offset;
+    let right = i64::from(screen.usable.x) + i64::from(screen.usable.width);
+    let bottom = i64::from(screen.usable.y) + i64::from(screen.usable.height);
+    if x < right && y < bottom { return Point { x: x as i32, y: y as i32 }; }
+    let capacity = ((right - i64::from(last.x) - 1).min(bottom - i64::from(last.y) - 1) / 12).max(0);
+    let wrapped = 6 + (n - capacity - 1) * 12;
+    Point { x: screen.usable.x + (wrapped % i64::from(screen.usable.width)) as i32, y: screen.usable.y + (wrapped % i64::from(screen.usable.height)) as i32 }
 }

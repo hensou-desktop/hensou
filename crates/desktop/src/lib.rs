@@ -68,6 +68,8 @@ struct Session {
     out: Mutex<UnixStream>,
     subscription: Mutex<Option<(Theme, ScreenLayout, Vec<DesktopIcon>)>>,
 }
+type PendingActions = HashMap<u64, (Weak<Session>, Vec<String>)>;
+
 pub struct DesktopProvider {
     service: Arc<dyn FilesService>,
     trash: Arc<dyn TrashStore>,
@@ -77,7 +79,7 @@ pub struct DesktopProvider {
     positions: Mutex<Positions>,
     sessions: Mutex<Vec<Weak<Session>>>,
     next_request: AtomicU64,
-    pending: Mutex<HashMap<u64, (Weak<Session>, Vec<String>)>>,
+    pending: Mutex<PendingActions>,
 }
 pub struct ProviderHandle {
     stop: Arc<AtomicBool>,
@@ -148,10 +150,9 @@ impl DesktopProvider {
         let weak = Arc::downgrade(&provider);
         let mut watcher =
             notify::recommended_watcher(move |event: notify::Result<notify::Event>| {
-                if event.is_ok_and(|event| !matches!(event.kind, notify::EventKind::Access(_))) {
-                    if let Some(provider) = weak.upgrade() {
-                        provider.refresh();
-                    }
+                if event.is_ok_and(|event| !matches!(event.kind, notify::EventKind::Access(_)))
+                    && let Some(provider) = weak.upgrade() {
+                    provider.refresh();
                 }
             })
             .map_err(io::Error::other)?;
@@ -178,6 +179,9 @@ impl DesktopProvider {
                     }
                     Err(_) => break,
                 }
+            }
+            for session in provider.sessions.lock().unwrap().iter().filter_map(Weak::upgrade) {
+                let _ = session.out.lock().unwrap().shutdown(std::net::Shutdown::Both);
             }
         });
         Ok(ProviderHandle {
@@ -295,10 +299,9 @@ impl DesktopProvider {
                 request: Some(request),
                 error,
             } => {
-                if let Some((session, ids)) = self.pending.lock().unwrap().remove(&request) {
-                    if let Some(session) = session.upgrade() {
-                        let _ = send(&session, &protocol_error(error, ids));
-                    }
+                if let Some((session, ids)) = self.pending.lock().unwrap().remove(&request)
+                    && let Some(session) = session.upgrade() {
+                    let _ = send(&session, &protocol_error(error, ids));
                 }
             }
             Event::Done { request } => {
@@ -313,12 +316,10 @@ impl DesktopProvider {
                         | hensou_files_model::TransferState::Failed { .. }
                 ) {
                     let pending = self.pending.lock().unwrap().remove(&transfer.id);
-                    if let hensou_files_model::TransferState::Failed { reason } = &transfer.state {
-                        if let Some((session, ids)) = pending {
-                            if let Some(session) = session.upgrade() {
-                                let _ = send(&session, &protocol_error(other(reason), ids));
-                            }
-                        }
+                    if let hensou_files_model::TransferState::Failed { reason } = &transfer.state
+                        && let Some((session, ids)) = pending
+                        && let Some(session) = session.upgrade() {
+                        let _ = send(&session, &protocol_error(other(reason), ids));
                     }
                     self.refresh();
                 }
@@ -520,7 +521,7 @@ impl DesktopProvider {
                         .find(|i| i.id == id)
                         .ok_or(FilesError::NotFound)?;
                     icon.position = if snap || !positions::inside(&screen, requested) {
-                        positions::nearest(&cells, &used, requested)
+                        positions::nearest(&cells, &used, requested, &screen)
                     } else {
                         requested
                     };
@@ -552,9 +553,9 @@ impl DesktopProvider {
                 let mut used = Vec::new();
                 for icon in &mut icons {
                     icon.position = if by == ArrangeBy::CleanUp {
-                        positions::nearest(&cells, &used, icon.position)
+                        positions::nearest(&cells, &used, icon.position, &screen)
                     } else {
-                        positions::first(&cells, &used)
+                        positions::first(&cells, &used, &screen)
                     };
                     used.push(icon.position);
                 }

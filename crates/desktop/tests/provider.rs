@@ -327,3 +327,52 @@ fn no_writable_trash_requires_permanent_confirmation() {
     )
     .unwrap();
 }
+#[test]
+fn overflow_cascades_without_dropping_icons() {
+    let h = Harness::new(); let _server = h.start(); let mut c = h.client();
+    c.send(ShellMessage::Subscribe { theme: Theme::Memphis, screen: ScreenLayout { output: "tiny".into(), width: 80, height: 72, scale: 1.0, usable: Rect { x: 0, y: 0, width: 80, height: 72 } } });
+    let ProviderMessage::Snapshot { icons, .. } = c.read() else { panic!("expected snapshot"); };
+    assert_eq!(icons.len(), 3);
+    assert_eq!(icons.iter().map(|i| i.position).collect::<Vec<_>>(), [Point { x: 0, y: 0 }, Point { x: 12, y: 12 }, Point { x: 24, y: 24 }]);
+}
+#[test]
+fn actions_route_to_service_with_distinct_provider_request_ids() {
+    let h = Harness::new(); let _server = h.start();
+    std::fs::write(h.dir.path().join("Desktop/a.txt"), "data").unwrap();
+    std::fs::create_dir(h.dir.path().join("Desktop/Folder")).unwrap();
+    let mut c = h.client(); c.subscribe(Theme::Platinum, 1280);
+    let ids = vec!["file:a.txt".to_string()];
+    for action in [ShellMessage::Rename { id: ids[0].clone(), name: "renamed.txt".into() }, ShellMessage::Trash { ids: ids.clone() }, ShellMessage::DeletePermanently { ids: ids.clone() }, ShellMessage::Drop { ids: ids.clone(), target: "file:Folder".into() }, ShellMessage::Drop { ids, target: "trash".into() }, ShellMessage::EmptyTrash] { c.send(action); }
+    c.subscribe(Theme::Platinum, 1280);
+    let commands = h.service.commands.lock().unwrap();
+    assert_eq!(commands.len(), 6);
+    assert!(commands.windows(2).all(|pair| pair[0].0 < pair[1].0));
+    assert!(matches!(commands[0].1, Command::Rename { .. }));
+    assert!(matches!(commands[1].1, Command::MoveToTrash { .. }));
+    assert!(matches!(commands[2].1, Command::DeletePermanently { .. }));
+    assert!(matches!(commands[3].1, Command::Transfer { mode: hensou_files_model::TransferMode::Move, .. }));
+    assert!(matches!(commands[4].1, Command::MoveToTrash { .. }));
+    assert!(matches!(commands[5].1, Command::EmptyTrash));
+}
+#[test]
+fn aliases_launchers_and_arrange_sort_metadata() {
+    let h = Harness::new(); let _server = h.start();
+    let desktop = h.dir.path().join("Desktop");
+    std::fs::write(desktop.join("a.txt"), "longer").unwrap();
+    std::fs::write(desktop.join("z.txt"), "x").unwrap();
+    std::os::unix::fs::symlink("a.txt", desktop.join("Alias")).unwrap();
+    std::fs::write(desktop.join("app.desktop"), "[Desktop Entry]\nName=Editor\nIcon=editor\n").unwrap();
+    let mut c = h.client(); let (icons, _) = c.subscribe(Theme::Memphis, 1280);
+    assert_eq!(icons.iter().find(|i| i.id == "file:Alias").unwrap().kind, IconKind::Alias);
+    assert!(matches!(icons.iter().find(|i| i.id == "file:app.desktop").unwrap().art, IconArt::Lettermark { letter: 'E', .. }));
+    c.send(ShellMessage::Arrange { by: ArrangeBy::Size }); let (icons, _) = c.subscribe(Theme::Memphis, 1280);
+    assert!(icons.iter().find(|i| i.id == "file:z.txt").unwrap().position.y < icons.iter().find(|i| i.id == "file:a.txt").unwrap().position.y);
+    c.send(ShellMessage::Arrange { by: ArrangeBy::Kind }); let (icons, _) = c.subscribe(Theme::Memphis, 1280);
+    assert_eq!(icons.iter().find(|i| i.id == "file:Alias").unwrap().position, Point { x: 0, y: 24 });
+    let old = std::time::UNIX_EPOCH + Duration::from_secs(1000);
+    let new = std::time::UNIX_EPOCH + Duration::from_secs(2000);
+    std::fs::File::open(desktop.join("z.txt")).unwrap().set_modified(old).unwrap();
+    std::fs::File::open(desktop.join("a.txt")).unwrap().set_modified(new).unwrap();
+    c.send(ShellMessage::Arrange { by: ArrangeBy::Date }); let (icons, _) = c.subscribe(Theme::Memphis, 1280);
+    assert!(icons.iter().find(|i| i.id == "file:z.txt").unwrap().position.y < icons.iter().find(|i| i.id == "file:a.txt").unwrap().position.y);
+}

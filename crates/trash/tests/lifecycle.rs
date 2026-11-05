@@ -67,3 +67,17 @@ fn volume_uses_sticky_shared_trash_and_rejects_symlinks() {
     .unwrap();
     assert!(hensou_trash::volume_trash(unsafe_dir.path()).is_err());
 }
+#[test]
+fn different_filesystem_uses_relative_volume_trashinfo() {
+    let home = tempfile::tempdir().unwrap();
+    let volume = tempfile::tempdir_in("/dev/shm").unwrap();
+    use std::os::unix::fs::MetadataExt;
+    assert_ne!(std::fs::metadata(home.path()).unwrap().dev(), std::fs::metadata(volume.path()).unwrap().dev());
+    let store = FreedesktopTrash::new(home.path().join("Trash"), vec![volume.path().into()]).unwrap();
+    let file = volume.path().join("a b"); std::fs::write(&file, "data").unwrap();
+    let stored = store.trash(&file).unwrap(); assert!(stored.starts_with(volume.path()));
+    let info = stored.parent().unwrap().parent().unwrap().join("info/a b.trashinfo");
+    let text = std::fs::read_to_string(info).unwrap(); assert!(text.contains("Path=a%20b\n")); assert!(text.contains("DeletionDate="));
+    assert_eq!(store.items().unwrap()[0].original.path, file);
+    assert_eq!(store.restore(&stored).unwrap(), file);
+}
