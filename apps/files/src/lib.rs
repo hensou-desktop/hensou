@@ -1,5 +1,5 @@
 //! Files: the resident Hensou file manager. One process owns every Files
-//! window, the transfers and (after Integrate) the desktop provider.
+//! window, the transfers and the embedded desktop provider.
 
 pub mod bridge;
 pub mod cli;

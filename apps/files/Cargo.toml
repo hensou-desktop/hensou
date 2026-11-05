@@ -16,6 +16,13 @@ cxx-qt = "=0.10.0"
 cxx-qt-lib = { version = "=0.10.0", features = ["qt_full"] }
 hensou-qt-host = { path = "../../crates/qt-host" }
 hensou-files-model.workspace = true
+hensou-files-core = { path = "../../crates/files-core" }
+hensou-desktop = { path = "../../crates/desktop" }
+hensou-desktop-protocol.workspace = true
+hensou-trash = { path = "../../crates/trash" }
+hensou-volumes = { path = "../../crates/volumes" }
+hensou-file-icons = { path = "../../crates/file-icons" }
+zbus.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 
