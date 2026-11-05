@@ -27,7 +27,6 @@ Loader {
     Component {
         id: platinum
         Text {
-            width: root.width > 0 ? root.width : implicitWidth
             text: root.text
             textFormat: Text.PlainText
             wrapMode: root.wrap ? Text.WrapAtWordBoundaryOrAnywhere : Text.NoWrap
@@ -45,7 +44,6 @@ Loader {
     Component {
         id: memphis
         Win98Text {
-            width: root.width > 0 ? root.width : implicitWidth
             text: root.text
             accessMarks: false
             wrap: root.wrap

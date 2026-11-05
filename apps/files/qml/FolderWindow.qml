@@ -70,7 +70,11 @@ ApplicationWindow {
     }
 
     // ---- loading and memory ----
+    // Lists the folder and its view memory once per location.
+    property string loadedKey: ""
     function load() {
+        if (loadedKey === locationKey) return;
+        loadedKey = locationKey;
         selection = {};
         currentKey = "";
         anchorKey = "";
@@ -257,6 +261,7 @@ ApplicationWindow {
         });
     }
     function refresh() { app.store.list(location); }
+
     function reconnect() {
         const h = Model.hostName(location);
         if (h) app.store.send({ command: "connect", host: h });

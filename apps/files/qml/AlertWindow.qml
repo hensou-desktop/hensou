@@ -25,11 +25,12 @@ Window {
     transientParent: owner
     color: win98 ? Win98Tokens.face : PlatinumTokens.menuSurface
     width: frameWidth
-    height: Math.max(80, frame.item ? Math.ceil(frame.item.implicitHeight) : 160)
-    minimumWidth: width
-    maximumWidth: width
-    minimumHeight: height
-    maximumHeight: height
+    readonly property real wantedHeight: Math.max(80, frame.item ? Math.ceil(frame.item.implicitHeight) : 160)
+    height: wantedHeight
+    minimumWidth: frameWidth
+    maximumWidth: frameWidth
+    minimumHeight: wantedHeight
+    maximumHeight: wantedHeight
 
     function present() {
         show();

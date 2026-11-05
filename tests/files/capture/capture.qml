@@ -39,7 +39,7 @@ TestCase {
         const win = app.openLocation(location, {});
         verify(win);
         if (w) { win.width = w; win.height = h; }
-        tryVerify(function() { return win.visible && win.listing && win.listing.status !== "loading"; }, 4000);
+        tryVerify(function() { return win.visible && win.listing && (win.listing.status === "ready" || win.listing.status === "error"); }, 4000);
         return win;
     }
     function entryNamed(w, name) {

@@ -239,7 +239,7 @@ for_window [app_id=".*"] floating enable
                 log(f"captured {name}")
 
             code = run_streaming(
-                [tests_binary, "tests/files/capture"], "capture", on_capture
+                [tests_binary, "tests/files/capture/capture.qml"], "capture", on_capture
             )
             results["phases"]["capture"] = code
             results["captures"] = sorted(p.name for p in shots.glob("*.png"))

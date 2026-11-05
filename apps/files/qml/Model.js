@@ -440,7 +440,9 @@ function noteRequest(state, id, info) {
 function markLoading(state, location) {
     var k = key(location);
     var old = state.listings[k];
-    return assign(state, { listings: withKey(state.listings, k, { status: old && old.entries ? "refreshing" : "loading", entries: old ? old.entries : [], error: null }) });
+    // Only a folder that was listed refreshes; anything else is still loading.
+    var refreshing = old && (old.status === "ready" || old.status === "refreshing");
+    return assign(state, { listings: withKey(state.listings, k, { status: refreshing ? "refreshing" : "loading", entries: old ? old.entries : [], error: null }) });
 }
 function errorText(error) {
     switch (error.kind) {

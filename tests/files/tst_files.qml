@@ -38,7 +38,7 @@ TestCase {
     function open(location) {
         const w = app.openLocation(location, {});
         verify(w, "window for " + Model.key(location));
-        tryVerify(function() { return w.visible && w.listing && w.listing.status !== "loading"; }, 4000, "listing for " + Model.key(location));
+        tryVerify(function() { return w.visible && w.listing && (w.listing.status === "ready" || w.listing.status === "error"); }, 4000, "listing for " + Model.key(location));
         return w;
     }
     function alertOf(kind) {
@@ -141,7 +141,7 @@ TestCase {
         compare(a.spec.buttons.length, 1);
         verify(a.spec.fingerprint.indexOf("SHA256:") >= 0);
         a.choose("ok");
-        tryCompare(w.banner, "kind", "refused");
+        tryVerify(function() { return w.banner.kind === "refused"; });
         verify(!w.listing || w.listing.status !== "ready");
     }
 
@@ -165,20 +165,20 @@ TestCase {
         useTheme(data.theme);
         const t = app.showTransfers();
         tryVerify(function() { return t.visible; });
-        const conflict = findChild(t, "transfer-" + (Math.pow(2, 47) + 1));
+        const conflict = findChild(t.contentItem, "transfer-" + (Math.pow(2, 47) + 1));
         verify(conflict, "the conflict row");
         verify(findChild(conflict, "conflict-replace"));
         verify(findChild(conflict, "conflict-keep-both"));
         verify(findChild(conflict, "applyToAll").visible);
         compare(findChild(conflict, "conflict-stop").isDefault, true);
-        const ask = findChild(t, "transfer-" + (Math.pow(2, 47) + 2));
+        const ask = findChild(t.contentItem, "transfer-" + (Math.pow(2, 47) + 2));
         verify(findChild(ask, "keep-waiting").visible);
         verify(findChild(ask, "stop-waiting").visible);
-        verify(findChild(t, "transfer-1"), "the waiting transfer");
-        verify(findChild(t, "remote-overwrite"));
-        verify(findChild(t, "remote-keep"));
-        verify(findChild(t, "remote-copy"));
-        verify(findChild(t, "stop-watching"));
+        verify(findChild(t.contentItem, "transfer-1"), "the waiting transfer");
+        verify(findChild(t.contentItem, "remote-overwrite"));
+        verify(findChild(t.contentItem, "remote-keep"));
+        verify(findChild(t.contentItem, "remote-copy"));
+        verify(findChild(t.contentItem, "stop-watching"));
         compare(app.tray.active, true);
         compare(app.tray.needsAttention, true);
     }
@@ -190,18 +190,18 @@ TestCase {
         const id = Math.pow(2, 47) + 1;
         t.applyAll = { [String(id)]: true };
         t.choose(app.store.transfers[String(id)], "keep-both");
-        tryCompare(app.store.transfers[String(id)].state, "state", "running");
+        tryVerify(function() { return app.store.transfers[String(id)].state.state === "running"; });
         app.store.send({ command: "keep-waiting", id: id + 1, keep: true });
-        tryCompare(app.store.transfers[String(id + 1)].state, "state", "waiting-for-host");
+        tryVerify(function() { return app.store.transfers[String(id + 1)].state.state === "waiting-for-host"; });
         const before = Object.keys(app.store.copies).length;
         const first = app.store.copies[Object.keys(app.store.copies)[0]];
         app.store.send({ command: "stop-watching", remote: first.remote });
-        tryCompare(Object.keys(app.store.copies), "length", before - 1);
+        tryVerify(function() { return Object.keys(app.store.copies).length === before - 1; });
         // A new copy uses its request id as the transfer id.
         const req = app.store.transfer([Model.local("/home/fixture/notes.txt")], Model.local("/run/media/fixture/USB"), "copy");
         tryVerify(function() { return app.store.transfers[String(req)] !== undefined; });
         app.store.cancelTransfer(req);
-        tryCompare(app.store.transfers[String(req)].state, "state", "cancelled");
+        tryVerify(function() { return app.store.transfers[String(req)].state.state === "cancelled"; });
     }
 
     // ---- Get Info / Properties ----
