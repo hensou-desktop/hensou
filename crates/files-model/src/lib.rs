@@ -109,12 +109,19 @@ pub enum ConnectionState {
     Connected,
     Connecting,
     /// Windows keep the last listing, greyed, marked "Reconnecting…".
-    Reconnecting { since: i64, attempt: u32 },
+    Reconnecting {
+        since: i64,
+        attempt: u32,
+    },
     /// Idle connections close after 10 minutes; the next action reconnects.
     Idle,
-    Failed { reason: String },
+    Failed {
+        reason: String,
+    },
     /// A changed key is never trusted; this stops reconnecting.
-    HostKeyChanged { fingerprint: String },
+    HostKeyChanged {
+        fingerprint: String,
+    },
 }
 
 /// An unknown host key awaiting explicit trust. Cancel is the default.
@@ -141,12 +148,21 @@ pub enum TransferState {
     Queued,
     Running,
     /// A dropped link: waits, then continues from its byte offset.
-    WaitingForHost { host: String, since: i64 },
+    WaitingForHost {
+        host: String,
+        since: i64,
+    },
     /// After 10 minutes offline the user chooses: keep waiting or cancel.
-    AskKeepWaiting { host: String },
-    Conflict { conflict: Conflict },
+    AskKeepWaiting {
+        host: String,
+    },
+    Conflict {
+        conflict: Conflict,
+    },
     Done,
-    Failed { reason: String },
+    Failed {
+        reason: String,
+    },
     Cancelled,
 }
 
@@ -188,7 +204,9 @@ pub enum WorkingCopyState {
     UploadQueued,
     /// The host's copy changed since it was opened: needs a choice.
     RemoteChanged,
-    Failed { reason: String },
+    Failed {
+        reason: String,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -277,60 +295,165 @@ pub enum DeleteKind {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "command", rename_all = "kebab-case")]
 pub enum Command {
-    List { location: Location },
+    List {
+        location: Location,
+    },
     /// Folders open a Files window; files use the default desktop handler;
     /// remote files open as a working copy.
-    Open { location: Location },
-    OpenWith { location: Location, desktop_id: String },
-    ListHandlers { location: Location },
-    Info { location: Location },
-    Rename { location: Location, new_name: String },
-    NewFolder { parent: Location, name: String },
-    Transfer { mode: TransferMode, sources: Vec<Location>, destination: Location },
-    CancelTransfer { id: TransferId },
-    ResolveConflict { id: TransferId, choice: ConflictChoice, apply_to_all: bool },
-    KeepWaiting { id: TransferId, keep: bool },
+    Open {
+        location: Location,
+    },
+    OpenWith {
+        location: Location,
+        desktop_id: String,
+    },
+    ListHandlers {
+        location: Location,
+    },
+    Info {
+        location: Location,
+    },
+    Rename {
+        location: Location,
+        new_name: String,
+    },
+    NewFolder {
+        parent: Location,
+        name: String,
+    },
+    Transfer {
+        mode: TransferMode,
+        sources: Vec<Location>,
+        destination: Location,
+    },
+    CancelTransfer {
+        id: TransferId,
+    },
+    ResolveConflict {
+        id: TransferId,
+        choice: ConflictChoice,
+        apply_to_all: bool,
+    },
+    KeepWaiting {
+        id: TransferId,
+        keep: bool,
+    },
     /// Reports per location whether deletion would be permanent.
-    CheckDelete { locations: Vec<Location> },
-    MoveToTrash { locations: Vec<Location> },
-    DeletePermanently { locations: Vec<Location> },
-    RestoreFromTrash { items: Vec<Location> },
+    CheckDelete {
+        locations: Vec<Location>,
+    },
+    MoveToTrash {
+        locations: Vec<Location>,
+    },
+    DeletePermanently {
+        locations: Vec<Location>,
+    },
+    RestoreFromTrash {
+        items: Vec<Location>,
+    },
     EmptyTrash,
-    TrustHostKey { host: String, fingerprint: String },
-    RejectHostKey { host: String },
-    Connect { host: String },
-    ResolveRemoteChange { remote: Location, choice: RemoteChangeChoice },
-    StopWatching { remote: Location },
-    Eject { volume_id: String },
-    LoadView { location: Location },
-    SaveView { location: Location, view: ViewMemory },
+    TrustHostKey {
+        host: String,
+        fingerprint: String,
+    },
+    RejectHostKey {
+        host: String,
+    },
+    Connect {
+        host: String,
+    },
+    ResolveRemoteChange {
+        remote: Location,
+        choice: RemoteChangeChoice,
+    },
+    StopWatching {
+        remote: Location,
+    },
+    Eject {
+        volume_id: String,
+    },
+    LoadView {
+        location: Location,
+    },
+    SaveView {
+        location: Location,
+        view: ViewMemory,
+    },
     /// Downloads a remote file for drag/clipboard; the path arrives in
     /// [`Event::Prepared`]. Local locations resolve at once.
-    Prepare { locations: Vec<Location> },
+    Prepare {
+        locations: Vec<Location>,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "event", rename_all = "kebab-case")]
 pub enum Event {
-    Listing { request: RequestId, location: Location, entries: Vec<Entry> },
+    Listing {
+        request: RequestId,
+        location: Location,
+        entries: Vec<Entry>,
+    },
     /// A watched folder changed; hosts re-list or apply the new entries.
-    FolderChanged { location: Location, entries: Vec<Entry> },
-    Info { request: RequestId, entry: Entry },
-    Handlers { request: RequestId, location: Location, handlers: Vec<Handler> },
-    Connection { host: String, state: ConnectionState },
-    HostKey { prompt: HostKeyPrompt },
-    Hosts { names: Vec<String> },
-    Transfer { transfer: Transfer },
-    WorkingCopy { copy: WorkingCopy },
-    WorkingCopyRemoved { remote: Location },
-    DeleteCheck { request: RequestId, results: Vec<(Location, DeleteKind)> },
-    Volumes { volumes: Vec<Volume> },
-    Trash { items: Vec<TrashItem> },
-    View { request: RequestId, location: Location, view: ViewMemory },
-    Prepared { request: RequestId, paths: Vec<PathBuf> },
+    FolderChanged {
+        location: Location,
+        entries: Vec<Entry>,
+    },
+    Info {
+        request: RequestId,
+        entry: Entry,
+    },
+    Handlers {
+        request: RequestId,
+        location: Location,
+        handlers: Vec<Handler>,
+    },
+    Connection {
+        host: String,
+        state: ConnectionState,
+    },
+    HostKey {
+        prompt: HostKeyPrompt,
+    },
+    Hosts {
+        names: Vec<String>,
+    },
+    Transfer {
+        transfer: Transfer,
+    },
+    WorkingCopy {
+        copy: WorkingCopy,
+    },
+    WorkingCopyRemoved {
+        remote: Location,
+    },
+    DeleteCheck {
+        request: RequestId,
+        results: Vec<(Location, DeleteKind)>,
+    },
+    Volumes {
+        volumes: Vec<Volume>,
+    },
+    Trash {
+        items: Vec<TrashItem>,
+    },
+    View {
+        request: RequestId,
+        location: Location,
+        view: ViewMemory,
+    },
+    Prepared {
+        request: RequestId,
+        paths: Vec<PathBuf>,
+    },
     /// The command finished without a more specific event.
-    Done { request: RequestId },
-    Error { request: Option<RequestId>, error: FilesError },
+    Done {
+        request: RequestId,
+    },
+    Error {
+        request: Option<RequestId>,
+        error: FilesError,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

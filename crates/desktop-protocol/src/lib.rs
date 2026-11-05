@@ -23,7 +23,8 @@ pub const PROTOCOL_MINOR: u32 = 0;
 
 /// `$XDG_RUNTIME_DIR/hensou/desktop.sock`.
 pub fn socket_path() -> Option<PathBuf> {
-    std::env::var_os("XDG_RUNTIME_DIR").map(|d| PathBuf::from(d).join("hensou").join("desktop.sock"))
+    std::env::var_os("XDG_RUNTIME_DIR")
+        .map(|d| PathBuf::from(d).join("hensou").join("desktop.sock"))
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -118,24 +119,55 @@ pub enum ArrangeBy {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "kebab-case")]
 pub enum ShellMessage {
-    Hello { major: u32, minor: u32 },
-    Subscribe { theme: Theme, screen: ScreenLayout },
-    Open { ids: Vec<String> },
+    Hello {
+        major: u32,
+        minor: u32,
+    },
+    Subscribe {
+        theme: Theme,
+        screen: ScreenLayout,
+    },
+    Open {
+        ids: Vec<String>,
+    },
     /// The user dropped icons at new positions.
-    Move { moves: Vec<(String, Point)> },
+    Move {
+        moves: Vec<(String, Point)>,
+    },
     /// Icons dropped onto a target icon (Trash, folder, volume).
-    Drop { ids: Vec<String>, target: String },
-    Rename { id: String, name: String },
+    Drop {
+        ids: Vec<String>,
+        target: String,
+    },
+    Rename {
+        id: String,
+        name: String,
+    },
     /// Ask what deleting would do; the provider answers `ConfirmNeeded`.
-    CheckTrash { request: u64, ids: Vec<String> },
+    CheckTrash {
+        request: u64,
+        ids: Vec<String>,
+    },
     /// Sent after the shell's confirmation, when one was needed.
-    Trash { ids: Vec<String> },
-    DeletePermanently { ids: Vec<String> },
-    CheckEmptyTrash { request: u64 },
+    Trash {
+        ids: Vec<String>,
+    },
+    DeletePermanently {
+        ids: Vec<String>,
+    },
+    CheckEmptyTrash {
+        request: u64,
+    },
     EmptyTrash,
-    Eject { id: String },
-    Arrange { by: ArrangeBy },
-    SetSnap { snap: bool },
+    Eject {
+        id: String,
+    },
+    Arrange {
+        by: ArrangeBy,
+    },
+    SetSnap {
+        snap: bool,
+    },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -152,15 +184,35 @@ pub enum Confirmation {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "kebab-case")]
 pub enum ProviderMessage {
-    Hello { major: u32, minor: u32 },
-    Snapshot { icons: Vec<DesktopIcon>, snap: bool, grid: GridSpec },
+    Hello {
+        major: u32,
+        minor: u32,
+    },
+    Snapshot {
+        icons: Vec<DesktopIcon>,
+        snap: bool,
+        grid: GridSpec,
+    },
     /// Upserts by id, then removals.
-    Changed { upsert: Vec<DesktopIcon>, removed: Vec<String> },
-    Snap { snap: bool },
-    ConfirmNeeded { request: u64, ids: Vec<String>, confirmation: Confirmation },
+    Changed {
+        upsert: Vec<DesktopIcon>,
+        removed: Vec<String>,
+    },
+    Snap {
+        snap: bool,
+    },
+    ConfirmNeeded {
+        request: u64,
+        ids: Vec<String>,
+        confirmation: Confirmation,
+    },
     /// A failed action, shown as a themed alert. `code` is stable:
     /// `version`, `busy`, `not-found`, `permission`, `exists`, `other`.
-    Error { code: String, message: String, ids: Vec<String> },
+    Error {
+        code: String,
+        message: String,
+        ids: Vec<String>,
+    },
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -183,7 +235,9 @@ pub fn read_line<T: for<'de> Deserialize<'de>>(input: &mut impl BufRead) -> io::
     if input.read_line(&mut line)? == 0 {
         return Ok(None);
     }
-    serde_json::from_str(line.trim_end()).map(Some).map_err(io::Error::other)
+    serde_json::from_str(line.trim_end())
+        .map(Some)
+        .map_err(io::Error::other)
 }
 
 /// True when a peer speaking `major` can talk to this version.

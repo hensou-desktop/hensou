@@ -39,7 +39,11 @@ fn entry(parent: &Location, name: &str, kind: EntryKind, size: Option<u64>, mime
         hidden: name.starts_with('.'),
         link_target: None,
         owner: Some("simonwjackson".into()),
-        mode: Some(if kind == EntryKind::Folder { 0o755 } else { 0o644 }),
+        mode: Some(if kind == EntryKind::Folder {
+            0o755
+        } else {
+            0o644
+        }),
         icon: icon(mime),
     }
 }
@@ -55,8 +59,20 @@ impl Default for FakeFiles {
             vec![
                 entry(&home, "Desktop", EntryKind::Folder, None, "folder"),
                 entry(&home, "Documents", EntryKind::Folder, None, "folder"),
-                entry(&home, "notes.txt", EntryKind::File, Some(2_048), "text-plain"),
-                entry(&home, "photo.jpg", EntryKind::File, Some(3_400_000), "image-jpeg"),
+                entry(
+                    &home,
+                    "notes.txt",
+                    EntryKind::File,
+                    Some(2_048),
+                    "text-plain",
+                ),
+                entry(
+                    &home,
+                    "photo.jpg",
+                    EntryKind::File,
+                    Some(3_400_000),
+                    "image-jpeg",
+                ),
                 entry(&home, ".profile", EntryKind::File, Some(220), "text-plain"),
                 Entry {
                     link_target: Some("/home/fixture/Documents".into()),
@@ -67,8 +83,20 @@ impl Default for FakeFiles {
         tree.insert(
             docs.clone(),
             vec![
-                entry(&docs, "report.pdf", EntryKind::File, Some(120_000), "application-pdf"),
-                entry(&docs, "archive.tar.gz", EntryKind::File, Some(9_000_000), "application-gzip"),
+                entry(
+                    &docs,
+                    "report.pdf",
+                    EntryKind::File,
+                    Some(120_000),
+                    "application-pdf",
+                ),
+                entry(
+                    &docs,
+                    "archive.tar.gz",
+                    EntryKind::File,
+                    Some(9_000_000),
+                    "application-gzip",
+                ),
             ],
         );
         tree.insert(
@@ -120,11 +148,23 @@ impl FakeFiles {
                 },
                 Entry {
                     location: Location::local("/run/media/fixture/USB"),
-                    ..entry(&root, "USB", EntryKind::Volume, Some(16_000_000_000), "drive-removable-media")
+                    ..entry(
+                        &root,
+                        "USB",
+                        EntryKind::Volume,
+                        Some(16_000_000_000),
+                        "drive-removable-media",
+                    )
                 },
                 Entry {
                     location: Location::virtual_place(Place::SshHosts),
-                    ..entry(&root, "SSH Hosts", EntryKind::SshHosts, None, "network-workgroup")
+                    ..entry(
+                        &root,
+                        "SSH Hosts",
+                        EntryKind::SshHosts,
+                        None,
+                        "network-workgroup",
+                    )
                 },
                 Entry {
                     location: Location::virtual_place(Place::Trash),
@@ -185,7 +225,8 @@ impl FilesService for FakeFiles {
                             prompt: HostKeyPrompt {
                                 host: name.clone(),
                                 algorithm: "ssh-ed25519".into(),
-                                fingerprint: "SHA256:fixtureFixtureFixtureFixtureFixture0000000".into(),
+                                fingerprint: "SHA256:fixtureFixtureFixtureFixtureFixture0000000"
+                                    .into(),
                             },
                         });
                         return;
@@ -258,7 +299,14 @@ impl FilesService for FakeFiles {
             }
             Command::LoadView { location } => {
                 let key = format!("{location:?}");
-                let view = self.state.lock().unwrap().views.get(&key).cloned().unwrap_or_default();
+                let view = self
+                    .state
+                    .lock()
+                    .unwrap()
+                    .views
+                    .get(&key)
+                    .cloned()
+                    .unwrap_or_default();
                 self.emit(Event::View {
                     request,
                     location,
@@ -266,7 +314,11 @@ impl FilesService for FakeFiles {
                 });
             }
             Command::SaveView { location, view } => {
-                self.state.lock().unwrap().views.insert(format!("{location:?}"), view);
+                self.state
+                    .lock()
+                    .unwrap()
+                    .views
+                    .insert(format!("{location:?}"), view);
                 self.emit(Event::Done { request });
             }
             Command::Eject { .. } => self.emit(Event::Error {
@@ -296,10 +348,29 @@ mod tests {
     fn unknown_host_asks_for_trust_before_listing() {
         let service = FakeFiles::default();
         let seen = collect(&service);
-        service.send(1, Command::List { location: Location::host("fuji", "/srv") });
-        assert!(matches!(seen.lock().unwrap().last(), Some(Event::HostKey { .. })));
-        service.send(2, Command::TrustHostKey { host: "fuji".into(), fingerprint: String::new() });
-        service.send(3, Command::List { location: Location::host("fuji", "/srv") });
+        service.send(
+            1,
+            Command::List {
+                location: Location::host("fuji", "/srv"),
+            },
+        );
+        assert!(matches!(
+            seen.lock().unwrap().last(),
+            Some(Event::HostKey { .. })
+        ));
+        service.send(
+            2,
+            Command::TrustHostKey {
+                host: "fuji".into(),
+                fingerprint: String::new(),
+            },
+        );
+        service.send(
+            3,
+            Command::List {
+                location: Location::host("fuji", "/srv"),
+            },
+        );
         assert!(matches!(
             seen.lock().unwrap().last(),
             Some(Event::Listing { request: 3, entries, .. }) if entries.len() == 1

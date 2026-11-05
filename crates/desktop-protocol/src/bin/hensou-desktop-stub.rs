@@ -28,7 +28,10 @@ fn icon(id: &str, kind: IconKind, label: &str, generic: &str, row: i32) -> Deskt
             kind: generic.into(),
             path: PathBuf::new(),
         },
-        position: Point { x: 16, y: 16 + row * GRID.cell_height as i32 },
+        position: Point {
+            x: 16,
+            y: 16 + row * GRID.cell_height as i32,
+        },
         available: true,
         reason: None,
         full: (kind == IconKind::Trash).then_some(true),
@@ -39,14 +42,45 @@ fn icon(id: &str, kind: IconKind, label: &str, generic: &str, row: i32) -> Deskt
 fn fixtures(theme: Theme) -> Vec<DesktopIcon> {
     let memphis = theme == Theme::Memphis;
     let mut icons = vec![
-        icon("computer", IconKind::Computer, if memphis { "My Computer" } else { "Myoko" }, "computer", 0),
-        icon("ssh-hosts", IconKind::SshHosts, if memphis { "Network Neighborhood" } else { "SSH Hosts" }, "folder", 1),
-        icon("trash", IconKind::Trash, if memphis { "Recycle Bin" } else { "Trash" }, "trash", 2),
+        icon(
+            "computer",
+            IconKind::Computer,
+            if memphis { "My Computer" } else { "Myoko" },
+            "computer",
+            0,
+        ),
+        icon(
+            "ssh-hosts",
+            IconKind::SshHosts,
+            if memphis {
+                "Network Neighborhood"
+            } else {
+                "SSH Hosts"
+            },
+            "folder",
+            1,
+        ),
+        icon(
+            "trash",
+            IconKind::Trash,
+            if memphis { "Recycle Bin" } else { "Trash" },
+            "trash",
+            2,
+        ),
         icon("file:notes.txt", IconKind::File, "notes.txt", "text", 3),
         icon("file:Projects", IconKind::Folder, "Projects", "folder", 4),
         DesktopIcon {
-            art: IconArt::Lettermark { letter: 'K', tint: "#3a6ea5".into() },
-            ..icon("file:krita.desktop", IconKind::Launcher, "Krita", "application", 5)
+            art: IconArt::Lettermark {
+                letter: 'K',
+                tint: "#3a6ea5".into(),
+            },
+            ..icon(
+                "file:krita.desktop",
+                IconKind::Launcher,
+                "Krita",
+                "application",
+                5,
+            )
         },
         icon("file:Docs link", IconKind::Alias, "Docs link", "folder", 6),
     ];
@@ -63,17 +97,24 @@ fn serve(stream: UnixStream, shared: Arc<Mutex<Shared>>) -> std::io::Result<()> 
     while let Some(message) = read_line::<ShellMessage>(&mut input)? {
         let reply = match message {
             ShellMessage::Hello { major, .. } if !compatible(major) => {
-                write_line(&mut out, &ProviderMessage::Error {
-                    code: "version".into(),
-                    message: format!("provider speaks {PROTOCOL_MAJOR}.x"),
-                    ids: vec![],
-                })?;
+                write_line(
+                    &mut out,
+                    &ProviderMessage::Error {
+                        code: "version".into(),
+                        message: format!("provider speaks {PROTOCOL_MAJOR}.x"),
+                        ids: vec![],
+                    },
+                )?;
                 return Ok(());
             }
-            ShellMessage::Hello { .. } => Some(ProviderMessage::Hello { major: PROTOCOL_MAJOR, minor: PROTOCOL_MINOR }),
+            ShellMessage::Hello { .. } => Some(ProviderMessage::Hello {
+                major: PROTOCOL_MAJOR,
+                minor: PROTOCOL_MINOR,
+            }),
             ShellMessage::Subscribe { theme, .. } => {
                 let mut s = shared.lock().unwrap();
-                let moved: Vec<(String, Point)> = s.icons.iter().map(|i| (i.id.clone(), i.position)).collect();
+                let moved: Vec<(String, Point)> =
+                    s.icons.iter().map(|i| (i.id.clone(), i.position)).collect();
                 let mut icons = fixtures(theme);
                 for icon in &mut icons {
                     if let Some((_, p)) = moved.iter().find(|(id, _)| *id == icon.id) {
@@ -81,7 +122,11 @@ fn serve(stream: UnixStream, shared: Arc<Mutex<Shared>>) -> std::io::Result<()> 
                     }
                 }
                 s.icons = icons.clone();
-                Some(ProviderMessage::Snapshot { icons, snap: s.snap, grid: GRID })
+                Some(ProviderMessage::Snapshot {
+                    icons,
+                    snap: s.snap,
+                    grid: GRID,
+                })
             }
             ShellMessage::Move { moves } => {
                 let mut s = shared.lock().unwrap();
@@ -92,11 +137,16 @@ fn serve(stream: UnixStream, shared: Arc<Mutex<Shared>>) -> std::io::Result<()> 
                         upsert.push(icon.clone());
                     }
                 }
-                Some(ProviderMessage::Changed { upsert, removed: vec![] })
+                Some(ProviderMessage::Changed {
+                    upsert,
+                    removed: vec![],
+                })
             }
             ShellMessage::CheckTrash { request, ids } => Some(ProviderMessage::ConfirmNeeded {
                 request,
-                confirmation: Confirmation::MoveToTrash { count: ids.len() as u32 },
+                confirmation: Confirmation::MoveToTrash {
+                    count: ids.len() as u32,
+                },
                 ids,
             }),
             ShellMessage::CheckEmptyTrash { request } => Some(ProviderMessage::ConfirmNeeded {
@@ -107,7 +157,10 @@ fn serve(stream: UnixStream, shared: Arc<Mutex<Shared>>) -> std::io::Result<()> 
             ShellMessage::Trash { ids } | ShellMessage::DeletePermanently { ids } => {
                 let mut s = shared.lock().unwrap();
                 s.icons.retain(|i| !ids.contains(&i.id));
-                Some(ProviderMessage::Changed { upsert: vec![], removed: ids })
+                Some(ProviderMessage::Changed {
+                    upsert: vec![],
+                    removed: ids,
+                })
             }
             ShellMessage::Eject { id } => Some(ProviderMessage::Error {
                 code: "busy".into(),
@@ -121,18 +174,29 @@ fn serve(stream: UnixStream, shared: Arc<Mutex<Shared>>) -> std::io::Result<()> 
             ShellMessage::Arrange { .. } => {
                 let mut s = shared.lock().unwrap();
                 for (row, icon) in s.icons.iter_mut().enumerate() {
-                    icon.position = Point { x: 16, y: 16 + row as i32 * GRID.cell_height as i32 };
+                    icon.position = Point {
+                        x: 16,
+                        y: 16 + row as i32 * GRID.cell_height as i32,
+                    };
                 }
-                Some(ProviderMessage::Changed { upsert: s.icons.clone(), removed: vec![] })
+                Some(ProviderMessage::Changed {
+                    upsert: s.icons.clone(),
+                    removed: vec![],
+                })
             }
             ShellMessage::Rename { id, name } => {
                 let mut s = shared.lock().unwrap();
                 s.icons.iter_mut().find(|i| i.id == id).map(|icon| {
                     icon.label = name;
-                    ProviderMessage::Changed { upsert: vec![icon.clone()], removed: vec![] }
+                    ProviderMessage::Changed {
+                        upsert: vec![icon.clone()],
+                        removed: vec![],
+                    }
                 })
             }
-            ShellMessage::Open { .. } | ShellMessage::Drop { .. } | ShellMessage::EmptyTrash => None,
+            ShellMessage::Open { .. } | ShellMessage::Drop { .. } | ShellMessage::EmptyTrash => {
+                None
+            }
         };
         if let Some(reply) = reply {
             write_line(&mut out, &reply)?;
@@ -153,7 +217,10 @@ fn main() -> std::io::Result<()> {
     let _ = std::fs::remove_file(&path);
     let listener = UnixListener::bind(&path)?;
     eprintln!("hensou-desktop-stub listening on {}", path.display());
-    let shared = Arc::new(Mutex::new(Shared { icons: Vec::new(), snap: false }));
+    let shared = Arc::new(Mutex::new(Shared {
+        icons: Vec::new(),
+        snap: false,
+    }));
     for stream in listener.incoming() {
         let stream = stream?;
         let shared = shared.clone();

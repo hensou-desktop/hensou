@@ -289,6 +289,51 @@ dependencies = [
 ]
 
 [[package]]
+name = "hensou-desktop"
+version = "0.1.0"
+dependencies = [
+ "hensou-desktop-protocol",
+ "hensou-files-model",
+]
+
+[[package]]
+name = "hensou-desktop-protocol"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "hensou-file-icons"
+version = "0.1.0"
+dependencies = [
+ "hensou-files-model",
+]
+
+[[package]]
+name = "hensou-files"
+version = "0.1.0"
+dependencies = [
+ "hensou-files-model",
+]
+
+[[package]]
+name = "hensou-files-core"
+version = "0.1.0"
+dependencies = [
+ "hensou-files-model",
+]
+
+[[package]]
+name = "hensou-files-model"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "hensou-qt-host"
 version = "0.1.0"
 dependencies = [
@@ -302,6 +347,20 @@ dependencies = [
 [[package]]
 name = "hensou-theme-state"
 version = "0.1.0"
+
+[[package]]
+name = "hensou-trash"
+version = "0.1.0"
+dependencies = [
+ "hensou-files-model",
+]
+
+[[package]]
+name = "hensou-volumes"
+version = "0.1.0"
+dependencies = [
+ "hensou-files-model",
+]
 
 [[package]]
 name = "hensou-xtask"
