@@ -5,6 +5,8 @@ import QtQuick
 QtObject {
     id: root
     property string name: "platinum"
+    // Empty preserves mode-only hosts. Persistence and mode derivation belong to the host.
+    property string appearance: ""
     property string mode: "dark"
     property string extraState: "off"
     readonly property bool dark: mode !== "light"

@@ -32,6 +32,7 @@ pub mod qml {
         #[qml_singleton]
         #[qproperty(QString, name)]
         #[qproperty(QString, mode)]
+        #[qproperty(QString, appearance)]
         #[qproperty(QString, extra_state, cxx_name = "extraState")]
         type HostTheme = super::HostThemeRust;
 
@@ -47,7 +48,8 @@ pub struct HostThemeRust {
     mode: QString,
     extra_state: QString,
     directory: PathBuf,
-    appearance: Appearance,
+    state: Appearance,
+    appearance: QString,
 }
 
 impl Default for HostThemeRust {
@@ -63,19 +65,21 @@ impl Default for HostThemeRust {
             mode: QString::from("dark"),
             extra_state: QString::from("off"),
             directory: base.join("mountainous"),
-            appearance: Appearance::default(),
+            state: Appearance::default(),
+            appearance: QString::from("dark-grey"),
         }
     }
 }
 
 impl qml::HostTheme {
     pub fn reload(mut self: Pin<&mut Self>) {
-        let next = self.rust().appearance.read(&self.rust().directory);
+        let next = self.rust().state.read(&self.rust().directory);
         self.as_mut().set_name(QString::from(next.name));
         self.as_mut().set_mode(QString::from(next.mode));
         self.as_mut()
             .set_extra_state(QString::from(next.extra_state));
-        self.rust_mut().appearance = next;
+        self.as_mut().set_appearance(QString::from(next.appearance));
+        self.rust_mut().state = next;
     }
 }
 

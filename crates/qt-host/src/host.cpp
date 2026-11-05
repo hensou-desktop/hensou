@@ -75,7 +75,7 @@ void watch_theme(HostTheme &theme, const QString &directory) {
         wanted << ancestor;
         if (QDir(directory).exists()) {
             wanted << directory;
-            for (const auto &name : {"theme-name", "theme", "theme-extra"}) {
+            for (const auto &name : {"theme-name", "theme", "theme-extra", "theme-appearance"}) {
                 const auto path = directory + '/' + name;
                 if (QFileInfo::exists(path)) wanted << path;
             }
