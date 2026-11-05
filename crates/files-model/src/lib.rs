@@ -15,7 +15,7 @@ use std::path::PathBuf;
 pub type RequestId = u64;
 
 /// Where a location lives.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "kebab-case")]
 pub enum Place {
     /// The Computer window: Home, volumes, SSH Hosts and the Trash.
@@ -32,7 +32,7 @@ pub enum Place {
 
 /// A folder or file inside a place. `path` is absolute for `Local` and `Host`
 /// and empty for the virtual places.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Location {
     pub place: Place,
     pub path: PathBuf,
