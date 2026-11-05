@@ -93,14 +93,14 @@ pub fn cells(s: &ScreenLayout) -> Vec<Point> {
 pub fn first(cells: &[Point], used: &[Point], screen: &ScreenLayout) -> Point {
     cells
         .iter()
-        .find(|p| !used.contains(p))
+        .find(|p| !occupied(**p, used))
         .copied()
         .unwrap_or_else(|| overflow(cells, used, screen))
 }
 pub fn nearest(cells: &[Point], used: &[Point], point: Point, screen: &ScreenLayout) -> Point {
     cells
         .iter()
-        .filter(|p| !used.contains(p))
+        .filter(|p| !occupied(**p, used))
         .min_by_key(|p| {
             let x = i64::from(p.x) - i64::from(point.x);
             let y = i64::from(p.y) - i64::from(point.y);
@@ -138,4 +138,9 @@ fn overflow(cells: &[Point], used: &[Point], screen: &ScreenLayout) -> Point {
         x: screen.usable.x + (wrapped % i64::from(screen.usable.width)) as i32,
         y: screen.usable.y + (wrapped % i64::from(screen.usable.height)) as i32,
     }
+}
+
+fn occupied(cell: Point, used: &[Point]) -> bool {
+    used.iter().any(|p| (i64::from(p.x) - i64::from(cell.x)).abs() < i64::from(GRID.cell_width)
+        && (i64::from(p.y) - i64::from(cell.y)).abs() < i64::from(GRID.cell_height))
 }

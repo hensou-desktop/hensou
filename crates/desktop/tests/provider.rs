@@ -331,6 +331,7 @@ fn no_writable_trash_requires_permanent_confirmation() {
 fn overflow_cascades_without_dropping_icons() {
     let h = Harness::new();
     let _server = h.start();
+    for name in ["a", "b", "c", "d", "e", "f"] { std::fs::write(h.dir.path().join("Desktop").join(name), "data").unwrap(); }
     let mut c = h.client();
     c.send(ShellMessage::Subscribe {
         theme: Theme::Memphis,
@@ -350,13 +351,19 @@ fn overflow_cascades_without_dropping_icons() {
     let ProviderMessage::Snapshot { icons, .. } = c.read() else {
         panic!("expected snapshot");
     };
-    assert_eq!(icons.len(), 3);
+    assert_eq!(icons.len(), 9);
     assert_eq!(
         icons.iter().map(|i| i.position).collect::<Vec<_>>(),
         [
             Point { x: 0, y: 0 },
             Point { x: 12, y: 12 },
-            Point { x: 24, y: 24 }
+            Point { x: 24, y: 24 },
+            Point { x: 36, y: 36 },
+            Point { x: 48, y: 48 },
+            Point { x: 60, y: 60 },
+            Point { x: 6, y: 6 },
+            Point { x: 18, y: 18 },
+            Point { x: 30, y: 30 }
         ]
     );
 }

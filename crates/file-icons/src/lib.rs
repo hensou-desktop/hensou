@@ -87,7 +87,7 @@ impl ThemeIcons {
                         // A theme may alias art; do not allow a symlink into forbidden sets.
                         if let Ok(real) = path.canonicalize()
                             && !real.components().any(|c| {
-                                matches!(c.as_os_str().to_str(), Some("hicolor" | "Adwaita"))
+                                matches!(c.as_os_str().to_string_lossy().to_ascii_lowercase().as_str(), "hicolor" | "adwaita")
                             })
                         {
                             return Some(path);
