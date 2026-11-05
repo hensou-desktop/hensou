@@ -26,11 +26,21 @@ Window {
     width: frameWidth
     readonly property real wantedHeight: Math.max(80, frame.item ? Math.ceil(frame.item.implicitHeight) : 160)
     height: wantedHeight
+    onHeightChanged: console.log("FILES_ALERT height", height, "wanted", wantedHeight, "dpr", metrics.devicePixelRatio, "width", width)
+    onWantedHeightChanged: console.log("FILES_ALERT wanted", wantedHeight, "height", height, "dpr", metrics.devicePixelRatio)
     minimumWidth: frameWidth
     maximumWidth: frameWidth
 
     // Escape always answers with the cancel action, wherever focus is.
     Shortcut { sequence: "Escape"; onActivated: root.choose(root.spec.cancelAction) }
+    // Return runs the focused button in Memphis, the default one in Platinum.
+    Shortcut {
+        sequences: ["Return", "Enter"]
+        onActivated: {
+            const focused = frame.item ? frame.item.focusedAction() : "";
+            root.choose(root.win98 && focused !== "" ? focused : root.spec.defaultAction);
+        }
+    }
     function present() {
         show();
         raise();
@@ -56,14 +66,6 @@ Window {
         Accessible.role: Accessible.AlertMessage
         Accessible.name: root.spec.message
         focus: true
-        Keys.onPressed: function(event) {
-            if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter)) {
-                // Return runs the focused button in Memphis, the default in Platinum.
-                const focused = frame.item ? frame.item.focusedAction() : "";
-                root.choose(root.win98 && focused !== "" ? focused : root.spec.defaultAction);
-            } else return;
-            event.accepted = true;
-        }
         Loader {
             id: frame
             width: parent.width

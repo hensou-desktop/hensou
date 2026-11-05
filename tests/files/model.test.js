@@ -167,11 +167,12 @@ for (const [h, shown] of [[219, false], [220, true], [221, true]]) assert.equal(
 for (const [h, shown] of [[249, false], [250, true]]) assert.equal(Plan.folderPlan("win98", 600, h).address, shown);
 assert.equal(Plan.folderPlan("win98", 600, 140, { addressForced: true }).address, true);
 for (const [h, shown] of [[169, false], [170, true]]) assert.equal(Plan.folderPlan("platinum", 600, h).status, shown);
-deepEqual(plain(Plan.listColumns(150 + 170 - 1)), []);
-deepEqual(plain(Plan.listColumns(150 + 170)), ["modified"]);
-deepEqual(plain(Plan.listColumns(150 + 170 + 80)), ["modified", "size"]);
-deepEqual(plain(Plan.listColumns(150 + 170 + 80 + 130 - 1)), ["modified", "size"]);
-deepEqual(plain(Plan.listColumns(150 + 170 + 80 + 130)), ["modified", "size", "kind"]);
+deepEqual(plain(Plan.listColumns(150 + 190 - 1)), []);
+deepEqual(plain(Plan.listColumns(150 + 190)), ["modified"]);
+deepEqual(plain(Plan.listColumns(150 + 190 + 90)), ["modified", "size"]);
+deepEqual(plain(Plan.listColumns(150 + 190 + 90 + 140 - 1)), ["modified", "size"]);
+deepEqual(plain(Plan.listColumns(150 + 190 + 90 + 140)), ["modified", "size", "kind"]);
+assert.equal(Plan.columnWidth("size"), 90);
 // Groups move whole; something always overflows behind one control.
 assert.equal(Plan.fit([40, 40, 40, 40], 160, 20), 4);
 assert.equal(Plan.fit([40, 40, 40, 40], 159, 20), 3);

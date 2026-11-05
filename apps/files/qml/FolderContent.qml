@@ -25,7 +25,12 @@ FocusScope {
         const order = win98 ? ["size", "kind", "modified"] : ["modified", "size", "kind"];
         return order.filter(function(c) { return shown.indexOf(c) >= 0; });
     }
-    readonly property var columnWidths: ({ modified: win98 ? 120 * u : 170, size: win98 ? 64 * u : 80, kind: win98 ? 100 * u : 130 })
+    // Platinum takes the plan's widths; Memphis keeps them on its unit grid.
+    readonly property var columnWidths: ({
+        modified: win98 ? Win98Tokens.snap(LayoutPlan.columnWidth("modified"), u) : LayoutPlan.columnWidth("modified"),
+        size: win98 ? Win98Tokens.snap(LayoutPlan.columnWidth("size"), u) : LayoutPlan.columnWidth("size"),
+        kind: win98 ? Win98Tokens.snap(LayoutPlan.columnWidth("kind"), u) : LayoutPlan.columnWidth("kind")
+    })
     readonly property real rowHeight: win98 ? 18 * u : 20
     readonly property real columnsWidth: columns.reduce(function(sum, c) { return sum + columnWidths[c]; }, 0)
     readonly property Flickable flick: viewLoader.item ? viewLoader.item.flick : null

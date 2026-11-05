@@ -16,9 +16,9 @@ var ADDRESS_MIN_HEIGHT = 250;  // Memphis address row
 var STATUS_MIN_HEIGHT = 170;   // status bar / Platinum header strip
 var NAME_MIN = 150;            // the list's name column never goes below
 var COLUMNS = [                // yield order: the last one goes first
-    { id: "modified", width: 170 },
-    { id: "size", width: 80 },
-    { id: "kind", width: 130 }
+    { id: "modified", width: 190 },
+    { id: "size", width: 90 },
+    { id: "kind", width: 140 }
 ];
 var SIDE_BY_SIDE = 760;        // transfers beside working copies
 
@@ -64,6 +64,11 @@ function fit(widths, room, overflowWidth) {
         used += widths[j];
     }
     return widths.length;
+}
+
+function columnWidth(id) {
+    for (var i = 0; i < COLUMNS.length; i++) if (COLUMNS[i].id === id) return COLUMNS[i].width;
+    return 0;
 }
 
 // Icon grid: cells per row from the width, never fewer than one.
