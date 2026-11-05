@@ -67,3 +67,11 @@ Periwinkle is reserved for comms, so no app block uses it.
 `desktop/ReaderPage.qml` mocks what an extension content script could do to
 an article: contents from its headings, LCARS headings and code boxes, body
 in a readable face. The origin stays in the shell's top bar.
+
+## Pass 4: shell sweep (`shell/`, `INVENTORY.md`)
+
+`INVENTORY.md` maps every live desktop item (Mountainous `cairn` 8c225385)
+to an LCARS form. `shell/render.sh` renders 17 states at Myoko's logical
+1920×1200: calm, warn, chord, system, sound, wifi, layout, find, switch,
+glance, dictation, notify, unread, critical, shutdown, dual, small.
+The web theme is postponed: pages render untouched.

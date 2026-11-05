@@ -7,6 +7,7 @@ import "../tokens.js" as T
 Rectangle {
     id: page
     property string fam: ""
+    property bool themed: true   // false: the web theme is postponed, pages are untouched
     color: "#ffffff"
     clip: true
 
@@ -32,12 +33,12 @@ Rectangle {
             spacing: 8
             // Form controls: the part web.css themes. Pill field and pill button.
             Rectangle {
-                width: 300; height: 36; radius: 18; color: "#000000"; border.color: T.lilac; border.width: 2
-                Text { x: 18; anchors.verticalCenter: parent.verticalCenter; text: "noborder"; color: T.peach; font.family: page.fam; font.pixelSize: 18 }
+                width: 300; height: 36; radius: page.themed ? 18 : 4; color: page.themed ? "#000000" : "#ffffff"; border.color: page.themed ? T.lilac : "#8c959f"; border.width: page.themed ? 2 : 1
+                Text { x: 18; anchors.verticalCenter: parent.verticalCenter; text: "noborder"; color: page.themed ? T.peach : "#1f2328"; font.family: page.themed ? page.fam : "sans-serif"; font.pixelSize: page.themed ? 18 : 15 }
             }
             Rectangle {
-                width: 110; height: 36; color: T.sunset; topRightRadius: 18; bottomRightRadius: 18
-                Text { anchors.right: parent.right; anchors.rightMargin: 18; anchors.bottom: parent.bottom; anchors.bottomMargin: 4; text: "SEARCH"; color: T.space; font.family: page.fam; font.pixelSize: 17 }
+                width: 110; height: 36; color: page.themed ? T.sunset : "#1f883d"; topRightRadius: page.themed ? 18 : 6; bottomRightRadius: page.themed ? 18 : 6; topLeftRadius: page.themed ? 0 : 6; bottomLeftRadius: page.themed ? 0 : 6
+                Text { anchors.right: parent.right; anchors.rightMargin: 18; anchors.bottom: parent.bottom; anchors.bottomMargin: 4; text: page.themed ? "SEARCH" : "Search"; color: page.themed ? T.space : "#ffffff"; font.family: page.themed ? page.fam : "sans-serif"; font.pixelSize: page.themed ? 17 : 15 }
             }
         }
         Rectangle {
@@ -55,6 +56,6 @@ Rectangle {
     // LCARS scroll bar from web.css.
     Rectangle {
         anchors.right: parent.right; anchors.rightMargin: 3; y: 60; width: 10; height: parent.height - 66; radius: 5; color: "#e9e1d8"
-        Rectangle { width: 10; height: parent.height * 0.3; y: parent.height * 0.08; radius: 5; color: T.sunset }
+        Rectangle { width: 10; height: parent.height * 0.3; y: parent.height * 0.08; radius: 5; color: page.themed ? T.sunset : "#8c959f" }
     }
 }

@@ -1,5 +1,5 @@
 {
-  "title": "LCARS spike: desktop and Files",
+  "title": "LCARS spike: shell sweep, desktop and Files",
   "sizes": [
     {
       "label": "Large 1440×900",
@@ -24,11 +24,123 @@
   ],
   "pages": [
     {
-      "id": "desk-normal",
-      "group": "Desktop pass 2",
-      "title": "Desktop: working, no title bars",
-      "caption": "The shell draws the frame; apps tile inside with no title bars. The arm is the window list (focused = gold). The top bar holds pages, the focused window’s full title and the clock. Black apps get a dim 2 px Hyprland border; the focused one gets gold.",
-      "src": "desktop-normal.png"
+      "id": "sw-calm",
+      "group": "Shell sweep",
+      "title": "Calm: the whole frame",
+      "caption": "Top elbow = system menu (host name). Top bar = focused window title, then the live bar's controls as segments (Layout, BT, Wi-Fi, Vol, Bri, Cloud, Disks, Fleet, Builds, Comms), clock, battery cap. Arm = every window on this screen, page dividers without numbers. Values stay hidden while calm, as on the live bar.",
+      "src": "shell-calm.png"
+    },
+    {
+      "id": "sw-warn",
+      "group": "Shell sweep",
+      "title": "Warnings on the bar",
+      "caption": "Disks, Fleet and Builds show their values in gold or red; Cloud moved to More 1 because the bar ran out of room (same overflow order as the live bar). Battery at 9% turns the cap red.",
+      "src": "shell-warn.png"
+    },
+    {
+      "id": "sw-chord",
+      "group": "Shell sweep",
+      "title": "Super+O chord",
+      "caption": "Each segment shows its key letter; the bottom bar lists the keys and what they open.",
+      "src": "shell-chord.png"
+    },
+    {
+      "id": "sw-system",
+      "group": "Shell sweep",
+      "title": "System menu (the elbow)",
+      "caption": "The Apple menu / Start menu: about Myoko, control panels, recent apps, Find, and session actions, ending in red Shut down.",
+      "src": "shell-system.png"
+    },
+    {
+      "id": "sw-sound",
+      "group": "Shell sweep",
+      "title": "Sound panel",
+      "caption": "Menus grow down out of their segment: the segment's gold runs down the left and turns along the bottom. Level as LCARS blocks.",
+      "src": "shell-sound.png"
+    },
+    {
+      "id": "sw-wifi",
+      "group": "Shell sweep",
+      "title": "Wi-Fi panel",
+      "caption": "Networks by strength, the password inline under the chosen one, the last failure said in full.",
+      "src": "shell-wifi.png"
+    },
+    {
+      "id": "sw-layout",
+      "group": "Shell sweep",
+      "title": "Layout panel",
+      "caption": "This page or Default; tiled or floating; windows per page; outer gap; zen margins.",
+      "src": "shell-layout.png"
+    },
+    {
+      "id": "sw-find",
+      "group": "Shell sweep",
+      "title": "Find (Super+P)",
+      "caption": "One console for the omni lists; scopes sit in its arm with their keys.",
+      "src": "shell-find.png"
+    },
+    {
+      "id": "sw-switch",
+      "group": "Shell sweep",
+      "title": "Super+Tab (apps)",
+      "caption": "The live shell cycles apps, not windows. The target app's windows list under it, with where they are, never a page number.",
+      "src": "shell-switch.png"
+    },
+    {
+      "id": "sw-glance",
+      "group": "Shell sweep",
+      "title": "Glance space (Super+W)",
+      "caption": "Work recedes under a grid; Fleet and Disks stand on it. Fleet hosts with CPU, memory and disk as block levels.",
+      "src": "shell-glance.png"
+    },
+    {
+      "id": "sw-dictation",
+      "group": "Shell sweep",
+      "title": "Dictation (Right Alt)",
+      "caption": "The arm's filler turns red and the voice level climbs it; the bottom bar says where the text will go.",
+      "src": "shell-dictation.png"
+    },
+    {
+      "id": "sw-notify",
+      "group": "Shell sweep",
+      "title": "A message arrives",
+      "caption": "The comms block grows out of the arm, right under the window list.",
+      "src": "shell-notify.png"
+    },
+    {
+      "id": "sw-unread",
+      "group": "Shell sweep",
+      "title": "Unread, folded",
+      "caption": "After 7 s it folds back into a counted block in the arm.",
+      "src": "shell-unread.png"
+    },
+    {
+      "id": "sw-critical",
+      "group": "Shell sweep",
+      "title": "Critical",
+      "caption": "The whole frame goes red; the title segment says what is wrong.",
+      "src": "shell-critical.png"
+    },
+    {
+      "id": "sw-shutdown",
+      "group": "Shell sweep",
+      "title": "Shut down?",
+      "caption": "Session confirmation in red; Cancel is the default and the first block.",
+      "src": "shell-shutdown.png"
+    },
+    {
+      "id": "sw-dual",
+      "group": "Shell sweep",
+      "title": "Portable monitor above, laptop below",
+      "caption": "Each screen gets a full frame and only its own windows, like the live bar on each Desktop.",
+      "src": "shell-dual.png"
+    },
+    {
+      "id": "sw-small",
+      "group": "Shell sweep",
+      "title": "1280×800 (tablet size)",
+      "caption": "The bar keeps Layout, BT, Wi-Fi, Vol, Bri and Comms; four controls move into More 4.",
+      "src": "shell-small.png"
     },
     {
       "id": "notif-low",
@@ -57,34 +169,6 @@
       "title": "Critical: the frame goes red",
       "caption": "Critical turns the whole frame to alert red and the block stays out until acknowledged. The top bar says what is wrong.",
       "src": "desktop-critical.png"
-    },
-    {
-      "id": "ext-reader",
-      "group": "Browser extension",
-      "title": "Extension: LCARS reading view",
-      "caption": "What a content script could do to an article: contents from the page's headings, LCARS headings and code boxes, body kept in a readable face. The origin shows in the shell's top bar, which a page cannot fake.",
-      "src": "desktop-reader.png"
-    },
-    {
-      "id": "desk-switch",
-      "group": "Desktop pass 2",
-      "title": "Desktop: Super+Tab",
-      "caption": "Every window on every page and screen, most recent first. The page or screen sits in the small block; the title gets the width.",
-      "src": "desktop-switch.png"
-    },
-    {
-      "id": "desk-dual",
-      "group": "Desktop pass 2",
-      "title": "Desktop: laptop and tablet",
-      "caption": "Each screen gets its own frame and window list. Only the laptop shows the clock and readouts, so nothing is shown twice.",
-      "src": "desktop-dual.png"
-    },
-    {
-      "id": "desk-small",
-      "group": "Desktop pass 2",
-      "title": "Desktop: 1280×800",
-      "caption": "Same frame on a smaller screen. The arm and bars shrink; the Files tile drops its size column.",
-      "src": "desktop-small.png"
     },
     {
       "id": "A",
