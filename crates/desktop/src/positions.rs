@@ -41,7 +41,12 @@ impl Positions {
                 .or_else(|| self.latest.get(&icon.id))
                 .copied();
             let position = match old {
-                Some(p) if inside(screen, p) || (used.len() >= cells.len() && origin_inside(screen, p)) => p,
+                Some(p)
+                    if inside(screen, p)
+                        || (used.len() >= cells.len() && origin_inside(screen, p)) =>
+                {
+                    p
+                }
                 Some(p) => nearest(&cells, &used, p, screen),
                 None => first(&cells, &used, screen),
             };
@@ -106,7 +111,8 @@ pub fn nearest(cells: &[Point], used: &[Point], point: Point, screen: &ScreenLay
 }
 
 fn origin_inside(s: &ScreenLayout, p: Point) -> bool {
-    i64::from(p.x) >= i64::from(s.usable.x) && i64::from(p.y) >= i64::from(s.usable.y)
+    i64::from(p.x) >= i64::from(s.usable.x)
+        && i64::from(p.y) >= i64::from(s.usable.y)
         && i64::from(p.x) < i64::from(s.usable.x) + i64::from(s.usable.width)
         && i64::from(p.y) < i64::from(s.usable.y) + i64::from(s.usable.height)
 }
@@ -119,8 +125,17 @@ fn overflow(cells: &[Point], used: &[Point], screen: &ScreenLayout) -> Point {
     let y = i64::from(last.y) + offset;
     let right = i64::from(screen.usable.x) + i64::from(screen.usable.width);
     let bottom = i64::from(screen.usable.y) + i64::from(screen.usable.height);
-    if x < right && y < bottom { return Point { x: x as i32, y: y as i32 }; }
-    let capacity = ((right - i64::from(last.x) - 1).min(bottom - i64::from(last.y) - 1) / 12).max(0);
+    if x < right && y < bottom {
+        return Point {
+            x: x as i32,
+            y: y as i32,
+        };
+    }
+    let capacity =
+        ((right - i64::from(last.x) - 1).min(bottom - i64::from(last.y) - 1) / 12).max(0);
     let wrapped = 6 + (n - capacity - 1) * 12;
-    Point { x: screen.usable.x + (wrapped % i64::from(screen.usable.width)) as i32, y: screen.usable.y + (wrapped % i64::from(screen.usable.height)) as i32 }
+    Point {
+        x: screen.usable.x + (wrapped % i64::from(screen.usable.width)) as i32,
+        y: screen.usable.y + (wrapped % i64::from(screen.usable.height)) as i32,
+    }
 }

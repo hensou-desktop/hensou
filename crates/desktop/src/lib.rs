@@ -151,7 +151,8 @@ impl DesktopProvider {
         let mut watcher =
             notify::recommended_watcher(move |event: notify::Result<notify::Event>| {
                 if event.is_ok_and(|event| !matches!(event.kind, notify::EventKind::Access(_)))
-                    && let Some(provider) = weak.upgrade() {
+                    && let Some(provider) = weak.upgrade()
+                {
                     provider.refresh();
                 }
             })
@@ -180,8 +181,18 @@ impl DesktopProvider {
                     Err(_) => break,
                 }
             }
-            for session in provider.sessions.lock().unwrap().iter().filter_map(Weak::upgrade) {
-                let _ = session.out.lock().unwrap().shutdown(std::net::Shutdown::Both);
+            for session in provider
+                .sessions
+                .lock()
+                .unwrap()
+                .iter()
+                .filter_map(Weak::upgrade)
+            {
+                let _ = session
+                    .out
+                    .lock()
+                    .unwrap()
+                    .shutdown(std::net::Shutdown::Both);
             }
         });
         Ok(ProviderHandle {
@@ -300,7 +311,8 @@ impl DesktopProvider {
                 error,
             } => {
                 if let Some((session, ids)) = self.pending.lock().unwrap().remove(&request)
-                    && let Some(session) = session.upgrade() {
+                    && let Some(session) = session.upgrade()
+                {
                     let _ = send(&session, &protocol_error(error, ids));
                 }
             }
@@ -318,7 +330,8 @@ impl DesktopProvider {
                     let pending = self.pending.lock().unwrap().remove(&transfer.id);
                     if let hensou_files_model::TransferState::Failed { reason } = &transfer.state
                         && let Some((session, ids)) = pending
-                        && let Some(session) = session.upgrade() {
+                        && let Some(session) = session.upgrade()
+                    {
                         let _ = send(&session, &protocol_error(other(reason), ids));
                     }
                     self.refresh();

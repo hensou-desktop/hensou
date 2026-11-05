@@ -101,7 +101,9 @@ impl VolumeMonitor for UdisksVolumes {
             .ok_or(FilesError::NotFound)?;
         self.state.backend.unmount(volume_id).map_err(|e| match e {
             FilesError::VolumeBusy { mut holders } => {
-                if holders.is_empty() && let Some(path) = &device.volume.mount_point {
+                if holders.is_empty()
+                    && let Some(path) = &device.volume.mount_point
+                {
                     holders = process_holders(path);
                 }
                 FilesError::VolumeBusy { holders }
