@@ -35,10 +35,7 @@ fn record_path(local: &Path) -> PathBuf {
 }
 
 fn persist(engine: &Engine, copy: &Copy) -> Result<(), FilesError> {
-    atomic_json(
-        &record_path(&copy.view.local),
-        copy,
-    )?;
+    atomic_json(&record_path(&copy.view.local), copy)?;
     engine.bus.emit(Event::WorkingCopy {
         copy: copy.view.clone(),
     });
@@ -253,14 +250,9 @@ pub(crate) fn stop(engine: &Engine, remote: &Location) -> Result<(), FilesError>
     // Retain unuploaded bytes even when explicitly stopping the watch.
     if !copy.dirty && stamp(&copy.view.local)? == copy.local_stamp {
         fs::remove_file(&copy.view.local).map_err(error)?;
-        fs::remove_file(
-            record_path(&copy.view.local),
-        )
-        .map_err(error)?;
+        fs::remove_file(record_path(&copy.view.local)).map_err(error)?;
     }
-    let _ = fs::remove_file(
-        record_path(&copy.view.local),
-    );
+    let _ = fs::remove_file(record_path(&copy.view.local));
     copies.remove(remote);
     engine.bus.emit(Event::WorkingCopyRemoved {
         remote: remote.clone(),
@@ -291,10 +283,7 @@ pub(crate) fn resolve(
         }
         RemoteChangeChoice::KeepRemote => {
             // Keep the user's unsent local bytes as an unwatched copy.
-            fs::remove_file(
-                record_path(&copy.view.local),
-            )
-            .map_err(error)?;
+            fs::remove_file(record_path(&copy.view.local)).map_err(error)?;
             copies.remove(remote);
             engine.bus.emit(Event::WorkingCopyRemoved {
                 remote: remote.clone(),
